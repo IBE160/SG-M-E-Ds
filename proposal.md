@@ -103,3 +103,109 @@ AI Escape Room 
 - Multiple rooms and puzzles can be added in later versions.  
 
  
+### User Flow
+## Player / Student Flow (Singleplayer)
+
+# Login / Access
+
+The player starts the application and logs in with their account (or plays as a guest).
+
+The system checks for existing save files and displays the main menu with options:
+
+Continue Game → Resume last session from “My Games.”
+
+New Game → Start a new escape room experience.
+
+History → View past playthroughs and performance logs.
+
+# New Game Setup
+
+When starting a new game, the player customizes preferences before the game begins:
+
+Theme: Choose between Scary, Mystery, Futuristic, or Classic.
+
+Difficulty: Normal or Assist (affects hint frequency and puzzle complexity). Can choose the difficulty: easy, normal, hard
+
+Once preferences are confirmed, the game initializes the first room (JSON state created and stored).
+
+# Introduction
+
+The AI presents the setting and context of the escape room.
+
+Example:
+“You wake up in a dimly lit laboratory. A single locked door stands before you. You need to find a way out.”
+
+The interface briefly explains how to interact (e.g., supported commands and how to request hints).
+
+# Exploration & Interaction
+
+The player interacts exclusively through text commands such as:
+look around, examine desk, take key, use key on door, read note.
+
+The command parser validates inputs and updates the game state (inventory, puzzles, flags).
+
+The AI generates context-aware responses and dynamic room descriptions after each action.
+
+# Puzzle Solving
+
+The player investigates objects, collects clues, and solves at least three core puzzles (e.g., keypad, riddle, hidden mechanism).
+
+Each puzzle has a defined state (solved: true/false) stored in the JSON game state.
+
+If the player is stuck, they can use the hint command to receive AI-generated guidance (two-tier hint system: gentle → explicit).
+
+# Saving & Loading
+
+The player can manually type save or the system autosaves progress at checkpoints (after solving a puzzle or unlocking a new item).
+
+Saved games are accessible from My Games in the main menu, allowing players to continue later.
+
+# Winning & Completion
+
+Once all required puzzles are solved, the player unlocks the final door.
+
+The AI narrates the escape sequence and displays a summary:
+
+Puzzles solved, moves taken, time spent, and hints used.
+
+The player can then:
+
+Replay with a new theme, or
+
+Return to Main Menu to view their history.
+
+## Teacher / Instructor Flow (Observer Role)
+
+# Access / Setup
+
+The instructor logs into an admin or observer account.
+
+They can predefine which theme or puzzle configuration the students will use for classroom sessions.
+
+Teachers may choose to lock the difficulty level or enable/disable hints for assessment purposes.
+
+# Monitoring / Observation
+
+During gameplay, the instructor can observe progress through a summary dashboard or exported logs (e.g., via Supabase or local JSON):
+
+Number of moves
+
+Puzzles solved
+
+Hints requested
+
+Completion time
+
+The instructor does not participate in gameplay.
+
+# Reflection & Learning Discussion
+
+After the session, teachers review gameplay logs with students to discuss:
+
+Logical reasoning and problem-solving steps
+
+Efficiency (fewest moves or minimal hints)
+
+How AI-generated hints supported the learning experience
+
+Logs can optionally be exported (CSV/JSON) for documentation or analysis
