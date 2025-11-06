@@ -21,8 +21,8 @@ PHASE_4_COMPLETE: false
 
 ## Next Action
 
-NEXT_ACTION: Formalize product vision and strategy
-NEXT_COMMAND: product-brief
+NEXT_ACTION: Conduct research
+NEXT_COMMAND: research
 NEXT_AGENT: analyst
 
 ## Story Backlog
