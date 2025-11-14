@@ -29,33 +29,318 @@
 
 ---
 
-<!-- Repeat for each epic (N = 1, 2, 3...) -->
+## Epic 1: Foundational Framework & A Single, Static Escape Room
 
-## Epic {{N}}: {{epic_title_N}}
+**Goal:** Build a robust technical foundation and a complete, testable, end-to-end user experience with a *single, hard-coded* story and puzzle chain.
 
-{{epic_goal_N}}
+### Story 1.1: Project Initialization and Deployment Setup
 
-<!-- Repeat for each story (M = 1, 2, 3...) within epic N -->
-
-### Story {{N}}.{{M}}: {{story_title_N_M}}
-
-As a {{user_type}},
-I want {{capability}},
-So that {{value_benefit}}.
+As a developer,
+I want to initialize the project structure and set up a basic deployment pipeline,
+So that we have a foundation for building and deploying the game.
 
 **Acceptance Criteria:**
 
-**Given** {{precondition}}
-**When** {{action}}
-**Then** {{expected_outcome}}
+**Given** a new project,
+**When** the initialization script is run,
+**Then** a standard project structure (e.g., `src`, `docs`, `tests`) is created.
+**And** a basic `README.md` is generated with setup instructions.
+**And** a simple "Hello World" version of the application can be automatically built and deployed to a free-tier cloud service (e.g., GitHub Pages, Vercel, Heroku).
 
-**And** {{additional_criteria}}
+**Prerequisites:** None.
 
-**Prerequisites:** {{dependencies_on_previous_stories}}
+**Technical Notes:** This will involve setting up the git repository, choosing a programming language and framework (e.g., Python with Flask/FastAPI, or Node.js with Express), and creating a simple CI/CD pipeline using GitHub Actions or similar.
 
-**Technical Notes:** {{implementation_guidance}}
+### Story 1.2: Implement Basic Game State Management
 
-<!-- End story repeat -->
+As a developer,
+I want to implement a basic game state management system,
+So that we can track the player's progress through the escape room.
+
+**Acceptance Criteria:**
+
+**Given** a new game is started,
+**When** the player moves from "Room 1" to "Room 2",
+**Then** the game state object is updated to `{'current_room': 'Room 2'}`.
+**And** when the player interacts with the "key" in "Room 2",
+**Then** the game state object is updated to `{'inventory': ['key']}`.
+
+**Prerequisites:** Story 1.1
+
+**Technical Notes:** This could be a simple in-memory object or a more sophisticated state management library, depending on the chosen framework.
+
+### Story 1.3: Create a Static, Hard-coded Escape Room
+
+As a game designer,
+I want to create a single, hard-coded escape room with a few rooms and puzzles,
+So that we have a complete, playable experience to test the core mechanics.
+
+**Acceptance Criteria:**
+
+**Given** the game has started,
+**When** the player navigates through the rooms,
+**Then** they encounter a 3-room sequence with at least two distinct puzzles (e.g., an observation puzzle in Room 1, a riddle in Room 2).
+**And** solving the final puzzle in Room 3 triggers a "You escaped!" message.
+
+**Prerequisites:** Story 1.2
+
+**Technical Notes:** The room descriptions, puzzle logic, and solutions will be hard-coded for this story. This will serve as the "golden path" for testing.
+
+### Story 1.4: Implement the Core Interaction Model
+
+As a player,
+I want to interact with the game world through a set of contextual options and a "go back" function,
+So that I can navigate and solve puzzles.
+
+**Acceptance Criteria:**
+
+**Given** the player is in a room with a "locked door" and a "note",
+**When** the game presents interaction options,
+**Then** the options are displayed as a numbered list, such as: `1. Examine the locked door`, `2. Read the note`, `3. Look around the room`, `4. Go back`.
+**And** the player can select an option by entering the corresponding number.
+
+**Prerequisites:** Story 1.3
+
+**Technical Notes:** The interaction model will present four contextual options based on the hard-coded room and puzzle data.
+
+### Story 1.5: Display Basic Visuals for Rooms
+
+As a player,
+I want to see a background image for each room,
+So that the game feels more immersive.
+
+**Acceptance Criteria:**
+
+**Given** the player enters a new room,
+**When** the room description is displayed,
+**Then** a corresponding background image for that room is also displayed.
+
+**Prerequisites:** Story 1.3
+
+**Technical Notes:** This will involve creating a simple mapping between the hard-coded rooms and a library of pre-selected, free-to-use images sourced from a platform like Unsplash or Pexels, ensuring licenses are compatible with the project.
+
+---
+
+## Epic 2: Introducing the AI Storyteller
+
+**Goal:** Replace the static story and room descriptions from Epic 1 with AI-generated content, while ensuring coherence.
+
+### Story 2.1: Integrate AI Narrative Generation Service
+
+As a developer,
+I want to integrate an AI service capable of generating narrative text,
+So that we can dynamically create story elements for the game.
+
+**Acceptance Criteria:**
+
+**Given** an AI narrative generation service (e.g., Gemini API, OpenAI GPT),
+**When** a prompt is sent to the service (e.g., "Generate a mysterious story for an escape room set in an ancient tomb"),
+**Then** the service returns a coherent narrative text.
+**And** the application can successfully receive and parse this narrative.
+
+**Prerequisites:** Story 1.1 (Project Initialization), Story 1.2 (Game State Management)
+
+**Technical Notes:** This will involve setting up API keys, handling API requests and responses, and basic error handling. The prompt engineering should include instructions to encourage creative and non-generic outputs.
+
+### Story 2.2: Dynamic Room Description Generation
+
+As a game designer,
+I want the AI to dynamically generate unique room descriptions based on the chosen theme and narrative,
+So that each playthrough offers fresh environments.
+
+**Acceptance Criteria:**
+
+**Given** a game with a selected theme and an ongoing narrative,
+**When** the AI is prompted for a room description, including the theme and a narrative summary,
+**Then** the AI generates a unique description for that room that is consistent with both the theme and the narrative.
+**And** this description is displayed to the player.
+
+**Prerequisites:** Story 2.1 (AI Narrative Generation), Story 1.3 (Static Escape Room - for context of rooms), Story 1.4 (Core Interaction Model - for displaying description).
+
+**Technical Notes:** The AI prompt will need to include context about the current room, previous rooms, and the overall narrative to maintain coherence.
+
+### Story 2.3: Implement Narrative Archetypes for Coherence
+
+As a game designer,
+I want to guide the AI with narrative archetypes or story skeletons,
+So that the generated stories remain coherent and logical across playthroughs.
+
+**Acceptance Criteria:**
+
+**Given** a set of predefined narrative archetypes,
+**When** the AI generates a story,
+**Then** the generated story follows the key structural beats of the selected archetype, while still allowing for creative variation in plot details, characters, and events.
+**And** the story flow feels logical and purposeful to the player.
+
+**Prerequisites:** Story 2.1 (AI Narrative Generation), Story 2.2 (Dynamic Room Description Generation).
+
+**Technical Notes:** This could involve crafting specific AI prompts that include archetype instructions or using a multi-turn conversation with the AI to guide the narrative generation. The archetypes should also generate "narrative constraints" to keep the AI on track.
+
+### Story 2.4: Dynamic Theme and Location Integration
+
+As a player,
+I want my chosen theme and location to influence the AI-generated story and room descriptions,
+So that my customization choices feel impactful.
+
+**Acceptance Criteria:**
+
+**Given** the player selects a theme (e.g., "Space Station") and location (e.g., "Mars Colony"),
+**When** the AI generates the narrative and room descriptions,
+**Then** the content consistently reflects the chosen theme and location in its vocabulary, tone, and described objects.
+
+**Prerequisites:** Story 2.2 (Dynamic Room Description Generation), Story 2.3 (Narrative Archetypes).
+
+**Technical Notes:** The game setup flow will need to pass the chosen theme and location as parameters to the AI generation prompts.
+
+---
+
+## Epic 3: The AI Puzzle Master
+
+**Goal:** Empower the AI to dynamically generate and adapt puzzles within the coherent narrative framework.
+
+### Story 3.1: Integrate AI Puzzle Generation Service
+
+As a developer,
+I want to integrate an AI service capable of generating puzzle logic,
+So that we can dynamically create unique puzzles for the game.
+
+**Acceptance Criteria:**
+
+**Given** an AI puzzle generation service,
+**When** a prompt is sent to the service (e.g., "Generate a riddle for a medieval castle theme, related to a 'key' object"),
+**Then** the service returns a puzzle description and its solution.
+**And** the application can successfully receive and parse this puzzle data.
+
+**Prerequisites:** Story 2.1 (AI Narrative Generation Service - for general AI integration), Story 1.2 (Game State Management).
+
+**Technical Notes:** This will involve similar API integration as narrative generation, but with a focus on structured output for puzzle logic (e.g., riddle text, answer, interaction required).
+
+### Story 3.2: Dynamic Puzzle Adaptation and Placement
+
+As a game designer,
+I want the AI to dynamically adapt and place puzzles within the generated rooms,
+So that each playthrough offers unique challenges.
+
+**Acceptance Criteria:**
+
+**Given** a generated room description and an ongoing narrative,
+**When** the AI is prompted to generate a puzzle for that room,
+**Then** the AI generates a puzzle that is contextually relevant to the room and narrative.
+**And** the puzzle is integrated into the room's description or interaction options.
+
+**Prerequisites:** Story 3.1 (AI Puzzle Generation), Story 2.2 (Dynamic Room Description Generation).
+
+**Technical Notes:** The AI prompt for puzzle generation will need to include details about the current room, available objects, and the narrative context to ensure relevance.
+
+### Story 3.3: Implement Puzzle Dependency Chains
+
+As a game designer,
+I want to ensure that AI-generated puzzles form solvable dependency chains,
+So that players always have a logical path to progress.
+
+**Acceptance Criteria:**
+
+**Given** a sequence of AI-generated puzzles,
+**When** the puzzles are placed in rooms,
+**Then** solving a prerequisite puzzle provides the necessary information or item to solve a subsequent puzzle.
+**And** there is always a clear, solvable path from the start to the end of the escape room.
+
+**Prerequisites:** Story 3.2 (Dynamic Puzzle Adaptation).
+
+**Technical Notes:** This could involve the AI generating a "puzzle graph" or "solution path" alongside the puzzles themselves, which the game engine then validates and enforces.
+
+### Story 3.4: Player Input and Puzzle Solving Logic
+
+As a player,
+I want to input my solutions to puzzles and receive feedback,
+So that I can progress through the game.
+
+**Acceptance Criteria:**
+
+**Given** a puzzle is presented,
+**When** the player provides an input (e.g., types an answer, uses an item),
+**Then** the game evaluates the input against the puzzle's solution.
+**And** provides appropriate feedback (e.g., "Correct!", "Incorrect", "You used the key").
+**And** updates the game state accordingly.
+
+**Prerequisites:** Story 1.4 (Core Interaction Model), Story 3.2 (Dynamic Puzzle Adaptation).
+
+**Technical Notes:** The game engine will need to interpret player input and compare it against the AI-generated puzzle solutions.
+
+---
+
+## Epic 4: Expanding Variety and Replayability
+
+**Goal:** Increase the breadth of content and player choice to deliver on the promise of endless replayability.
+
+### Story 4.1: Expand Theme and Location Library
+
+As a game designer,
+I want to expand the available themes and locations,
+So that players have more choices for customizing their game experience.
+
+**Acceptance Criteria:**
+
+**Given** a new theme (e.g., "Cyberpunk City") and location (e.g., "Neon Alley"),
+**When** these are added to the game's configuration,
+**Then** players can select them during game setup.
+**And** the AI can generate narratives and room descriptions consistent with these new options, introducing unique narrative elements, objects, or environmental interactions that go beyond mere aesthetic changes.
+
+**Prerequisites:** Story 2.4 (Dynamic Theme and Location Integration).
+
+**Technical Notes:** This involves curating new image sets and potentially updating AI prompt templates to leverage the new themes effectively.
+
+### Story 4.2: Introduce New Puzzle Types
+
+As a game designer,
+I want to introduce new types of puzzles (e.g., logic puzzles, decryption) to the AI's repertoire,
+So that players encounter a wider variety of challenges.
+
+**Acceptance Criteria:**
+
+**Given** a new puzzle type is defined (e.g., "Logic Grid Puzzle"),
+**When** the AI is prompted to generate a puzzle,
+**Then** it can generate instances of this new puzzle type.
+**And** the game engine can correctly present and evaluate solutions for this new type.
+**And** the new puzzle type undergoes rigorous playtesting to ensure it is fun, fair, and solvable.
+
+**Prerequisites:** Story 3.1 (AI Puzzle Generation Service), Story 3.4 (Player Input and Puzzle Solving Logic).
+
+**Technical Notes:** This may require updating the AI's understanding of puzzle types and potentially adding new logic to the game engine for handling specific interaction patterns of the new puzzles.
+
+### Story 4.3: Implement Dynamic Difficulty Scaling
+
+As a player,
+I want the game's difficulty to dynamically adjust based on my performance,
+So that the challenge remains engaging.
+
+**Acceptance Criteria:**
+
+**Given** a player is struggling with puzzles (e.g., taking too long, too many incorrect attempts),
+**When** the game detects this,
+**Then** the AI adjusts the complexity of subsequent puzzles or provides subtle hints, with adjustments perceived as fair and challenging by the player.
+**And** conversely, if a player is progressing too easily, the AI increases the challenge.
+
+**Prerequisites:** Story 3.2 (Dynamic Puzzle Adaptation), Story 3.4 (Player Input and Puzzle Solving Logic).
+
+**Technical Notes:** This requires tracking player performance metrics and feeding them back into the AI's puzzle generation prompts. Consider implementing a "grace period" or "cooldown" for difficulty adjustments to prevent rapid, jarring changes.
+
+### Story 4.4: Curate and Expand Visual Asset Library
+
+As a game designer,
+I want to curate and expand the library of visual assets (images),
+So that the game has richer and more varied atmospheric backgrounds.
+
+**Acceptance Criteria:**
+
+**Given** new visual assets are added to the library,
+**When** the AI generates room descriptions,
+**Then** it can select from the expanded library to provide more diverse background images.
+**And** the images are consistent with the generated narrative and theme, prioritizing thematic relevance and visual interest.
+
+**Prerequisites:** Story 1.5 (Basic Visuals).
+
+**Technical Notes:** This involves sourcing, categorizing, and integrating new images, ensuring they are properly tagged for AI selection based on theme and context. Explore automated or semi-automated tagging and categorization of visual assets using AI.
 
 ---
 

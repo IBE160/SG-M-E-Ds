@@ -1,6 +1,6 @@
 # Project Plan
 
-## Fase 0
+## Fase 1
 
 - [x] Brainstorming
   - [x] /analyst *brainstorm "Root Cause Analysis and Solution Design for Player Inactivity"
@@ -10,24 +10,24 @@
 - [x] Product Brief
   - [x] /analyst *product-brief "Read the two brainstorming sessions the research session and the @proposal.md file, and create a product brief for the project."
 
-## Fase 1
+## Fase 2
 
 - [ ] Planning
-  - [ ] /run-agent-task pm *prd
-  - [ ] /run-agent-task pm *validate-prd
+  - [x] /run-agent-task pm *prd
+  - [x] /run-agent-task pm *validate-prd
   - [ ] /run-agent-task ux-designer *create-ux-design {prompt / user-input-file}
   - [ ] /run-agent-task ux-designer *validate-ux-design {prompt / user-input-file}
   - [ ] /run-agent-task tea *framework {prompt / user-input-file}
   - [ ] /run-agent-task tea *ci {prompt / user-input-file}
   - [ ] /run-agent-task tea *test-design {prompt / user-input-file}
 
-## Fase 2
+## Fase 3
 
 - [ ] Solutioning
   - [ ] /run-agent-task architect *architecture {prompt / user-input-file}
   - [ ] /run-agent-task architect *validate-architecture {prompt / user-input-file}
 
-## Fase 3
+## Fase 4
 
 - [ ] Implementation
   - [ ] /run-agent-task sm *sprint-planning {prompt / user-input-file}
