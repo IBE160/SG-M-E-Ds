@@ -120,11 +120,49 @@ _Generated using BMad Method - Create UX Design Workflow v1.0_
 
 ---
 
-## 5. User Journey Flows
+## 5. Information Architecture
 
-### 5.1 Critical User Paths
+### 5.1 High-Level Structure
 
-{{user_journey_flows}}
+The application's information architecture is structured to provide intuitive navigation and access to core game functionalities and information.
+
+**Main Menu:**
+*   **New Game:** Initiates the AI-Driven Replayability flow, allowing users to start a fresh, unique adventure.
+*   **Continue Game:** Resumes the last saved game session.
+*   **Load Game:** Provides access to a list of saved game states for selection.
+*   **Options:** Navigates to game settings (audio, display, controls, accessibility).
+*   **Help:** Accesses in-game assistance, tutorials, and lore.
+
+**In-Game Screen:**
+*   **Immersive Main Area:** The primary display for the game's narrative, puzzles, and interactive choices. This area is dynamic and driven by the AI.
+*   **Right Sidebar (Game Status):** A persistent vertical sidebar providing at-a-glance information and quick access to essential game features.
+    *   **Inventory:** Displays items collected by the player.
+    *   **Objectives:** Shows current goals and tasks.
+    *   **Hint:** Provides contextual hints for puzzles (limited use).
+    *   **Options:** Quick access to game settings without leaving the game screen.
+    *   **Save:** Allows players to save their current game progress.
+
+**Options Screen:**
+*   **Audio Settings:** Volume controls for music, sound effects, and dialogue.
+*   **Display Settings:** Resolution, full-screen/windowed mode, graphics quality.
+*   **Controls:** Keybindings and input device settings.
+*   **Accessibility:** Options for color blindness, text size, narration, etc.
+*   **Save/Apply:** Confirms and applies changes.
+*   **Back to Main Menu / Back to Game:** Returns to the previous screen.
+
+**Help Screen:**
+*   **How to Play:** Basic game instructions and mechanics.
+*   **Game Mechanics:** Detailed explanations of puzzle types, interaction models, etc.
+*   **Lore/Background:** Information about the game world and story.
+*   **FAQ:** Frequently asked questions.
+*   **Back to Main Menu / Back to Game:** Returns to the previous screen.
+
+**Load/Save Game Screens:**
+*   **List of Save Slots:** Displays available save files with details (e.g., date, location, progress).
+*   **Save Button:** Saves the current game to a selected slot.
+*   **Load Button:** Loads a selected game state.
+*   **Delete Save:** Removes a selected save file.
+*   **Back to Main Menu / Back to Game:** Returns to the previous screen.
 
 ---
 
