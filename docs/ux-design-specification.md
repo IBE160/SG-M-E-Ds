@@ -7,7 +7,7 @@ _Generated using BMad Method - Create UX Design Workflow v1.0_
 
 ## Executive Summary
 
-{{project_vision}}
+The project vision is to create a game, "AI Escape," where players can start a new, unique adventure that feels fresh and compelling every time they play, leveraging AI-driven replayability.
 
 ---
 
@@ -351,7 +351,7 @@ The application will strive for **WCAG 2.1 Level AA** compliance to ensure a rob
 
 ### 10.1 Completion Summary
 
-{{completion_summary}}
+This UX Design Specification provides a solid foundation for the 'AI Escape' project. We have defined the core project vision, established a design system based on `shadcn/ui`, articulated core experience principles, and detailed a novel AI-Driven Replayability UX pattern. Key UX patterns for buttons, feedback, and forms have been established, along with a comprehensive responsive design strategy and accessibility considerations targeting WCAG 2.1 Level AA. While the core structure and many critical details are now in place, further refinement is needed, particularly in expanding the design direction mockups and detailing out all user journey flows beyond the initial 'New Game' flow. The document is now ready to guide initial implementation efforts, with an understanding that further UX design iterations will be required for comprehensive coverage.
 
 ---
 
@@ -359,20 +359,20 @@ The application will strive for **WCAG 2.1 Level AA** compliance to ensure a rob
 
 ### Related Documents
 
-- Product Requirements: `{{prd_file}}`
-- Product Brief: `{{brief_file}}`
-- Brainstorming: `{{brainstorm_file}}`
+- Product Requirements: `prd.md`
+- Product Brief: `product-brief-AI Escape-2025-11-10.md`
+- Brainstorming: `brainstorming-session-results-2025-10-30.md`
 
 ### Core Interactive Deliverables
 
 This UX Design Specification was created through visual collaboration:
 
-- **Color Theme Visualizer**: {{color_themes_html}}
+- **Color Theme Visualizer**: `ux-color-themes.html`
   - Interactive HTML showing all color theme options explored
   - Live UI component examples in each theme
   - Side-by-side comparison and semantic color usage
 
-- **Design Direction Mockups**: {{design_directions_html}}
+- **Design Direction Mockups**: `ux-design-directions.html`
   - Interactive HTML with 6-8 complete design approaches
   - Full-screen mockups of key screens
   - Design philosophy and rationale for each direction
