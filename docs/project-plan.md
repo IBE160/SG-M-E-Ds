@@ -12,19 +12,19 @@
 
 ## Fase 1
 
-- [x] Planning
-  - [x] /run-agent-task pm *prd
-  - [x] /run-agent-task pm *validate-prd
-  - [x] /run-agent-task ux-designer *create-ux-design {prompt / user-input-file}
-  - [x] /run-agent-task ux-designer *validate-ux-design {prompt / user-input-file}
-  - [x] /run-agent-task tea *framework {prompt / user-input-file}
-  - [x] /run-agent-task tea *ci {prompt / user-input-file}
-  - [x] /run-agent-task tea *test-design {prompt / user-input-file}
+- [ ] Planning
+  - [ ] /run-agent-task pm *prd
+  - [ ] /run-agent-task pm *validate-prd
+  - [ ] /run-agent-task ux-designer *create-ux-design {prompt / user-input-file}
+  - [ ] /run-agent-task ux-designer *validate-ux-design {prompt / user-input-file}
+  - [ ] /run-agent-task tea *framework {prompt / user-input-file}
+  - [ ] /run-agent-task tea *ci {prompt / user-input-file}
+  - [ ] /run-agent-task tea *test-design {prompt / user-input-file}
 
 ## Fase 2
 
 - [ ] Solutioning
-  - [x] /run-agent-task architect *architecture {prompt / user-input-file}
+  - [ ] /run-agent-task architect *architecture {prompt / user-input-file}
   - [ ] /run-agent-task architect *validate-architecture {prompt / user-input-file}
 
 ## Fase 3
