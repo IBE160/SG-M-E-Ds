@@ -194,6 +194,62 @@ So that my customization choices feel impactful.
 
 ---
 
+## Epic 5: Game Utility Features
+
+**Goal:** Provide players with essential utility features such as saving/loading games, getting help, and adjusting options.
+
+### Story 5.1: Implement Save/Load Game Functionality
+
+As a player,
+I want to save my game progress and load it later,
+So that I can continue my adventure at any time.
+
+**Acceptance Criteria:**
+
+**Given** I am in the middle of a game,
+**When** I select the "Save Game" option,
+**Then** my current progress (e.g., room, inventory, narrative state) is saved.
+**And** from the main menu, I can select "Load Game" to resume from my saved state.
+
+**Prerequisites:** Story 1.2 (Game State Management)
+
+**Technical Notes:** This will require serializing the game state and storing it, either locally or on a server.
+
+### Story 5.2: Create a Help/Information System
+
+As a player,
+I want to access help or information about the game,
+So that I can understand the rules and objectives.
+
+**Acceptance Criteria:**
+
+**Given** I am in the game,
+**When** I select the "Help" option,
+**Then** a screen or dialog appears with information about how to play, the current objective, and any other relevant help text.
+
+**Prerequisites:** None
+
+**Technical Notes:** The help system should be accessible from anywhere in the game.
+
+### Story 5.3: Implement an Options Menu
+
+As a player,
+I want to adjust game options like sound effects,
+So that I can customize my experience.
+
+**Acceptance Criteria:**
+
+**Given** I am in the game,
+**When** I select the "Options" menu,
+**Then** a screen or dialog appears with options to adjust settings (e.g., sound volume).
+**And** changing these settings affects the game accordingly.
+
+**Prerequisites:** None
+
+**Technical Notes:** The options menu should be accessible from anywhere in the game.
+
+---
+
 <!-- End epic repeat -->
 
 ---
