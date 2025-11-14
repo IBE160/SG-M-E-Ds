@@ -170,7 +170,26 @@ The application's information architecture is structured to provide intuitive na
 
 ### 6.1 Component Strategy
 
-{{component_library_strategy}}
+The project will leverage `shadcn/ui` as its foundational component library, customizing its unstyled, accessible components with Tailwind CSS to achieve the unique "Retro-Futuristic Grit" aesthetic.
+
+#### Key Components for AI-Driven Replayability Flow:
+
+-   **Button:**
+    -   **Purpose:** To trigger actions such as "New Game," "Select Theme," "Select Location," "Generate New Story," "Try Again," and "Go Back."
+    -   **Usage:** Will adhere to the defined Button Hierarchy (Primary, Secondary, Destructive) for clear visual communication of action importance.
+    -   **Customization:** Styling will align with the Retro-Futuristic Grit theme, including font, color, and subtle hover/active states.
+-   **Dialog:**
+    -   **Purpose:** To display error messages (e.g., if AI generation fails) or critical confirmations.
+    -   **Usage:** Will be used for the "Error" state in the AI-Driven Replayability flow, offering "Try Again" and "Go Back" options.
+    -   **Customization:** The dialog will be styled to fit the overall theme, ensuring readability against the game background.
+-   **Card:**
+    -   **Purpose:** To present selectable options such as themes and locations in a visually distinct and organized manner.
+    -   **Usage:** Will be used in the Theme Selection Screen and Location Selection Screen to display available choices.
+    -   **Customization:** Cards will feature thematic borders, background textures, and clear typography to enhance the immersive experience.
+-   **Loading Spinner/Animation:**
+    -   **Purpose:** To provide visual feedback during asynchronous operations, particularly during the "Generate New Story" process.
+    -   **Usage:** A subtle, thematic loading animation will be used for quick loading states. For the longer "Generate New Story" process, the dedicated immersive loading screen (as defined in UX Patterns) will be used.
+    -   **Customization:** The visual style of the spinner/animation will be consistent with the retro-futuristic aesthetic.
 
 ---
 
@@ -178,27 +197,165 @@ The application's information architecture is structured to provide intuitive na
 
 ### 7.1 Consistency Rules
 
-{{ux_pattern_decisions}}
+To ensure a predictable and intuitive experience, the following UX patterns will be applied consistently across the application.
+
+#### 1. Button Hierarchy
+
+-   **Primary Button:** Used for the main, most common action on a screen (e.g., "Continue", "Confirm", "Choose").
+    -   **Style:** High-contrast button that draws the user's eye. Uses the primary color (`#F8F9FA` with dark text).
+-   **Secondary Button:** Used for secondary actions that are less important than the primary action (e.g., "Go Back", "Cancel").
+    -   **Style:** Visually less prominent. Uses the secondary color (`#8B4513` with light text).
+-   **Tertiary/Ghost Button:** Used for less prominent actions, often within a list or card (e.g., "Learn More", "Details").
+    -   **Style:** A simple text link with an underline on hover, or a transparent button with a border.
+-   **Destructive Button:** Used for actions that delete data or have significant consequences (e.g., "Delete Save", "Exit without Saving").
+    -   **Style:** Uses the error color (`#DC3545` with light text) to clearly indicate a destructive action.
+
+#### 2. Feedback Patterns
+
+-   **Success:** A clear, concise, and non-intrusive message with a checkmark icon, using the success color (`#28A745`). It should fade out after a few seconds.
+-   **Error:** A persistent message that clearly explains the error and how to fix it, using the error color (`#DC3545`). It should remain visible until the user resolves the error.
+-   **Warning:** A dismissible message that alerts the user to a potential issue, using the warning color (`#FFC107`).
+-   **Info:** A dismissible, helpful tip or piece of information, using the info color (`#17A2B8`).
+-   **Loading:**
+    -   For quick actions: A spinner or pulsing animation on the button that was clicked.
+    -   For longer actions (like generating a new world): The dedicated immersive loading screen with quotes/jokes/hints.
+
+#### 3. Form Patterns (e.g., for character name input)
+
+-   **Labels:** Placed above the input field for clarity.
+-   **Validation:** Validation occurs on form submission to avoid interrupting the user while typing.
+-   **Errors:** A clear error message is displayed below the input field with the error, using the error color. The input field's border will also change to the error color.
+-   **Help Text:** A small, secondary-colored text below the input field to provide additional context or instructions.
 
 ---
 
-## 8. Responsive Design & Accessibility
+## 8. User Journey Flows
 
-### 8.1 Responsive Strategy
+### 8.1 New Game (AI-Driven Replayability)
 
-{{responsive_accessibility_strategy}}
+**Goal:** To start a new, unique adventure that feels fresh and compelling.
+
+**Actor:** Player
+
+**Trigger:** Player selects "New Game" from the main menu.
+
+**Flow:**
+
+```mermaid
+graph TD
+    A[Start: Main Menu] -->|Player clicks 'New Game'| B(Theme Selection Screen);
+    B -->|Player selects a theme, e.g., 'Fantasy'| C(Location Selection Screen);
+    C -->|Player selects pre-defined location| E{Game Starts};
+    C -->|Player selects 'Generate New Story'| D(Loading Screen);
+    D -->|Generation successful| E;
+    D -->|Generation fails| F(Error Dialog);
+    F -->|Player clicks 'Try Again'| D;
+    F -->|Player clicks 'Go Back'| C;
+    E --> G[End: Player is in the game];
+```
+
+**Steps:**
+
+1.  **Main Menu:** The player is on the main menu screen.
+    -   *Action:* The player clicks the "New Game" button.
+2.  **Theme Selection Screen:** The player is presented with a choice of themes or genres (e.g., "Mystery," "Sci-Fi," "Fantasy").
+    -   *Action:* The player selects a theme.
+3.  **Location Selection Screen:** Based on the chosen theme, the player is presented with a list of pre-defined locations, plus an option to "Completely generate a new story and location."
+    -   *Action (Path A):* The player selects a pre-defined location. The game starts immediately (Proceed to Step 5).
+    -   *Action (Path B):* The player selects "Completely generate a new story and location."
+4.  **Loading Screen (Generation):** If the player chose to generate a new story, a loading screen appears.
+    -   *Feedback:* The screen displays intriguing quotes, jokes, or hints to engage the player while the AI crafts the unique world. This visually communicates that a unique world is being built.
+    -   *Success:* The game world is generated successfully.
+    -   *Failure:* An error occurs during generation. An error dialog is displayed with options to "Try Again" or "Go Back" to the location selection screen.
+5.  **Game Start:** The game begins, placing the player in the chosen or newly generated environment.
 
 ---
 
-## 9. Implementation Guidance
+## 9. Responsive Design & Accessibility
 
-### 9.1 Completion Summary
+### 9.1 Responsive Strategy
+
+The application will be designed with a mobile-first approach, ensuring a seamless and optimized experience across various devices and screen sizes.
+
+#### 1. Breakpoints
+
+-   **Mobile:** Up to 767px (e.g., `sm` in Tailwind CSS)
+-   **Tablet:** 768px to 1023px (e.g., `md` in Tailwind CSS)
+-   **Desktop:** 1024px and above (e.g., `lg` in Tailwind CSS)
+
+#### 2. Adaptation Patterns
+
+-   **Layouts:** Multi-column layouts will collapse to single-column stacks on mobile. Grids will adapt to lists or fewer columns as screen size decreases.
+-   **Content Prioritization:** Essential information will be prioritized and displayed prominently on smaller screens, with secondary information potentially hidden behind toggles or moved to secondary views.
+-   **Text Scaling:** Font sizes will scale appropriately across breakpoints to maintain readability.
+
+#### 3. Navigation Adaptation
+
+-   **Desktop:** Full navigation menu (e.g., "New Game," "Continue," "Options") will be visible.
+-   **Mobile/Tablet:** Navigation will collapse into a hamburger menu or similar pattern to conserve screen space. Essential in-game navigation (e.g., "Inventory," "Objectives") within the sidebar will remain accessible or adapt to a tab-bar pattern.
+
+#### 4. Touch Targets
+
+-   All interactive elements (buttons, links, form fields) will have a minimum touch target size of 44x44 pixels on mobile devices to ensure ease of use and prevent accidental taps.
+
+### 9.2 Accessibility Considerations
+
+The application will strive for **WCAG 2.1 Level AA** compliance to ensure a robust and inclusive user experience.
+
+#### 1. Color Contrast Requirements
+
+-   **Normal Text:** A minimum contrast ratio of **4.5:1** will be maintained for all normal-sized text against its background.
+-   **Large Text (18pt or 14pt bold):** A minimum contrast ratio of **3:1** will be maintained for large text against its background.
+-   **Interactive Elements:** A minimum contrast ratio of **3:1** will be ensured for UI components and graphical objects that convey information.
+
+#### 2. Keyboard Navigation
+
+-   All interactive elements (buttons, links, form fields, menu items, etc.) will be fully navigable and operable using only the keyboard (e.g., `Tab`, `Shift+Tab`, `Enter`, `Space`).
+-   The keyboard focus order will be logical and follow the visual flow of the page.
+
+#### 3. Focus Indicators
+
+-   A clear and visible focus indicator (e.g., a distinct outline or a change in background color with sufficient contrast) will be provided for all interactive elements when they receive keyboard focus.
+
+#### 4. ARIA Requirements
+
+-   ARIA (Accessible Rich Internet Applications) roles, states, and properties will be used where necessary to enhance the semantic meaning of custom UI components and dynamic content for assistive technologies.
+-   Examples include `role="dialog"` for modals, `aria-live` regions for dynamic content updates, and `aria-label` for descriptive labels where visual text is insufficient.
+
+#### 5. Screen Reader Considerations
+
+-   All interactive elements and meaningful content will have clear, concise, and descriptive labels accessible to screen readers.
+-   The HTML structure will be semantic and logical to ensure a coherent experience for screen reader users.
+-   Dynamic content changes will be announced to screen readers using appropriate ARIA live regions.
+
+#### 6. Alt Text Strategy
+
+-   All meaningful images (i.e., images that convey information or are critical to understanding the content) will be provided with descriptive `alt` text.
+-   Decorative images (i.e., images that do not convey information and are purely for aesthetic purposes) will have empty `alt` attributes (`alt=""`).
+
+#### 7. Form Accessibility
+
+-   All form input fields will have programmatically associated labels using the `<label for="id">` attribute.
+-   Error messages will be clearly associated with their respective input fields, and their presence will be communicated to assistive technologies.
+
+#### 8. Testing Strategy
+
+-   **Automated Testing:** Automated accessibility testing tools (e.g., Axe, Lighthouse) will be integrated into the development workflow to identify and address common accessibility issues early.
+-   **Manual Testing:** Regular manual accessibility testing will be conducted, including:
+    -   Keyboard-only navigation testing.
+    -   Testing with various screen readers (e.g., NVDA, JAWS, VoiceOver) to ensure a comprehensive user experience.
+
+---
+
+## 10. Implementation Guidance
+
+### 10.1 Completion Summary
 
 {{completion_summary}}
 
 ---
 
-## Appendix
+## 11. Appendix
 
 ### Related Documents
 

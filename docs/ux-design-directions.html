@@ -9,10 +9,10 @@
             /* Retro-Futuristic Grit Theme (Dark Mode) */
             --color-primary: #F8F9FA;
             --color-secondary: #8B4513;
-            --color-accent: #D2691E;
+            --color-accent: #A0522D;
             --color-info: #17A2B8;
-            --color-background: #212529;
-            --color-surface: #343A40;
+            --color-background: #2C2624;
+            --color-surface: #3D3533;
             --color-border: #495057;
             --color-text-primary: #F8F9FA;
             --color-text-secondary: #ADB5BD;
@@ -23,7 +23,7 @@
 
         body {
             font-family: var(--font-family-body);
-            background-color: #1a1a1a;
+            background-color: #2A2A2A;
             color: var(--color-text-secondary);
             margin: 0;
             padding: 0;
@@ -33,7 +33,7 @@
         }
 
         .showcase-nav {
-            background-color: #000;
+            background-color: #1E1A18;
             padding: 1rem;
             width: 100%;
             box-sizing: border-box;
@@ -111,7 +111,7 @@
 
         /* --- Direction 1: Classic Terminal --- */
         .terminal-screen {
-            background-color: #000;
+            background-color: #1E1A18;
             padding: 1rem;
             box-sizing: border-box;
             overflow-y: auto;
@@ -294,7 +294,7 @@
         }
         .retro-visual {
             flex-basis: 40%;
-            background-color: #000;
+            background-color: #1E1A18;
             border: 2px solid var(--color-border);
             display: flex;
             align-items: center;
@@ -354,6 +354,13 @@
             font-size: 0.9rem;
             color: var(--color-text-secondary);
         }
+        .current-location-subtext {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            margin-top: -0.5rem; /* Adjust as needed for spacing */
+            margin-bottom: 1rem;
+            text-align: center;
+        }
         .retro-actions {
             margin-top: auto;
             display: grid;
@@ -391,7 +398,7 @@
             /* Removed linear gradient to make background image more prominent */
         }
         .immersive-text-box {
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.5);
             border: 2px solid var(--color-border);
             padding: 1.5rem;
             backdrop-filter: blur(5px);
@@ -564,6 +571,7 @@
                     </div>
                     <div class="retro-sidebar">
                         <h3>GAME STATUS</h3>
+                        <p class="current-location-subtext">Current Location: The Forgotten Crypt</p>
                         <div class="status-box">
                             <h4>OBJECTIVE</h4>
                             <p>Find a way to open the stone door.</p>
@@ -612,6 +620,7 @@
                     </div>
                     <div class="immersive-sidebar">
                         <h3>GAME STATUS</h3>
+                        <p class="current-location-subtext">Current Location: The Forgotten Crypt</p>
                         <div class="status-box">
                             <h4>OBJECTIVE</h4>
                             <p>Find a way to open the stone door.</p>
