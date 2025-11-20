@@ -32,32 +32,6 @@
             align-items: center;
         }
 
-        .showcase-nav {
-            background-color: #1E1A18;
-            padding: 1rem;
-            width: 100%;
-            box-sizing: border-box;
-            text-align: center;
-            border-bottom: 2px solid var(--color-accent);
-            z-index: 100;
-        }
-
-        .showcase-nav button {
-            font-family: var(--font-family-body);
-            background: var(--color-surface);
-            color: var(--color-text-primary);
-            border: 1px solid var(--color-border);
-            padding: 0.5rem 1rem;
-            margin: 0 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .showcase-nav button:hover, .showcase-nav button.active {
-            background: var(--color-accent);
-            color: var(--color-background);
-            border-color: var(--color-accent);
-        }
-
         .mockup-container {
             width: 100%;
             max-width: 1400px;
@@ -109,501 +83,463 @@
             color: var(--color-text-primary);
         }
 
-        /* --- Direction 1: Classic Terminal --- */
-        .terminal-screen {
-            background-color: #1E1A18;
-            padding: 1rem;
-            box-sizing: border-box;
-            overflow-y: auto;
-        }
-        .terminal-screen .line {
-            white-space: pre-wrap;
-            line-height: 1.5;
-        }
-        .terminal-screen .prompt {
-            color: var(--color-accent);
-        }
-        .terminal-screen .input-cursor {
-            display: inline-block;
-            width: 0.5em;
-            height: 1em;
-            background-color: var(--color-accent);
-            animation: blink 1s step-end infinite;
-        }
-        @keyframes blink {
-            from, to { background-color: transparent; }
-            50% { background-color: var(--color-accent); }
-        }
-        .terminal-screen .options-list {
-            list-style: none;
-            padding: 0;
-            margin: 1rem 0;
-        }
-        .terminal-screen .options-list li {
-            margin-bottom: 0.5rem;
-        }
-
-        /* --- Direction 2: Immersive Storybook --- */
-        .storybook-screen {
-            background-image: url('https://source.unsplash.com/random/1600x900/?dark,fantasy');
+        /* --- Start Page --- */
+        .start-screen {
+            background-image: url('https://source.unsplash.com/random/1600x900/?dark,tech,abstract');
             background-size: cover;
             background-position: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 2rem;
-            box-sizing: border-box;
-            position: relative;
-        }
-        .storybook-screen::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 20%, rgba(0,0,0,0) 80%);
-        }
-        .storybook-content {
-            position: relative;
-            z-index: 1;
-            max-width: 800px;
-        }
-        .storybook-content h3 {
-            font-family: var(--font-family-heading);
-            color: var(--color-primary);
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-        .storybook-content p {
-            font-size: 1.1rem;
-            line-height: 1.7;
-            text-shadow: 1px 1px 3px #000;
-        }
-        .storybook-options {
-            margin-top: 1.5rem;
-            display: flex;
-            gap: 1rem;
-        }
-        .storybook-options button {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: #fff;
-            backdrop-filter: blur(5px);
-        }
-        .storybook-options button:hover {
-            background: var(--color-accent);
-            color: var(--color-background);
-        }
-
-        /* --- Direction 3: Modern Dashboard --- */
-        .dashboard-screen {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            height: 100%;
-        }
-        .dashboard-sidebar {
-            background-color: var(--color-surface);
-            padding: 1.5rem;
-            border-right: 1px solid var(--color-border);
-            display: flex;
-            flex-direction: column;
-        }
-        .dashboard-sidebar h3 {
-            font-family: var(--font-family-heading);
-            color: var(--color-primary);
-            font-size: 1.2rem;
-            margin-bottom: 1.5rem;
-        }
-        .sidebar-section {
-            margin-bottom: 2rem;
-        }
-        .sidebar-section h4 {
-            font-family: var(--font-family-body);
-            font-weight: bold;
-            color: var(--color-text-secondary);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 1rem;
-        }
-        .inventory-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .inventory-list li {
-            padding: 0.5rem;
-            border-radius: 4px;
-            transition: background-color 0.2s ease;
-        }
-        .inventory-list li:hover {
-            background-color: rgba(255,255,255,0.05);
-        }
-        .dashboard-main {
-            display: flex;
-            flex-direction: column;
-        }
-        .main-visual {
-            flex-grow: 1;
-            background-image: url('https://source.unsplash.com/random/1200x600/?dark,scifi');
-            background-size: cover;
-            background-position: center;
-        }
-        .main-content {
-            padding: 1.5rem;
-            background-color: var(--color-background);
-            border-top: 1px solid var(--color-border);
-            max-height: 40%;
-            overflow-y: auto;
-        }
-        .main-content h3 {
-            font-family: var(--font-family-heading);
-            color: var(--color-primary);
-            font-size: 1.5rem;
-            margin-top: 0;
-        }
-        .main-options {
-            margin-top: 1rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        .main-options button {
-            background: var(--color-surface);
-            border: 1px solid var(--color-border);
-            color: var(--color-text-primary);
-        }
-        .main-options button:hover {
-            background: var(--color-accent);
-            color: var(--color-background);
-        }
-
-        /* --- Direction 4: Retro Adventure --- */
-        .retro-screen {
-            display: grid;
-            grid-template-columns: 1fr 320px;
-            height: 100%;
-            background-color: #1A1A1A;
-        }
-        .retro-main {
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            border-right: 2px solid var(--color-border);
-        }
-        .retro-visual {
-            flex-basis: 40%;
-            background-color: #1E1A18;
-            border: 2px solid var(--color-border);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--color-text-secondary);
-            font-family: var(--font-family-heading);
+            text-align: center;
+            height: 100%;
         }
-        .retro-text {
-            flex-grow: 1;
-            padding: 1.5rem 0;
-            font-size: 1.1rem;
-            line-height: 1.8;
-            overflow-y: auto;
-        }
-        .retro-options {
+        .start-content {
+            background-color: rgba(33, 37, 41, 0.9);
+            padding: 4rem;
             border: 2px solid var(--color-border);
-            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
-        .retro-option {
-            padding: 0.5rem;
-            cursor: pointer;
-        }
-        .retro-option:hover {
-            background-color: var(--color-accent);
-            color: var(--color-background);
-        }
-        .retro-sidebar {
-            background-color: var(--color-surface);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        .retro-sidebar h3 {
+        .start-content h1 {
             font-family: var(--font-family-heading);
+            font-size: 4rem;
             color: var(--color-primary);
-            font-size: 1.2rem;
             margin: 0;
-            text-align: center;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid var(--color-border);
+            text-shadow: 3px 3px 0px var(--color-accent);
         }
-        .status-box {
+        .start-content p {
+            font-size: 1.2rem;
+            color: var(--color-text-secondary);
+            margin: 1rem 0 2.5rem 0;
+        }
+        .start-menu button {
+            font-family: var(--font-family-heading);
+            display: block;
+            width: 100%;
+            background: transparent;
+            color: var(--color-text-primary);
             border: 2px solid var(--color-border);
             padding: 1rem;
-        }
-        .status-box h4 {
-            font-family: var(--font-family-heading);
-            color: var(--color-accent);
-            font-size: 1rem;
-            margin: 0 0 0.5rem 0;
-        }
-        .status-box p, .status-box ul {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-            font-size: 0.9rem;
-            color: var(--color-text-secondary);
-        }
-        .current-location-subtext {
-            font-size: 0.8rem;
-            color: var(--color-text-secondary);
-            margin-top: -0.5rem; /* Adjust as needed for spacing */
-            margin-bottom: 1rem;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.2rem;
             text-align: center;
         }
-        .retro-actions {
-            margin-top: auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1rem;
-        }
-        .retro-actions button {
-            background-color: var(--color-surface);
-            border: 2px solid var(--color-border);
-            color: var(--color-text-primary);
-            font-family: var(--font-family-heading);
-            font-size: 0.8rem;
-            padding: 0.8rem 0.5rem;
-        }
-        .retro-actions button:hover {
-            background-color: var(--color-accent);
+        .start-menu button:hover {
+            background: var(--color-accent);
             color: var(--color-background);
             border-color: var(--color-accent);
         }
 
-        /* --- Direction 5: Immersive Adventure --- */
-        .immersive-screen {
-            background-image: url('https://source.unsplash.com/random/1600x900/?dark,ancient,ruins');
-            background-size: cover;
-            background-position: center;
-            display: grid;
-            grid-template-columns: 1fr 320px;
-            height: 100%;
-        }
-        .immersive-main {
+        /* --- Game Mode & Design Page --- */
+        .design-screen {
             display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
+            justify-content: center;
+            align-items: center;
             padding: 2rem;
-            /* Removed linear gradient to make background image more prominent */
+            background: var(--color-background);
         }
-        .immersive-text-box {
-            background-color: rgba(0, 0, 0, 0.5);
-            border: 2px solid var(--color-border);
-            padding: 1.5rem;
-            backdrop-filter: blur(5px);
+        .design-content {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
         }
-        .immersive-text-box h3 {
+        .design-step { display: none; }
+        .design-step.active { display: block; }
+        .step-counter {
+            color: var(--color-text-secondary);
+            font-size: 1rem;
+            font-family: var(--font-family-body);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .design-section h3 {
+            font-family: var(--font-family-heading);
+            color: var(--color-accent);
+            margin-bottom: 1.5rem;
+        }
+        .design-options {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .option-btn {
+            font-family: var(--font-family-body);
+            background: var(--color-surface);
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border);
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .option-btn.large {
+            padding: 2rem;
+            text-align: left;
+            flex-basis: 45%;
+        }
+        .option-btn.large h3 {
+            margin: 0 0 0.5rem;
             font-family: var(--font-family-heading);
             color: var(--color-primary);
-            font-size: 1.5rem;
-            margin-top: 0;
         }
-        .immersive-text-box p {
-            font-size: 1.1rem;
-            line-height: 1.7;
+        .option-btn.large p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            line-height: 1.5;
         }
-        .immersive-options {
-            margin-top: 1rem;
-            border: 2px solid var(--color-border);
-            padding: 1rem;
-        }
-        .immersive-option {
-            padding: 0.5rem;
-            cursor: pointer;
-        }
-        .immersive-option:hover {
-            background-color: var(--color-accent);
+        .option-btn:hover, .option-btn.active {
+            background: var(--color-accent);
             color: var(--color-background);
+            border-color: var(--color-accent);
         }
-        .immersive-sidebar {
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 1.5rem;
+        .design-actions {
+            margin-top: 4rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .action-btn {
+            font-family: var(--font-family-heading);
+            background: var(--color-surface);
+            color: var(--color-text-primary);
+            border: 2px solid var(--color-border);
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .action-btn:hover {
+            background: var(--color-accent);
+            color: var(--color-background);
+            border-color: var(--color-accent);
+        }
+        .action-btn.primary {
+            background: var(--color-accent);
+            color: var(--color-background);
+            border-color: var(--color-accent);
+        }
+        .warning-text {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- Loading Page --- */
+        .loading-screen {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
-            border-left: 2px solid var(--color-border);
-            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            background: #000;
         }
+        .loading-icon {
+            font-family: var(--font-family-heading);
+            font-size: 2rem;
+            color: var(--color-accent);
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .loading-text {
+            font-family: var(--font-family-body);
+            font-size: 1.1rem;
+            color: var(--color-text-secondary);
+        }
+
+        /* --- Settings & Load Game --- */
+        .settings-screen, .load-game-screen {
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .settings-content, .saved-games-list {
+            width: 100%;
+            max-width: 600px;
+        }
+        .settings-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        .toggle-btn {
+            font-family: var(--font-family-body);
+            background: var(--color-surface);
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            width: 80px;
+            text-align: center;
+        }
+        .toggle-btn.active {
+            background: var(--color-accent);
+            color: var(--color-background);
+        }
+        input[type="range"] {
+            width: 50%;
+        }
+        select {
+            background: var(--color-surface);
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border);
+            padding: 0.5rem;
+            font-family: var(--font-family-body);
+        }
+        .saved-game-item {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .saved-game-item:hover {
+            border-color: var(--color-accent);
+        }
+        .saved-game-item p { margin: 0 0 0.5rem; font-size: 1.2rem; color: var(--color-primary); }
+        .saved-game-item small { font-size: 0.9rem; color: var(--color-text-secondary); }
+
+        /* --- Immersive Adventure --- */
+        .status-box { border: 2px solid var(--color-border); padding: 1rem; width: 100%; flex: 1; box-sizing: border-box; }
+        #hint-box {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        #hint-box:not(.disabled):hover {
+            border-color: var(--color-accent);
+            background-color: var(--color-surface);
+        }
+        #hint-box.disabled {
+            cursor: not-allowed;
+            background-color: #2a2e33;
+            color: var(--color-text-secondary);
+        }
+        #hint-box h4 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #hint-budget {
+            font-size: 0.8rem;
+            font-family: var(--font-family-body);
+            background-color: var(--color-accent);
+            color: var(--color-background);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        #hint-cooldown {
+            font-size: 0.9rem;
+            color: var(--color-info);
+        }
+        .status-box h4 { font-family: var(--font-family-heading); color: var(--color-accent); font-size: 1rem; margin: 0 0 0.5rem 0; }
+        .status-box p, .status-box ul { margin: 0; padding: 0; list-style: none; font-size: 0.9rem; color: var(--color-text-secondary); }
+        .retro-actions { margin-top: auto; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+        .retro-actions button { background-color: var(--color-surface); border: 2px solid var(--color-border); color: var(--color-text-primary); font-family: var(--font-family-heading); font-size: 0.8rem; padding: 0.8rem 0.5rem; cursor: pointer; }
+        .retro-actions button:hover { background-color: var(--color-accent); color: var(--color-background); border-color: var(--color-accent); }
+        .immersive-screen { background-image: url('https://source.unsplash.com/random/1600x900/?dark,ancient,ruins'); background-size: cover; background-position: center; display: grid; grid-template-columns: 1fr 320px; height: 100%; }
+        .immersive-main { display: flex; flex-direction: column; justify-content: flex-end; padding: 2rem; }
+        .immersive-text-box { background-color: rgba(0, 0, 0, 0.7); border: 2px solid var(--color-border); padding: 1.5rem; backdrop-filter: blur(5px); }
+        .immersive-text-box h3 { font-family: var(--font-family-heading); color: var(--color-primary); font-size: 1.5rem; margin-top: 0; }
+        .immersive-text-box p { font-size: 1.1rem; line-height: 1.7; }
+        .immersive-options { margin-top: 1rem; border: 2px solid var(--color-border); padding: 1rem; }
+        .immersive-option { padding: 0.5rem; cursor: pointer; }
+        .immersive-option:hover { background-color: var(--color-accent); color: var(--color-background); }
+        .immersive-sidebar { background-color: rgba(0, 0, 0, 0.5); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; border-left: 2px solid var(--color-border); backdrop-filter: blur(5px); align-items: center; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="showcase-nav">
-        <button onclick="showMockup('terminal')">Direction 1: Classic Terminal</button>
-        <button onclick="showMockup('storybook')">Direction 2: Immersive Storybook</button>
-        <button onclick="showMockup('dashboard')">Direction 3: Modern Dashboard</button>
-        <button onclick="showMockup('retro')">Direction 4: Retro Adventure</button>
-        <button onclick="showMockup('immersive')" class="active">Direction 5: Immersive Adventure</button>
-    </div>
-
     <div class="mockup-container">
-        <!-- Direction 1: Classic Terminal -->
-        <div id="terminal" class="mockup">
-            <div class="mockup-header">
-                <h2>Direction 1: Classic Terminal</h2>
-                <p><strong>Philosophy:</strong> Text-first, keyboard-driven, and highly nostalgic. Focuses on the narrative and puzzle-solving with minimal visual distraction.</p>
-                <p><strong>Best for:</strong> Players who love classic text adventures and want a focused, challenging experience.</p>
-            </div>
+        <!-- Start Page -->
+        <div id="start" class="mockup active">
+            <div class="mockup-header"><h2>Start Page</h2></div>
             <div class="mockup-content">
-                <div class="game-screen terminal-screen">
-                    <div class="line">AI Escape [Version 1.0]</div>
-                    <div class="line">(c) 2025 AI Escape Corporation. All rights reserved.</div>
-                    <div class="line"></div>
-                    <div class="line">Loading new adventure... theme: ANCIENT TOMB</div>
-                    <div class="line">World generated successfully.</div>
-                    <div class="line">--------------------------------------------------</div>
-                    <div class="line">You stand in a dimly lit chamber. The air is thick with the smell of dust and decay. A single torch on the wall casts long, dancing shadows. In the center of the room is a large stone sarcophagus. A heavy stone door blocks the only exit.</div>
-                    <div class="line"></div>
-                    <div class="line prompt">> What do you do?</div>
-                    <ul class="options-list">
-                        <li><span class="prompt">1.</span> Examine the sarcophagus.</li>
-                        <li><span class="prompt">2.</span> Inspect the stone door.</li>
-                        <li><span class="prompt">3.</span> Look at the torch.</li>
-                        <li><span class="prompt">4.</span> Go back.</li>
-                    </ul>
-                    <div class="line"><span class="prompt">></span> <span class="input-cursor"></span></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Direction 2: Immersive Storybook -->
-        <div id="storybook" class="mockup">
-            <div class="mockup-header">
-                <h2>Direction 2: Immersive Storybook</h2>
-                <p><strong>Philosophy:</strong> Visual-first and atmospheric. Uses a full-screen background image to create a strong sense of place, with text and options overlaid.</p>
-                <p><strong>Best for:</strong> Players who value immersion and a cinematic, story-driven experience.</p>
-            </div>
-            <div class="mockup-content">
-                <div class="game-screen storybook-screen">
-                    <div class="storybook-content">
-                        <h3>The Forgotten Crypt</h3>
-                        <p>You stand in a dimly lit chamber. The air is thick with the smell of dust and decay. A single torch on the wall casts long, dancing shadows. In the center of the room is a large stone sarcophagus. A heavy stone door blocks the only exit.</p>
-                        <div class="storybook-options">
-                            <button>Examine Sarcophagus</button>
-                            <button>Inspect Door</button>
-                            <button>Look at Torch</button>
-                            <button>Go Back</button>
+                <div class="game-screen start-screen">
+                    <div class="start-content">
+                        <h1>AI ESCAPE</h1>
+                        <p>Your text-based adventure awaits.</p>
+                        <div class="start-menu">
+                            <button onclick="showPage('game-mode')">NEW GAME</button>
+                            <button onclick="showPage('load-game')">LOAD GAME</button>
+                            <button onclick="showPage('settings')">SETTINGS</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Direction 3: Modern Dashboard -->
-        <div id="dashboard" class="mockup">
+        <!-- Game Mode Selection Page -->
+        <div id="game-mode" class="mockup">
             <div class="mockup-header">
-                <h2>Direction 3: Modern Dashboard</h2>
-                <p><strong>Philosophy:</strong> Information-rich and organized. Separates game world information (visuals, text) from player status and actions (inventory, options).</p>
-                <p><strong>Best for:</strong> Players who like to have all information available at a glance and prefer a structured, organized interface.</p>
+                <h2>Choose Your Path</h2>
+                <p>Will you craft your own adventure, or let the AI decide your fate?</p>
             </div>
             <div class="mockup-content">
-                <div class="game-screen dashboard-screen">
-                    <div class="dashboard-sidebar">
-                        <h3>AI ESCAPE</h3>
-                        <div class="sidebar-section">
-                            <h4>INVENTORY</h4>
-                            <ul class="inventory-list">
-                                <li>- Rusty Key</li>
-                                <li>- Crumpled Note</li>
-                            </ul>
+                <div class="game-screen design-screen">
+                    <div class="design-content">
+                        <div class="design-options" style="flex-direction: column; gap: 2rem;">
+                            <button class="option-btn large" onclick="showPage('design')">
+                                <h3>DESIGN YOUR OWN</h3>
+                                <p>Manually select the ambiance, location, and difficulty for a tailored experience.</p>
+                            </button>
+                            <button class="option-btn large" onclick="startLoading()">
+                                <h3>AI-DRIVEN</h3>
+                                <p>Let the AI generate a completely unique and unpredictable challenge for you.</p>
+                            </button>
                         </div>
-                        <div class="sidebar-section">
-                            <h4>OBJECTIVE</h4>
-                            <p>Find a way to open the stone door.</p>
+                        <div class="warning-text">
+                            <p><strong>Warning:</strong> The AI-driven experience is experimental, may be unpredictable, and will take a moment to generate.</p>
                         </div>
-                        <div class="sidebar-section" style="margin-top: auto;">
-                            <button>Options</button>
-                            <button>Help</button>
-                            <button>Save Game</button>
+                        <div class="design-actions">
+                            <button class="action-btn" onclick="showPage('start')">BACK</button>
                         </div>
                     </div>
-                    <div class="dashboard-main">
-                        <div class="main-visual"></div>
-                        <div class="main-content">
-                            <h3>The Forgotten Crypt</h3>
-                            <p>You stand in a dimly lit chamber. The air is thick with the smell of dust and decay. A single torch on the wall casts long, dancing shadows. In the center of the room is a large stone sarcophagus. A heavy stone door blocks the only exit.</p>
-                            <div class="main-options">
-                                <button>Examine Sarcophagus</button>
-                                <button>Inspect Door</button>
-                                <button>Look at Torch</button>
-                                <button>Go Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Design Page -->
+        <div id="design" class="mockup">
+            <div class="mockup-header"><h2>Design Your Adventure</h2></div>
+            <div class="mockup-content">
+                <div class="game-screen design-screen">
+                    <div class="design-content">
+                        <div id="design-step-1" class="design-step active">
+                            <h3><span class="step-counter">1/3</span> CHOOSE AN AMBIANCE</h3>
+                            <div class="design-options">
+                                <button class="option-btn active" onclick="selectAmbiance('scary', this)">SCARY</button>
+                                <button class="option-btn" onclick="selectAmbiance('funny', this)">FUNNY</button>
+                                <button class="option-btn" onclick="selectAmbiance('mysterious', this)">MYSTERIOUS</button>
+                            </div>
+                            <div class="design-actions">
+                                <button class="action-btn" onclick="showPage('game-mode')">BACK</button>
+                                <button class="action-btn primary" onclick="goToStep(2)">NEXT</button>
                             </div>
                         </div>
+                        <div id="design-step-2" class="design-step">
+                            <h3><span class="step-counter">2/3</span> CHOOSE A LOCATION</h3>
+                            <div id="locations-scary" class="location-options design-options">
+                                <button class="option-btn active">HAUNTED MANSION</button>
+                                <button class="option-btn">ABANDONED ASYLUM</button>
+                                <button class="option-btn">DERELICT SPACESHIP</button>
+                            </div>
+                            <div id="locations-funny" class="location-options design-options" style="display:none;">
+                                <button class="option-btn active">CLOWN'S FUNHOUSE</button>
+                                <button class="option-btn">GOOFY VILLAIN'S LAIR</button>
+                                <button class="option-btn">GRUMPY VENDING MACHINE</button>
+                            </div>
+                            <div id="locations-mysterious" class="location-options design-options" style="display:none;">
+                                <button class="option-btn active">ANCIENT TOMB</button>
+                                <button class="option-btn">FORGOTTEN LIBRARY</button>
+                                <button class="option-btn">STEAMPUNK AIRSHIP</button>
+                            </div>
+                            <div class="design-actions">
+                                <button class="action-btn" onclick="goToStep(1)">BACK</button>
+                                <button class="action-btn primary" onclick="goToStep(3)">NEXT</button>
+                            </div>
+                        </div>
+                        <div id="design-step-3" class="design-step">
+                            <h3><span class="step-counter">3/3</span> SELECT DIFFICULTY</h3>
+                            <div class="design-options">
+                                <button class="option-btn" onclick="selectDifficulty('easy')">EASY</button>
+                                <button class="option-btn active" onclick="selectDifficulty('normal')">NORMAL</button>
+                                <button class="option-btn" onclick="selectDifficulty('hard')">HARD</button>
+                            </div>
+                            <div class="design-actions">
+                                <button class="action-btn" onclick="goToStep(2)">BACK</button>
+                                <button class="action-btn primary" onclick="startGame()">START ADVENTURE</button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Direction 4: Retro Adventure -->
-        <div id="retro" class="mockup">
-            <div class="mockup-header">
-                <h2>Direction 4: Retro Adventure</h2>
-                <p><strong>Philosophy:</strong> Blends the organized layout of a dashboard with the retro aesthetic of classic adventure games.</p>
-                <p><strong>Best for:</strong> Players who appreciate both clear information and a strong, nostalgic visual theme.</p>
-            </div>
+        <!-- Loading Page -->
+        <div id="loading" class="mockup">
             <div class="mockup-content">
-                <div class="game-screen retro-screen">
-                    <div class="retro-main">
-                        <div class="retro-visual">
-                            <p>-- VISUAL AREA --</p>
+                <div class="game-screen loading-screen">
+                    <div class="loading-icon">AI ESCAPE</div>
+                    <div class="loading-text" id="loading-text">Calibrating puzzle matrix...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings" class="mockup">
+            <div class="mockup-header"><h2>Settings</h2></div>
+            <div class="mockup-content">
+                <div class="game-screen settings-screen">
+                    <div class="settings-content">
+                        <div class="settings-section">
+                            <label for="music-toggle">Music</label>
+                            <button id="music-toggle" class="toggle-btn active" onclick="this.classList.toggle('active'); this.textContent = this.classList.contains('active') ? 'ON' : 'OFF'">ON</button>
                         </div>
-                        <div class="retro-text">
-                            <p>You stand in a dimly lit chamber. The air is thick with the smell of dust and decay. A single torch on the wall casts long, dancing shadows. In the center of the room is a large stone sarcophagus. A heavy stone door blocks the only exit.</p>
+                        <div class="settings-section">
+                            <label for="sfx-toggle">Sound Effects</label>
+                            <button id="sfx-toggle" class="toggle-btn active" onclick="this.classList.toggle('active'); this.textContent = this.classList.contains('active') ? 'ON' : 'OFF'">ON</button>
                         </div>
-                        <div class="retro-options">
-                            <div class="retro-option">1. Examine the sarcophagus.</div>
-                            <div class="retro-option">2. Inspect the stone door.</div>
-                            <div class="retro-option">3. Look at the torch.</div>
-                            <div class="retro-option">4. Go back.</div>
+                        <div class="settings-section">
+                            <label for="volume-slider">Volume</label>
+                            <input type="range" id="volume-slider" min="0" max="100" value="80">
                         </div>
-                    </div>
-                    <div class="retro-sidebar">
-                        <h3>GAME STATUS</h3>
-                        <p class="current-location-subtext">Current Location: The Forgotten Crypt</p>
-                        <div class="status-box">
-                            <h4>OBJECTIVE</h4>
-                            <p>Find a way to open the stone door.</p>
+                        <div class="settings-section">
+                            <label for="language-select">Language</label>
+                            <select id="language-select">
+                                <option>English</option>
+                                <option>Spanish</option>
+                                <option>Norwegian</option>
+                                <option>French</option>
+                                <option>Italian</option>
+                            </select>
                         </div>
-                        <div class="status-box">
-                            <h4>INVENTORY</h4>
-                            <ul>
-                                <li>Rusty Key</li>
-                                <li>Crumpled Note</li>
-                            </ul>
-                        </div>
-                        <div class="status-box">
-                            <h4>HINT</h4>
-                            <p>The inscription on the sarcophagus seems important.</p>
-                        </div>
-                        <div class="retro-actions">
-                            <button>OPTIONS</button>
-                            <button>HELP</button>
-                            <button>SAVE</button>
+                        <div class="design-actions">
+                            <button class="action-btn primary" onclick="closeSettings()">CLOSE</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Direction 5: Immersive Adventure -->
-        <div id="immersive" class="mockup active">
-            <div class="mockup-header">
-                <h2>Direction 5: Immersive Adventure</h2>
-                <p><strong>Philosophy:</strong> Combines a full-screen immersive background with an organized sidebar and a semi-transparent text overlay.</p>
-                <p><strong>Best for:</strong> Players who want both atmospheric immersion and clear, at-a-glance information.</p>
+        <!-- Load Game Page -->
+        <div id="load-game" class="mockup">
+            <div class="mockup-header"><h2>Load Game</h2></div>
+            <div class="mockup-content">
+                <div class="game-screen load-game-screen">
+                    <div class="saved-games-list">
+                        <div class="saved-game-item" onclick="showPage('immersive')">
+                            <p>Save Slot 1 - Haunted Mansion</p>
+                            <small>Date: 2025-11-20</small>
+                        </div>
+                        <div class="saved-game-item" onclick="showPage('immersive')">
+                            <p>Save Slot 2 - Ancient Tomb</p>
+                            <small>Date: 2025-11-19</small>
+                        </div>
+                        <div class="design-actions">
+                            <button class="action-btn" onclick="showPage('start')">BACK</button>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Game Page -->
+        <div id="immersive" class="mockup">
+            <div class="mockup-header"><h2>Immersive Adventure</h2></div>
             <div class="mockup-content">
                 <div class="game-screen immersive-screen">
                     <div class="immersive-main">
@@ -611,9 +547,9 @@
                             <h3>The Forgotten Crypt</h3>
                             <p>You stand in a dimly lit chamber. The air is thick with the smell of dust and decay. A single torch on the wall casts long, dancing shadows. In the center of the room is a large stone sarcophagus. A heavy stone door blocks the only exit.</p>
                             <div class="immersive-options">
-                                <div class="immersive-option">1. Examine the sarcophagus.</div>
-                                <div class="immersive-option">2. Inspect the stone door.</div>
-                                <div class="immersive-option">3. Look at the torch.</div>
+                                <div class="immersive-option" onclick="updateObjective('Find the ruby key.')">1. Examine the sarcophagus.</div>
+                                <div class="immersive-option" onclick="addItem('Golden Goblet')">2. Inspect the stone door.</div>
+                                <div class="immersive-option" onclick="removeItem('Rusty Key')">3. Look at the torch.</div>
                                 <div class="immersive-option">4. Go back.</div>
                             </div>
                         </div>
@@ -623,23 +559,21 @@
                         <p class="current-location-subtext">Current Location: The Forgotten Crypt</p>
                         <div class="status-box">
                             <h4>OBJECTIVE</h4>
-                            <p>Find a way to open the stone door.</p>
+                            <p id="objective-text"></p>
                         </div>
                         <div class="status-box">
                             <h4>INVENTORY</h4>
-                            <ul>
-                                <li>Rusty Key</li>
-                                <li>Crumpled Note</li>
-                            </ul>
+                            <ul id="inventory-list"></ul>
                         </div>
-                        <div class="status-box">
-                            <h4>HINT</h4>
-                            <p>The inscription on the sarcophagus seems important.</p>
+                        <div id="hint-box" class="status-box" onclick="requestHint()">
+                            <h4>HINT <span id="hint-budget"></span></h4>
+                            <p id="hint-text">Click for a hint</p>
+                            <div id="hint-cooldown"></div>
                         </div>
                         <div class="retro-actions">
-                            <button>OPTIONS</button>
-                            <button>HELP</button>
-                            <button>SAVE</button>
+                            <button onclick="showPage('settings')">SETTINGS</button>
+                            <button onclick="saveGame()">SAVE</button>
+                            <button onclick="showPage('start')">QUIT</button>
                         </div>
                     </div>
                 </div>
@@ -648,17 +582,227 @@
     </div>
 
     <script>
-        function showMockup(id) {
-            document.querySelectorAll('.mockup').forEach(mockup => {
-                mockup.classList.remove('active');
-            });
-            document.getElementById(id).classList.add('active');
+        let lastPage = 'start';
+        let loadingInterval;
+        let hintCooldownInterval;
+        let selectedDifficulty = 'normal';
 
-            document.querySelectorAll('.showcase-nav button').forEach(button => {
-                button.classList.remove('active');
-            });
-            document.querySelector(`.showcase-nav button[onclick="showMockup('${id}')"]`).classList.add('active');
+        const gameState = {
+            objective: "",
+            inventory: [],
+            hints: {
+                available: [
+                    "The inscription on the sarcophagus seems important.",
+                    "Perhaps the torch can be used for something other than light.",
+                    "The key might not be for the door you think it is."
+                ],
+                used: [],
+                budget: 5,
+                cooldown: 15, // seconds
+                isOnCooldown: false
+            }
+        };
+
+        function initGame(difficulty = 'normal') {
+            // Reset state for a new game
+            gameState.objective = "Find a way to open the stone door.";
+            gameState.inventory = ["Rusty Key", "Crumpled Note"];
+            
+            switch(difficulty) {
+                case 'easy':
+                    gameState.hints.budget = 8;
+                    break;
+                case 'hard':
+                    gameState.hints.budget = 3;
+                    break;
+                case 'normal':
+                default:
+                    gameState.hints.budget = 5;
+                    break;
+            }
+
+            gameState.hints.isOnCooldown = false;
+            clearInterval(hintCooldownInterval);
+
+            renderAll();
         }
+
+        function renderAll() {
+            renderObjective();
+            renderInventory();
+            renderHint();
+        }
+
+        function renderObjective() {
+            const objectiveElement = document.getElementById('objective-text');
+            if (objectiveElement) {
+                objectiveElement.textContent = gameState.objective;
+            }
+        }
+
+        function renderInventory() {
+            const inventoryList = document.getElementById('inventory-list');
+            if (inventoryList) {
+                inventoryList.innerHTML = '';
+                gameState.inventory.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    inventoryList.appendChild(li);
+                });
+            }
+        }
+
+        function renderHint() {
+            const hintBox = document.getElementById('hint-box');
+            const hintBudget = document.getElementById('hint-budget');
+            const hintText = document.getElementById('hint-text');
+            const hintCooldown = document.getElementById('hint-cooldown');
+
+            if (!hintBox) return;
+
+            hintBudget.textContent = `x${gameState.hints.budget}`;
+            hintCooldown.textContent = '';
+            hintText.textContent = 'Click for a hint';
+            hintBox.classList.remove('disabled');
+
+            if (gameState.hints.budget === 0) {
+                hintText.textContent = 'No more hints available.';
+                hintBox.classList.add('disabled');
+            }
+
+            if (gameState.hints.isOnCooldown) {
+                hintBox.classList.add('disabled');
+                hintText.textContent = 'Hint on cooldown...';
+            }
+        }
+
+        function updateObjective(newObjective) {
+            gameState.objective = newObjective;
+            renderObjective();
+        }
+
+        function addItem(item) {
+            if (!gameState.inventory.includes(item)) {
+                gameState.inventory.push(item);
+                renderInventory();
+            }
+        }
+
+        function removeItem(item) {
+            gameState.inventory = gameState.inventory.filter(i => i !== item);
+            renderInventory();
+        }
+
+        function requestHint() {
+            if (gameState.hints.isOnCooldown || gameState.hints.budget === 0) {
+                return; // Do nothing if on cooldown or no hints left
+            }
+
+            const availableHints = gameState.hints.available;
+            if (availableHints.length > 0) {
+                const hint = availableHints.shift(); // Get the first available hint
+                gameState.hints.used.push(hint);
+                gameState.hints.budget--;
+                
+                const hintText = document.getElementById('hint-text');
+                hintText.textContent = hint;
+
+                startHintCooldown();
+            } else {
+                const hintText = document.getElementById('hint-text');
+                hintText.textContent = "No new hints at the moment.";
+            }
+            renderHint();
+        }
+
+        function startHintCooldown() {
+            gameState.hints.isOnCooldown = true;
+            let timeLeft = gameState.hints.cooldown;
+            const hintCooldownEl = document.getElementById('hint-cooldown');
+
+            hintCooldownInterval = setInterval(() => {
+                timeLeft--;
+                hintCooldownEl.textContent = `(${timeLeft}s)`;
+                if (timeLeft <= 0) {
+                    clearInterval(hintCooldownInterval);
+                    gameState.hints.isOnCooldown = false;
+                    renderHint();
+                }
+            }, 1000);
+            renderHint();
+        }
+
+        function showPage(pageId) {
+            const currentPage = document.querySelector('.mockup.active')?.id;
+            if (currentPage && currentPage !== 'settings' && currentPage !== 'load-game') {
+                lastPage = currentPage;
+            }
+            document.querySelectorAll('.mockup').forEach(mockup => mockup.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            if (pageId === 'design') {
+                goToStep(1);
+            }
+        }
+
+        function startGame() {
+            initGame(selectedDifficulty);
+            showPage('immersive');
+        }
+
+        function closeSettings() {
+            showPage(lastPage);
+        }
+
+        function goToStep(stepNumber) {
+            document.querySelectorAll('.design-step').forEach(step => step.classList.remove('active'));
+            document.getElementById('design-step-' + stepNumber).classList.add('active');
+        }
+
+        function selectAmbiance(ambiance, buttonElement) {
+            const themeButtons = document.querySelector('#design-step-1 .design-options');
+            themeButtons.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
+            buttonElement.classList.add('active');
+            document.querySelectorAll('.location-options').forEach(loc => loc.style.display = 'none');
+            document.getElementById('locations-' + ambiance).style.display = 'flex';
+        }
+
+        function selectDifficulty(difficulty) {
+            selectedDifficulty = difficulty;
+        }
+
+        function startLoading() {
+            showPage('loading');
+            const messages = ["Reticulating splines...", "Generating narrative paradoxes...", "Hiding keys in obvious places...", "Polishing virtual dust...", "Teaching AI to count on its fingers...", "Finalizing your impending doom..."];
+            let index = 0;
+            const el = document.getElementById('loading-text');
+            el.textContent = messages[index];
+            loadingInterval = setInterval(() => {
+                index = (index + 1) % messages.length;
+                el.textContent = messages[index];
+            }, 2000);
+            setTimeout(() => {
+                clearInterval(loadingInterval);
+                showPage('immersive');
+            }, 10000);
+        }
+        
+        function saveGame() {
+            alert('Game Saved!');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.design-options .option-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    if (!e.target.closest('#design-step-1')) {
+                        const optionsContainer = e.target.parentElement;
+                        optionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
+                        e.target.classList.add('active');
+                    }
+                });
+            });
+            // initGame(); // Initialize game on page load for testing
+        });
     </script>
 
 </body>
