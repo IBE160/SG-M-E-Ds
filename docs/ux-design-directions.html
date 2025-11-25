@@ -86,7 +86,8 @@
         /* --- Start Page --- */
         .start-screen {
             background-image: url('images/Start page image.jpg');
-            background-size: cover;
+            background-size: contain;
+            background-repeat: no-repeat;
             background-position: center;
             display: flex;
             align-items: center;
@@ -139,7 +140,12 @@
             justify-content: center;
             align-items: center;
             padding: 2rem;
-            background: var(--color-background);
+            background: url('images/Design your own page.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        #design .design-screen {
+            background-image: url('images/Ambiance and difficulty page.jpg');
         }
         .design-content {
             width: 100%;
@@ -167,18 +173,19 @@
         }
         .option-btn {
             font-family: var(--font-family-body);
-            background: var(--color-surface);
+            background: rgba(61, 53, 51, 0.7); /* var(--color-surface) with 70% opacity */
             color: var(--color-text-primary);
             border: 1px solid var(--color-border);
-            padding: 1rem 2rem;
+            padding: 1.2rem 2.5rem; /* Increased padding */
             cursor: pointer;
             transition: all 0.2s ease;
         }
         /* New styles for location options */
         .location-options .option-btn {
-            height: 200px;
-            flex-basis: 30%;
+            height: 240px; /* Increased height */
+            flex-basis: 32%; /* Increased basis */
             background-size: cover;
+            background-repeat: no-repeat;
             background-position: center;
             display: flex;
             flex-direction: column;
@@ -244,7 +251,7 @@
         }
         .action-btn {
             font-family: var(--font-family-heading);
-            background: var(--color-surface);
+            background: rgba(61, 53, 51, 0.7); /* var(--color-surface) with 70% opacity */
             color: var(--color-text-primary);
             border: 2px solid var(--color-border);
             padding: 1rem 2rem;
@@ -297,11 +304,20 @@
         }
 
         /* --- Settings & Load Game --- */
-        .settings-screen, .load-game-screen {
+        .settings-screen {
             padding: 2rem;
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+        .load-game-screen {
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url('images/Design your own page.jpg');
+            background-size: cover;
+            background-position: center;
         }
         .settings-content, .saved-games-list {
             width: 100%;
@@ -389,10 +405,17 @@
         .retro-actions { margin-top: auto; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
         .retro-actions button { background-color: var(--color-surface); border: 2px solid var(--color-border); color: var(--color-text-primary); font-family: var(--font-family-heading); font-size: 0.8rem; padding: 0.8rem 0.5rem; cursor: pointer; }
         .retro-actions button:hover { background-color: var(--color-accent); color: var(--color-background); border-color: var(--color-accent); }
-        .immersive-screen { background-size: cover; background-position: center; display: grid; grid-template-columns: 1fr 320px; height: 100%; }
-        .immersive-main { display: flex; flex-direction: column; justify-content: flex-end; padding: 2rem; }
-        .immersive-text-box { background-color: rgba(0, 0, 0, 0.6); border: 2px solid var(--color-border); padding: 1.5rem; backdrop-filter: blur(5px); }
-        .immersive-text-box h3 { font-family: var(--font-family-heading); color: var(--color-primary); font-size: 1.5rem; margin-top: 0; }
+        .immersive-screen { display: grid; grid-template-columns: 1fr 320px; height: 100%; }
+                    .immersive-main {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: flex-end;
+                        padding: 2rem;
+                        background-size: cover;
+                        background-repeat: no-repeat;
+                        background-position: left center;
+                    }
+                    .immersive-text-box { background-color: rgba(0, 0, 0, 0.6); border: 2px solid var(--color-border); padding: 1.5rem; backdrop-filter: blur(5px); }        .immersive-text-box h3 { font-family: var(--font-family-heading); color: var(--color-primary); font-size: 1.5rem; margin-top: 0; }
         .immersive-text-box p { font-size: 1.1rem; line-height: 1.7; }
         .immersive-options { margin-top: 1rem; border: 2px solid var(--color-border); padding: 1rem; }
         .immersive-option { padding: 0.5rem; cursor: pointer; }
@@ -808,16 +831,15 @@
 
         function startGame() {
             initGame(selectedDifficulty);
-            // Set the background of the immersive screen
-            const immersiveScreen = document.querySelector('#immersive .immersive-screen');
-            if (immersiveScreen && selectedLocationImg) {
-                immersiveScreen.style.backgroundImage = selectedLocationImg;
-            } else if (immersiveScreen) {
-                // Fallback if no location is selected (e.g., direct navigation)
-                immersiveScreen.style.backgroundImage = "url('images/Abandiond Mansion.jpg')"; 
-            }
-            showPage('immersive');
-        }
+                        // Set the background of the immersive main content area
+                        const immersiveMain = document.querySelector('#immersive .immersive-main');
+                        if (immersiveMain && selectedLocationImg) {
+                            immersiveMain.style.backgroundImage = selectedLocationImg;
+                        } else if (immersiveMain) {
+                            // Fallback if no location is selected (e.g., direct navigation)
+                            immersiveMain.style.backgroundImage = "url('images/Abandiond Mansion.jpg')";
+                        }
+                        showPage('immersive');        }
 
         function closeSettings() {
             showPage(lastPage);
