@@ -11,8 +11,8 @@
             --color-secondary: #8B4513;
             --color-accent: #A0522D;
             --color-info: #17A2B8;
-            --color-background: #2C2624;
-            --color-surface: #3D3533;
+            --color-background: #343a40; /* More neutral dark gray */
+            --color-surface: #495057; /* More neutral dark gray */
             --color-border: #495057;
             --color-text-primary: #F8F9FA;
             --color-text-secondary: #ADB5BD;
@@ -85,7 +85,7 @@
 
         /* --- Start Page --- */
         .start-screen {
-            background-image: url('images/Start page image.jpg');
+            background-image: url('images/Start page image (2).jpg');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
@@ -101,16 +101,18 @@
             border: 2px solid var(--color-border);
             border-radius: 8px;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            max-width: 600px; /* Adjusted to 600px as requested */
+            width: 100%; /* Ensure it takes full available width */
         }
         .start-content h1 {
             font-family: var(--font-family-heading);
-            font-size: 4rem;
+            font-size: 3rem;
             color: var(--color-primary);
             margin: 0;
             text-shadow: 3px 3px 0px var(--color-accent);
         }
         .start-content p {
-            font-size: 1.2rem;
+            font-size: 1rem;
             color: var(--color-text-secondary);
             margin: 1rem 0 2.5rem 0;
         }
@@ -125,7 +127,7 @@
             margin: 1rem 0;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-size: 1.2rem;
+            font-size: 1rem;
             text-align: center;
         }
         .start-menu button:hover {
@@ -165,7 +167,9 @@
             font-family: var(--font-family-heading);
             color: var(--color-accent);
             margin-bottom: 1.5rem;
+            font-size: 1.7rem; /* Uniform larger size for all design step headlines */
         }
+        /* Removed specific override for #design-step-3 h3 to ensure uniform sizing */
         .design-options {
             display: flex;
             justify-content: center;
@@ -176,7 +180,8 @@
             background: rgba(61, 53, 51, 0.7); /* var(--color-surface) with 70% opacity */
             color: var(--color-text-primary);
             border: 1px solid var(--color-border);
-            padding: 1.2rem 2.5rem; /* Increased padding */
+            padding: 1.5rem 3rem; /* Further increased padding */
+            font-size: 1.1rem; /* Increased font size */
             cursor: pointer;
             transition: all 0.2s ease;
         }
@@ -210,7 +215,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 50%);
+            background: linear-gradient(to top, rgba(160, 82, 45, 0.8) 0%, rgba(0,0,0,0) 50%);
             opacity: 0;
             transition: opacity 0.2s ease;
         }
@@ -263,11 +268,11 @@
             color: var(--color-background);
             border-color: var(--color-accent);
         }
-        .action-btn.primary {
+        /* .action-btn.primary {
             background: var(--color-accent);
             color: var(--color-background);
             border-color: var(--color-accent);
-        }
+        } */
         .warning-text {
             margin-top: 2rem;
             font-size: 0.9rem;
@@ -319,16 +324,22 @@
             background-size: cover;
             background-position: center;
         }
-        .settings-content, .saved-games-list {
+        .settings-content {
             width: 100%;
-            max-width: 600px;
+        }
+        .saved-games-list {
+            width: 100%;
+            max-width: 600px; /* Consistent width with start/settings page content box */
+            background-color: rgba(33, 37, 41, 0.7); /* Restored specific styling */
+            border: 2px solid var(--color-border); /* Restored specific styling */
+            padding: 4rem; /* Restored specific styling */
         }
         .settings-section {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         .toggle-btn {
             font-family: var(--font-family-body);
@@ -355,14 +366,17 @@
             font-family: var(--font-family-body);
         }
         .saved-game-item {
-            background: var(--color-surface);
-            border: 1px solid var(--color-border);
+            background: rgba(61, 53, 51, 0.7); /* var(--color-surface) with 70% opacity */
+            border: 2px solid var(--color-border);
             padding: 1.5rem;
             margin-bottom: 1rem;
             cursor: pointer;
             transition: all 0.2s ease;
+            color: var(--color-text-primary);
         }
         .saved-game-item:hover {
+            background: var(--color-accent);
+            color: var(--color-background);
             border-color: var(--color-accent);
         }
         .saved-game-item p { margin: 0 0 0.5rem; font-size: 1.2rem; color: var(--color-primary); }
@@ -421,10 +435,121 @@
         .immersive-option { padding: 0.5rem; cursor: pointer; }
         .immersive-option:hover { background-color: var(--color-accent); color: var(--color-background); }
         .immersive-sidebar { background-color: rgba(0, 0, 0, 0.4); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; border-left: 2px solid var(--color-border); backdrop-filter: blur(5px); align-items: center; }
+
+        body.mobile-view .mockup-container {
+            max-width: 375px; /* Common mobile width */
+            margin-left: auto;
+            margin-right: auto;
+            border: 8px solid #000; /* Simulate device bezel */
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transition: all 0.3s ease-in-out;
+        }
+
+        body.mobile-view .mockup-container .mockup-header h2 {
+            font-size: 1rem;
+        }
+
+        body.mobile-view .mockup-container .start-content {
+            padding: 2rem;
+        }
+        
+        body.mobile-view .mockup-container .start-content h1 {
+            font-size: 2rem;
+        }
+        body.mobile-view .mockup-container .start-content p {
+            font-size: 0.9rem;
+        }
+        body.mobile-view .mockup-container .start-menu button {
+            font-size: 0.9rem;
+            padding: 0.8rem;
+        }
+
+        /* Adjustments for design screens in mobile view */
+        body.mobile-view .mockup-container .design-screen {
+            flex-direction: column; /* Stack vertically */
+            padding: 1rem;
+        }
+        body.mobile-view .mockup-container .design-content {
+            max-width: 100%;
+        }
+        body.mobile-view .mockup-container .design-options {
+            flex-direction: column; /* Stack options vertically */
+            gap: 1rem;
+        }
+        body.mobile-view .mockup-container .option-btn {
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+        }
+        body.mobile-view .mockup-container .option-btn.large {
+            padding: 1rem;
+        }
+        body.mobile-view .mockup-container .location-options .option-btn {
+            height: 150px; /* Smaller height for mobile */
+            flex-basis: auto;
+        }
+        body.mobile-view .mockup-container .design-section h3 {
+            font-size: 1.2rem;
+        }
+        body.mobile-view .mockup-container .design-actions {
+            flex-direction: column-reverse; /* Put BACK button on top */
+        }
+        body.mobile-view .mockup-container .action-btn {
+            width: 100%;
+        }
+        body.mobile-view .mockup-container .warning-text {
+            font-size: 0.8rem;
+        }
+
+        /* Adjustments for immersive screen in mobile view */
+        body.mobile-view .mockup-container .immersive-screen {
+            grid-template-columns: 1fr; /* Single column layout */
+        }
+        body.mobile-view .mockup-container .immersive-sidebar {
+            order: 1; /* Move sidebar to top */
+            padding: 1rem;
+            border-left: none;
+            border-bottom: 2px solid var(--color-border);
+        }
+        body.mobile-view .mockup-container .immersive-main {
+            order: 2; /* Move main content to bottom */
+            padding: 1rem;
+        }
+        body.mobile-view .mockup-container .immersive-text-box h3 {
+            font-size: 1.2rem;
+        }
+        body.mobile-view .mockup-container .immersive-text-box p {
+            font-size: 0.9rem;
+        }
+        body.mobile-view .mockup-container .immersive-options {
+            font-size: 0.9rem;
+        }
+        body.mobile-view .mockup-container .status-box {
+            padding: 0.8rem;
+        }
+        body.mobile-view .mockup-container .status-box h4 {
+            font-size: 0.9rem;
+        }
+        body.mobile-view .mockup-container .status-box p,
+        body.mobile-view .mockup-container .status-box ul {
+            font-size: 0.8rem;
+        }
+        body.mobile-view .mockup-container .retro-actions {
+            grid-template-columns: 1fr; /* Stack buttons */
+        }
+        body.mobile-view .mockup-container .retro-actions button {
+            font-size: 0.7rem;
+            padding: 0.6rem;
+        }
+
+
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div style="text-align: center; margin-bottom: 1rem;">
+        <button id="responsive-toggle" style="background-color: var(--color-surface); color: var(--color-text-primary); border: 2px solid var(--color-border); padding: 0.5rem 1rem; cursor: pointer;">Mobile View (Click for Desktop)</button>
+    </div>
 
     <div class="mockup-container">
         <!-- Start Page -->
@@ -434,7 +559,7 @@
                 <div class="game-screen start-screen">
                     <div class="start-content">
                         <h1>AI ESCAPE</h1>
-                        <p>Your text-based adventure awaits.</p>
+                        <p>Embark on a unique, text-driven journey. Craft your own tale or let the AI forge your destiny.</p>
                         <div class="start-menu">
                             <button>NEW GAME</button>
                             <button>LOAD GAME</button>
@@ -457,11 +582,11 @@
                         <div class="design-options" style="flex-direction: column; gap: 2rem;">
                             <button class="option-btn large">
                                 <h3>DESIGN YOUR OWN</h3>
-                                <p>Manually select the ambiance, location, and difficulty for a tailored experience.</p>
+                                <p>Hand-pick the ambiance, location, and difficulty to meticulously craft your personalized adventure.</p>
                             </button>
                             <button class="option-btn large">
                                 <h3>AI-DRIVEN</h3>
-                                <p>Let the AI generate a completely unique and unpredictable challenge for you.</p>
+                                <p>Surrender to the unknown. Allow the AI to intricately weave a unique and unpredictable challenge for you.</p>
                             </button>
                         </div>
                         <div class="warning-text">
@@ -484,7 +609,7 @@
             <div class="mockup-content">
                 <div class="game-screen design-screen">
                     <div class="design-content">
-                        <textarea id="ai-prompt-input" placeholder="e.g., 'A cyberpunk detective story in a rainy city' or 'A fantasy quest to find a lost artifact'" style="width: 100%; height: 150px; font-family: var(--font-family-body); background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border); padding: 1rem; font-size: 1.1rem; resize: none;"></textarea>
+                        <textarea id="ai-prompt-input" placeholder="e.g., 'A cyberpunk detective story in a rainy city' or 'A fantasy quest to find a lost artifact'" style="width: 100%; height: 150px; font-family: var(--font-family-body); background: rgba(73, 80, 87, 0.9); color: var(--color-text-primary); border: 1px solid var(--color-border); padding: 1rem; font-size: 1.1rem; resize: none;"></textarea>
                         <div class="design-actions">
                             <button class="action-btn">BACK</button>
                             <button class="action-btn primary">GENERATE</button>
@@ -503,7 +628,7 @@
                         <div id="design-step-1" class="design-step active">
                             <h3><span class="step-counter">1/3</span> CHOOSE AN AMBIANCE</h3>
                             <div class="design-options">
-                                <button class="option-btn active">SCARY</button>
+                                <button class="option-btn">SCARY</button>
                                 <button class="option-btn">FUNNY</button>
                                 <button class="option-btn">MYSTERIOUS</button>
                             </div>
@@ -515,17 +640,17 @@
                         <div id="design-step-2" class="design-step">
                             <h3><span class="step-counter">2/3</span> CHOOSE A LOCATION</h3>
                             <div id="locations-scary" class="location-options design-options">
-                                <div class="option-btn active" style="background-image: url('images/Abandiond Mansion.jpg');"><h4>HAUNTED MANSION</h4></div>
+                                <div class="option-btn" style="background-image: url('images/Abandiond Mansion.jpg');"><h4>HAUNTED MANSION</h4></div>
                                 <div class="option-btn" style="background-image: url('images/Asylum.jpg');"><h4>ABANDONED ASYLUM</h4></div>
                                 <div class="option-btn" style="background-image: url('images/Spaceship.jpg');"><h4>DERELICT SPACESHIP</h4></div>
                             </div>
                             <div id="locations-funny" class="location-options design-options" style="display:none;">
-                                <div class="option-btn active" style="background-image: url('images/Clown Funhouse.jpg');"><h4>CLOWN'S FUNHOUSE</h4></div>
+                                <div class="option-btn" style="background-image: url('images/Clown Funhouse.jpg');"><h4>CLOWN'S FUNHOUSE</h4></div>
                                 <div class="option-btn" style="background-image: url('images/kids room.jpg');"><h4>THE OVERSIZED PLAYROOM</h4></div>
                                 <div class="option-btn" style="background-image: url('images/Candy Wonderland\'.jpg');"><h4>CANDY WONDERLAND</h4></div>
                             </div>
                             <div id="locations-mysterious" class="location-options design-options" style="display:none;">
-                                <div class="option-btn active" style="background-image: url('images/ancient Tomb.jpg');"><h4>ANCIENT TOMB</h4></div>
+                                <div class="option-btn" style="background-image: url('images/ancient Tomb.jpg');"><h4>ANCIENT TOMB</h4></div>
                                 <div class="option-btn" style="background-image: url('images/Forgotten Library.jpg');"><h4>FORGOTTEN LIBRARY</h4></div>
                                 <div class="option-btn" style="background-image: url('images/Steampunk Airship.jpg');"><h4>STEAMPUNK AIRSHIP</h4></div>
                             </div>
@@ -538,7 +663,7 @@
                             <h3><span class="step-counter">3/3</span> SELECT DIFFICULTY</h3>
                             <div class="design-options">
                                 <button class="option-btn">EASY</button>
-                                <button class="option-btn active">NORMAL</button>
+                                <button class="option-btn">NORMAL</button>
                                 <button class="option-btn">HARD</button>
                             </div>
                             <div class="design-actions">
@@ -566,8 +691,8 @@
         <div id="settings" class="mockup">
             <div class="mockup-header"><h2>Settings</h2></div>
             <div class="mockup-content">
-                <div class="game-screen settings-screen">
-                    <div class="settings-content">
+                <div class="game-screen start-screen"> <!-- Using start-screen for background -->
+                    <div class="start-content"> <!-- Using start-content for the box styling -->
                         <div class="settings-section">
                             <label for="music-toggle">Music</label>
                             <button id="music-toggle" class="toggle-btn active">ON</button>
@@ -626,10 +751,9 @@
             <div class="mockup-content">
                 <div class="game-screen immersive-screen">
                     <div class="immersive-main">
-                        <div class="immersive-text-box">
-                            <h3>Cryo-Chamber Awakening</h3>
-                            <p>Your vision glitches into focus. You're floating in a humming, damaged cryo-pod. Red lights flash on a nearby console, and a digital voice drones, "Warning: System integrity compromised." The air is cold and smells of ozone. A reinforced door blocks your exit, its control panel dark.</p>
-                            <div class="immersive-options">
+                                                    <div class="immersive-text-box">
+                                                        <h3>The Cold Embrace of Starlight</h3>
+                                                        <p>A frigid, metallic tang invades your senses as your vision flickers into reluctant focus. You're confined within a damaged cryo-pod, its low hum now punctuated by the urgent, crimson flash of a warning light. A synthetic voice, eerily calm, intones: "System integrity compromised. Emergency protocols initiated." The air, thick with ozone and the chill of deep space, clings to your skin. Before you, a reinforced hatch, your only exit, remains stubbornly dark and unresponsive.</p>                            <div class="immersive-options">
                                 <div class="immersive-option" data-action="updateObjective" data-value="Find a way to power the door.">1. Check the cryo-pod's diagnostic screen.</div>
                                 <div class="immersive-option" data-action="addItem" data-value="ID-Card">2. Try to override the door controls.</div>
                                 <div class="immersive-option" data-action="removeItem" data-value="Rusty Key">3. Search the nearby storage locker.</div>
@@ -829,6 +953,10 @@
             }
         }
 
+        function closeSettings() {
+            showPage(lastPage);
+        }
+
         function startGame() {
             initGame(selectedDifficulty);
                         // Set the background of the immersive main content area
@@ -840,10 +968,6 @@
                             immersiveMain.style.backgroundImage = "url('images/Abandiond Mansion.jpg')";
                         }
                         showPage('immersive');        }
-
-        function closeSettings() {
-            showPage(lastPage);
-        }
 
         function goToStep(stepNumber) {
             document.querySelectorAll('.design-step').forEach(step => step.classList.remove('active'));
@@ -900,6 +1024,19 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Responsive Toggle
+            const responsiveToggleBtn = document.getElementById('responsive-toggle');
+            if (responsiveToggleBtn) {
+                responsiveToggleBtn.addEventListener('click', () => {
+                    document.body.classList.toggle('mobile-view');
+                    if (document.body.classList.contains('mobile-view')) {
+                        responsiveToggleBtn.textContent = 'Desktop View (Click for Mobile)';
+                    } else {
+                        responsiveToggleBtn.textContent = 'Mobile View (Click for Desktop)';
+                    }
+                });
+            }
+
             // Start Page buttons
             document.querySelectorAll('.start-menu button')[0].addEventListener('click', () => showPage('game-mode'));
             document.querySelectorAll('.start-menu button')[1].addEventListener('click', () => showPage('load-game'));
@@ -935,7 +1072,7 @@
             document.querySelector('#design-step-3 .design-actions .action-btn:nth-child(1)').addEventListener('click', () => goToStep(2));
             document.querySelector('#design-step-3 .design-actions .action-btn.primary').addEventListener('click', startGame);
 
-            // Settings buttons
+            // Settings buttons - These are the actual toggle buttons inside the modal, they don't open the modal
             document.getElementById('music-toggle').addEventListener('click', function() { this.classList.toggle('active'); this.textContent = this.classList.contains('active') ? 'ON' : 'OFF'; });
             document.getElementById('sfx-toggle').addEventListener('click', function() { this.classList.toggle('active'); this.textContent = this.classList.contains('active') ? 'ON' : 'OFF'; });
             document.querySelector('#settings .design-actions .action-btn.primary').addEventListener('click', closeSettings);
@@ -977,10 +1114,10 @@
 
             // Set initial state for ambiance selection
             // This ensures selectedLocationImg is initialized even if user doesn't click ambiance first
-            const initialAmbianceButton = document.querySelector('#design-step-1 .design-options .option-btn.active');
-            if (initialAmbianceButton) {
-                selectAmbiance(initialAmbianceButton.textContent.toLowerCase(), initialAmbianceButton);
-            }
+            // const initialAmbianceButton = document.querySelector('#design-step-1 .design-options .option-btn.active');
+            // if (initialAmbianceButton) {
+            //     selectAmbiance(initialAmbianceButton.textContent.toLowerCase(), initialAmbianceButton);
+            // }
              // Initialize game on page load for testing
             // initGame();
         });

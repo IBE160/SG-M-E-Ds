@@ -1,16 +1,7 @@
 # Project Plan
 
 <<<<<<< HEAD
-## Fase 1
-=======
-## Instruksjoner
-
-1. Der hvor det står {prompt / user-input-file}, kan dere legge inn en egen prompt eller filnavn for å gi ekstra instruksjoner. Hvis dere ikke ønsker å legge til ekstra instruksjoner, kan dere bare fjerne denne delen.
-2. Hvis jeg har skrevet noe der allerede, f.eks. "Root Cause Analysis and Solution Design for Player Inactivity", så kan dere bytte ut min prompt med deres egen.
-
-
 ## Fase 0
->>>>>>> 59842ff4bce4fcf2a4775f6ec5112b5c92562bed
 
 - [x] /run-agent-task analyst *workflow-init
   - [x] File: bmm-workflow-status.yaml
@@ -28,18 +19,6 @@
   - [x] /run-agent-task analyst *product-brief "Read the two brainstorming sessions the research session and the @proposal.md file, and create a product brief for the project."
     - [x] File: product-brief.md
 
-<<<<<<< HEAD
-## Fase 2
-
-- [ ] Planning
-  - [x] /run-agent-task pm *prd
-  - [x] /run-agent-task pm *validate-prd
-  - [ ] /run-agent-task ux-designer *create-ux-design {prompt / user-input-file}
-  - [ ] /run-agent-task ux-designer *validate-ux-design {prompt / user-input-file}
-  - [ ] /run-agent-task tea *framework {prompt / user-input-file}
-  - [ ] /run-agent-task tea *ci {prompt / user-input-file}
-  - [ ] /run-agent-task tea *test-design {prompt / user-input-file}
-=======
 ## Fase 1
 
 - [ ] Planning
@@ -51,7 +30,10 @@
     - [ ] File: ux-design-specification.md
     - [ ] File: ux-color-themes.html
     - [ ] File: ux-design-directions.html
-  - [ ] /run-agent-task ux-designer *validate-ux-design {prompt / user-input-file}
+  - [x] /run-agent-task ux-designer *validate-ux-design {prompt / user-input-file}
+  - [ ] /run-agent-task tea *framework {prompt / user-input-file}
+  - [ ] /run-agent-task tea *ci {prompt / user-input-file}
+  - [ ] /run-agent-task tea *test-design {prompt / user-input-file}
 
 ## Fase 2
 
@@ -62,8 +44,6 @@
     - [ ] File: epics.md
   - [ ] /run-agent-task tea *test-design {prompt / user-input-file}
   - [ ] /run-agent-task architect *solutioning-gate-check {prompt / user-input-file}
->>>>>>> 59842ff4bce4fcf2a4775f6ec5112b5c92562bed
-
 ## Fase 3
 
 - [ ] Solutioning

@@ -207,6 +207,31 @@ graph TD
 
 ---
 
+### 5.4. Error Handling and Recovery
+
+Consistent and clear error handling is crucial for guiding users through unexpected situations.
+
+- **General Principles:**
+    - **Informative:** Error messages should clearly state what went wrong and, if possible, why.
+    - **Actionable:** Users should be guided on how to resolve the error or what steps to take next.
+    - **Non-disruptive:** Avoid full-screen error messages for minor issues; use inline or toast notifications where appropriate.
+    - **Contextual:** Error messages should appear in the relevant context of the user's action.
+
+- **Specific Flow Considerations:**
+    - **New Game Creation (AI-Driven):**
+        - If AI generation fails: Display an inline message on the AI Prompt Screen (e.g., "AI generation failed. Please try again or refine your prompt."). Offer a retry button.
+    - **Load Game:**
+        - If a saved game fails to load or is corrupted: Display a clear message on the Load Game Screen (e.g., "Failed to load game. The save file might be corrupted."). Provide options to "Try Again" or "Delete Save" (if applicable).
+    - **Form Validation (e.g., Settings):**
+        - If input is invalid: Use inline error messages next to the problematic input field.
+
+- **Recovery Paths:**
+    - **Retry:** For transient errors (e.g., network issues, AI generation timeouts).
+    - **Go Back:** Allow users to return to a previous stable state to correct inputs or try another path.
+    - **Report Issue:** For critical, unresolvable errors, provide an option to report the issue.
+
+---
+
 ## 6. Component and Pattern Library
 
 This section specifies the reusable components and formalizes the UX patterns that form the building blocks of the AI Escape interface.
@@ -365,14 +390,52 @@ Form elements are used in the settings and other parts of the application. They 
 #### 6.4.5. Modal Patterns
 
 - **Usage:** For displaying critical information or requiring user input without navigating away from the current screen.
-- **Implementation:** To Be Defined. Example: A modal could be used for the "Settings" screen instead of navigating to a new page.
+- **Implementation:**
+    - Appears centered on the screen.
+    - Features a semi-transparent, blurring overlay (`.modal-overlay`) to dim the background.
+    - Can be dismissed by clicking outside the modal content, pressing the ESC key, or using a dedicated close button.
+    - Content (`.modal-content`) should be responsive, with `max-width` and `max-height` to fit various screen sizes.
+    - Prevents scrolling of the underlying `body` content when open.
+- **Example:** Settings screen, confirmation dialogs, detailed item views.
+- **Clear specification (how it works):** Centered overlay, dismissible via external click, ESC key, or close button.
+- **Usage guidance (when to use):** Critical user input, context-specific settings, confirmation prompts.
 
 #### 6.4.6. Empty State Patterns
 
-- **Usage:** To handle situations where a list or content area has no items to display.
-- **Implementation:** To Be Defined. Example: The "LOAD GAME" screen if there are no saved games.
+- **Usage:** To handle situations where a list or content area has no items to display, providing clear guidance and preventing user confusion.
+- **Implementation:**
+    - A clear, concise message explaining why the content is empty.
+    - Often includes an encouraging call to action to help the user populate the content.
+    - Uses secondary text styling for the message (`--color-text-secondary`).
+- **Example:** "No Saved Games Yet! Start a New Adventure to Create One.", "Your Inventory is Empty. Explore to Find Items!"
+- **Clear specification (how it works):** Displays a message and optional CTA when data is absent.
+- **Usage guidance (when to use):** Empty saved games list, empty inventory, no search results.
 
 #### 6.4.7. Confirmation Patterns
 
-- **Usage:** To ask for user confirmation before performing a destructive or irreversible action.
-- **Implementation:** To Be Defined. Example: A confirmation dialog before quitting a game without saving.
+- **Usage:** To ask for user confirmation before performing a destructive, irreversible, or otherwise critical action.
+- **Implementation:**
+    - Typically presented as a modal dialog (see Modal Patterns) with a clear question and explicit "Confirm" (or "Delete", "Quit") and "Cancel" actions.
+    - The confirm action should often use a distinct color (e.g., `--color-error` for destructive actions).
+- **Example:** "Are you sure you want to quit without saving? All unsaved progress will be lost.", "Confirm Deletion: This action cannot be undone."
+- **Clear specification (how it works):** Requires explicit user choice (confirm/cancel) for critical actions.
+- **Usage guidance (when to use):** Quitting game without saving, deleting data, making irreversible choices.
+
+#### 6.4.8. Notification Patterns
+
+- **Usage:** To provide transient, non-disruptive feedback about system status, successful actions, or minor alerts.
+- **Implementation:**
+    - Typically uses "Toast Notifications" (see 6.4.2 Feedback Patterns).
+    - Placement: Top-center or bottom-center of the screen, non-blocking.
+    - Duration: Short, self-dismissing (e.g., 3-5 seconds).
+    - Stacking: New notifications stack above or below previous ones.
+    - Priority: Differentiated by color (e.g., success, info, warning).
+- **Example:** "Game Saved!", "Item Acquired: Flashlight", "Hint Cooldown Active."
+- **Clear specification (how it works):** Briefly informs user of status changes without requiring interaction.
+- **Usage guidance (when to use):** Confirming saves, item acquisition, temporary status updates.
+
+##### Each pattern should have:
+
+- [ ] Clear specification (how it works)
+- [ ] Usage guidance (when to use)
+- [ ] Examples (concrete implementations)
