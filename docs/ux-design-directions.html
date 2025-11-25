@@ -68,7 +68,7 @@
         }
 
         .mockup-content {
-            height: 70vh;
+            height: auto;
             background-color: var(--color-background);
             overflow: hidden;
         }
@@ -76,7 +76,7 @@
         /* Common Styles for Mockups */
         .game-screen {
             width: 100%;
-            height: 100%;
+            min-height: 70vh;
             display: flex;
             flex-direction: column;
             font-family: var(--font-family-body);
@@ -85,7 +85,7 @@
 
         /* --- Start Page --- */
         .start-screen {
-            background-image: url('https://source.unsplash.com/random/1600x900/?dark,tech,abstract');
+            background-image: url('images/Start page image.jpg');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -95,7 +95,7 @@
             height: 100%;
         }
         .start-content {
-            background-color: rgba(33, 37, 41, 0.9);
+            background-color: rgba(33, 37, 41, 0.7);
             padding: 4rem;
             border: 2px solid var(--color-border);
             border-radius: 8px;
@@ -163,7 +163,7 @@
         .design-options {
             display: flex;
             justify-content: center;
-            gap: 1rem;
+            gap: 2rem; /* Increased gap */
         }
         .option-btn {
             font-family: var(--font-family-body);
@@ -173,6 +173,46 @@
             padding: 1rem 2rem;
             cursor: pointer;
             transition: all 0.2s ease;
+        }
+        /* New styles for location options */
+        .location-options .option-btn {
+            height: 200px;
+            flex-basis: 30%;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .location-options .option-btn h4 {
+            font-family: var(--font-family-heading);
+            color: var(--color-primary);
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 0.75rem;
+            margin: 0;
+            text-align: center;
+            width: 100%;
+        }
+        .location-options .option-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 50%);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .location-options .option-btn:hover::after, .location-options .option-btn.active::after {
+            opacity: 1;
+        }
+        .location-options .option-btn.active {
+            border-color: var(--color-accent);
+            transform: scale(1.05);
         }
         .option-btn.large {
             padding: 2rem;
@@ -191,10 +231,11 @@
             line-height: 1.5;
         }
         .option-btn:hover, .option-btn.active {
-            background: var(--color-accent);
+            background-color: var(--color-accent);
             color: var(--color-background);
             border-color: var(--color-accent);
         }
+
         .design-actions {
             margin-top: 4rem;
             display: flex;
@@ -348,15 +389,15 @@
         .retro-actions { margin-top: auto; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
         .retro-actions button { background-color: var(--color-surface); border: 2px solid var(--color-border); color: var(--color-text-primary); font-family: var(--font-family-heading); font-size: 0.8rem; padding: 0.8rem 0.5rem; cursor: pointer; }
         .retro-actions button:hover { background-color: var(--color-accent); color: var(--color-background); border-color: var(--color-accent); }
-        .immersive-screen { background-image: url('https://source.unsplash.com/random/1600x900/?dark,ancient,ruins'); background-size: cover; background-position: center; display: grid; grid-template-columns: 1fr 320px; height: 100%; }
+        .immersive-screen { background-size: cover; background-position: center; display: grid; grid-template-columns: 1fr 320px; height: 100%; }
         .immersive-main { display: flex; flex-direction: column; justify-content: flex-end; padding: 2rem; }
-        .immersive-text-box { background-color: rgba(0, 0, 0, 0.7); border: 2px solid var(--color-border); padding: 1.5rem; backdrop-filter: blur(5px); }
+        .immersive-text-box { background-color: rgba(0, 0, 0, 0.6); border: 2px solid var(--color-border); padding: 1.5rem; backdrop-filter: blur(5px); }
         .immersive-text-box h3 { font-family: var(--font-family-heading); color: var(--color-primary); font-size: 1.5rem; margin-top: 0; }
         .immersive-text-box p { font-size: 1.1rem; line-height: 1.7; }
         .immersive-options { margin-top: 1rem; border: 2px solid var(--color-border); padding: 1rem; }
         .immersive-option { padding: 0.5rem; cursor: pointer; }
         .immersive-option:hover { background-color: var(--color-accent); color: var(--color-background); }
-        .immersive-sidebar { background-color: rgba(0, 0, 0, 0.5); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; border-left: 2px solid var(--color-border); backdrop-filter: blur(5px); align-items: center; }
+        .immersive-sidebar { background-color: rgba(0, 0, 0, 0.4); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; border-left: 2px solid var(--color-border); backdrop-filter: blur(5px); align-items: center; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -372,9 +413,9 @@
                         <h1>AI ESCAPE</h1>
                         <p>Your text-based adventure awaits.</p>
                         <div class="start-menu">
-                            <button onclick="showPage('game-mode')">NEW GAME</button>
-                            <button onclick="showPage('load-game')">LOAD GAME</button>
-                            <button onclick="showPage('settings')">SETTINGS</button>
+                            <button>NEW GAME</button>
+                            <button>LOAD GAME</button>
+                            <button>SETTINGS</button>
                         </div>
                     </div>
                 </div>
@@ -391,11 +432,11 @@
                 <div class="game-screen design-screen">
                     <div class="design-content">
                         <div class="design-options" style="flex-direction: column; gap: 2rem;">
-                            <button class="option-btn large" onclick="showPage('design')">
+                            <button class="option-btn large">
                                 <h3>DESIGN YOUR OWN</h3>
                                 <p>Manually select the ambiance, location, and difficulty for a tailored experience.</p>
                             </button>
-                            <button class="option-btn large" onclick="showPage('ai-prompt')">
+                            <button class="option-btn large">
                                 <h3>AI-DRIVEN</h3>
                                 <p>Let the AI generate a completely unique and unpredictable challenge for you.</p>
                             </button>
@@ -404,7 +445,7 @@
                             <p><strong>Warning:</strong> The AI-driven experience is experimental, may be unpredictable, and will take a moment to generate.</p>
                         </div>
                         <div class="design-actions">
-                            <button class="action-btn" onclick="showPage('start')">BACK</button>
+                            <button class="action-btn">BACK</button>
                         </div>
                     </div>
                 </div>
@@ -422,8 +463,8 @@
                     <div class="design-content">
                         <textarea id="ai-prompt-input" placeholder="e.g., 'A cyberpunk detective story in a rainy city' or 'A fantasy quest to find a lost artifact'" style="width: 100%; height: 150px; font-family: var(--font-family-body); background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border); padding: 1rem; font-size: 1.1rem; resize: none;"></textarea>
                         <div class="design-actions">
-                            <button class="action-btn" onclick="showPage('game-mode')">BACK</button>
-                            <button class="action-btn primary" onclick="startLoading()">GENERATE</button>
+                            <button class="action-btn">BACK</button>
+                            <button class="action-btn primary">GENERATE</button>
                         </div>
                     </div>
                 </div>
@@ -439,47 +480,47 @@
                         <div id="design-step-1" class="design-step active">
                             <h3><span class="step-counter">1/3</span> CHOOSE AN AMBIANCE</h3>
                             <div class="design-options">
-                                <button class="option-btn active" onclick="selectAmbiance('scary', this)">SCARY</button>
-                                <button class="option-btn" onclick="selectAmbiance('funny', this)">FUNNY</button>
-                                <button class="option-btn" onclick="selectAmbiance('mysterious', this)">MYSTERIOUS</button>
+                                <button class="option-btn active">SCARY</button>
+                                <button class="option-btn">FUNNY</button>
+                                <button class="option-btn">MYSTERIOUS</button>
                             </div>
                             <div class="design-actions">
-                                <button class="action-btn" onclick="showPage('game-mode')">BACK</button>
-                                <button class="action-btn primary" onclick="goToStep(2)">NEXT</button>
+                                <button class="action-btn">BACK</button>
+                                <button class="action-btn primary">NEXT</button>
                             </div>
                         </div>
                         <div id="design-step-2" class="design-step">
                             <h3><span class="step-counter">2/3</span> CHOOSE A LOCATION</h3>
                             <div id="locations-scary" class="location-options design-options">
-                                <button class="option-btn active">HAUNTED MANSION</button>
-                                <button class="option-btn">ABANDONED ASYLUM</button>
-                                <button class="option-btn">DERELICT SPACESHIP</button>
+                                <div class="option-btn active" style="background-image: url('images/Abandiond Mansion.jpg');"><h4>HAUNTED MANSION</h4></div>
+                                <div class="option-btn" style="background-image: url('images/Asylum.jpg');"><h4>ABANDONED ASYLUM</h4></div>
+                                <div class="option-btn" style="background-image: url('images/Spaceship.jpg');"><h4>DERELICT SPACESHIP</h4></div>
                             </div>
                             <div id="locations-funny" class="location-options design-options" style="display:none;">
-                                <button class="option-btn active">CLOWN'S FUNHOUSE</button>
-                                <button class="option-btn">THE OVERSIZED PLAYROOM</button>
-                                <button class="option-btn">CANDY WONDERLAND</button>
+                                <div class="option-btn active" style="background-image: url('images/Clown Funhouse.jpg');"><h4>CLOWN'S FUNHOUSE</h4></div>
+                                <div class="option-btn" style="background-image: url('images/kids room.jpg');"><h4>THE OVERSIZED PLAYROOM</h4></div>
+                                <div class="option-btn" style="background-image: url('images/Candy Wonderland\'.jpg');"><h4>CANDY WONDERLAND</h4></div>
                             </div>
                             <div id="locations-mysterious" class="location-options design-options" style="display:none;">
-                                <button class="option-btn active">ANCIENT TOMB</button>
-                                <button class="option-btn">FORGOTTEN LIBRARY</button>
-                                <button class="option-btn">STEAMPUNK AIRSHIP</button>
+                                <div class="option-btn active" style="background-image: url('images/ancient Tomb.jpg');"><h4>ANCIENT TOMB</h4></div>
+                                <div class="option-btn" style="background-image: url('images/Forgotten Library.jpg');"><h4>FORGOTTEN LIBRARY</h4></div>
+                                <div class="option-btn" style="background-image: url('images/Steampunk Airship.jpg');"><h4>STEAMPUNK AIRSHIP</h4></div>
                             </div>
                             <div class="design-actions">
-                                <button class="action-btn" onclick="goToStep(1)">BACK</button>
-                                <button class="action-btn primary" onclick="goToStep(3)">NEXT</button>
+                                <button class="action-btn">BACK</button>
+                                <button class="action-btn primary">NEXT</button>
                             </div>
                         </div>
                         <div id="design-step-3" class="design-step">
                             <h3><span class="step-counter">3/3</span> SELECT DIFFICULTY</h3>
                             <div class="design-options">
-                                <button class="option-btn" onclick="selectDifficulty('easy')">EASY</button>
-                                <button class="option-btn active" onclick="selectDifficulty('normal')">NORMAL</button>
-                                <button class="option-btn" onclick="selectDifficulty('hard')">HARD</button>
+                                <button class="option-btn">EASY</button>
+                                <button class="option-btn active">NORMAL</button>
+                                <button class="option-btn">HARD</button>
                             </div>
                             <div class="design-actions">
-                                <button class="action-btn" onclick="goToStep(2)">BACK</button>
-                                <button class="action-btn primary" onclick="startGame()">START ADVENTURE</button>
+                                <button class="action-btn">BACK</button>
+                                <button class="action-btn primary">START ADVENTURE</button>
                             </div>
                         </div>
 
@@ -506,11 +547,11 @@
                     <div class="settings-content">
                         <div class="settings-section">
                             <label for="music-toggle">Music</label>
-                            <button id="music-toggle" class="toggle-btn active" onclick="this.classList.toggle('active'); this.textContent = this.classList.contains('active') ? 'ON' : 'OFF'">ON</button>
+                            <button id="music-toggle" class="toggle-btn active">ON</button>
                         </div>
                         <div class="settings-section">
                             <label for="sfx-toggle">Sound Effects</label>
-                            <button id="sfx-toggle" class="toggle-btn active" onclick="this.classList.toggle('active'); this.textContent = this.classList.contains('active') ? 'ON' : 'OFF'">ON</button>
+                            <button id="sfx-toggle" class="toggle-btn active">ON</button>
                         </div>
                         <div class="settings-section">
                             <label for="volume-slider">Volume</label>
@@ -527,7 +568,7 @@
                             </select>
                         </div>
                         <div class="design-actions">
-                            <button class="action-btn primary" onclick="closeSettings()">CLOSE</button>
+                            <button class="action-btn primary">CLOSE</button>
                         </div>
                     </div>
                 </div>
@@ -540,16 +581,16 @@
             <div class="mockup-content">
                 <div class="game-screen load-game-screen">
                     <div class="saved-games-list">
-                        <div class="saved-game-item" onclick="showPage('immersive')">
+                        <div class="saved-game-item">
                             <p>Save Slot 1 - Haunted Mansion</p>
                             <small>Date: 2025-11-20</small>
                         </div>
-                        <div class="saved-game-item" onclick="showPage('immersive')">
+                        <div class="saved-game-item">
                             <p>Save Slot 2 - Ancient Tomb</p>
                             <small>Date: 2025-11-19</small>
                         </div>
                         <div class="design-actions">
-                            <button class="action-btn" onclick="showPage('start')">BACK</button>
+                            <button class="action-btn">BACK</button>
                         </div>
                     </div>
                 </div>
@@ -566,9 +607,9 @@
                             <h3>Cryo-Chamber Awakening</h3>
                             <p>Your vision glitches into focus. You're floating in a humming, damaged cryo-pod. Red lights flash on a nearby console, and a digital voice drones, "Warning: System integrity compromised." The air is cold and smells of ozone. A reinforced door blocks your exit, its control panel dark.</p>
                             <div class="immersive-options">
-                                <div class="immersive-option" onclick="updateObjective('Find a way to power the door.')">1. Check the cryo-pod's diagnostic screen.</div>
-                                <div class="immersive-option" onclick="addItem('ID-Card')">2. Try to override the door controls.</div>
-                                <div class="immersive-option" onclick="removeItem('Rusty Key')">3. Search the nearby storage locker.</div>
+                                <div class="immersive-option" data-action="updateObjective" data-value="Find a way to power the door.">1. Check the cryo-pod's diagnostic screen.</div>
+                                <div class="immersive-option" data-action="addItem" data-value="ID-Card">2. Try to override the door controls.</div>
+                                <div class="immersive-option" data-action="removeItem" data-value="Rusty Key">3. Search the nearby storage locker.</div>
                                 <div class="immersive-option">4. Wait for help.</div>
                             </div>
                         </div>
@@ -584,15 +625,15 @@
                             <h4>INVENTORY</h4>
                             <ul id="inventory-list"></ul>
                         </div>
-                        <div id="hint-box" class="status-box" onclick="requestHint()">
+                        <div id="hint-box" class="status-box">
                             <h4>HINT <span id="hint-budget"></span></h4>
                             <p id="hint-text">Click for a hint</p>
                             <div id="hint-cooldown"></div>
                         </div>
                         <div class="retro-actions">
-                            <button onclick="showPage('settings')">SETTINGS</button>
-                            <button onclick="saveGame()">SAVE</button>
-                            <button onclick="showPage('start')">QUIT</button>
+                            <button data-action="showPage" data-value="settings">SETTINGS</button>
+                            <button data-action="saveGame">SAVE</button>
+                            <button data-action="showPage" data-value="start">QUIT</button>
                         </div>
                     </div>
                 </div>
@@ -605,6 +646,7 @@
         let loadingInterval;
         let hintCooldownInterval;
         let selectedDifficulty = 'normal';
+        let selectedLocationImg = ''; // To store the selected ambiance and location image
 
         const gameState = {
             objective: "",
@@ -766,6 +808,14 @@
 
         function startGame() {
             initGame(selectedDifficulty);
+            // Set the background of the immersive screen
+            const immersiveScreen = document.querySelector('#immersive .immersive-screen');
+            if (immersiveScreen && selectedLocationImg) {
+                immersiveScreen.style.backgroundImage = selectedLocationImg;
+            } else if (immersiveScreen) {
+                // Fallback if no location is selected (e.g., direct navigation)
+                immersiveScreen.style.backgroundImage = "url('images/Abandiond Mansion.jpg')"; 
+            }
             showPage('immersive');
         }
 
@@ -783,11 +833,28 @@
             themeButtons.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
             buttonElement.classList.add('active');
             document.querySelectorAll('.location-options').forEach(loc => loc.style.display = 'none');
-            document.getElementById('locations-' + ambiance).style.display = 'flex';
+            const locationContainer = document.getElementById('locations-' + ambiance);
+            locationContainer.style.display = 'flex';
+            // Set the default selected location image for the ambiance
+            const firstLocation = locationContainer.querySelector('.option-btn');
+            if (firstLocation) {
+                selectedLocationImg = firstLocation.style.backgroundImage;
+                // Also visually activate the first location
+                firstLocation.classList.add('active');
+            }
+        }
+        
+        function selectLocation(locationElement) {
+            const optionsContainer = locationElement.parentElement;
+            optionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
+            locationElement.classList.add('active');
+            selectedLocationImg = locationElement.style.backgroundImage;
         }
 
-        function selectDifficulty(difficulty) {
-            selectedDifficulty = difficulty;
+        function selectDifficulty(difficultyElement) {
+            document.querySelectorAll('#design-step-3 .option-btn').forEach(btn => btn.classList.remove('active'));
+            difficultyElement.classList.add('active');
+            selectedDifficulty = difficultyElement.textContent.toLowerCase();
         }
 
         function startLoading() {
@@ -802,7 +869,7 @@
             }, 2000);
             setTimeout(() => {
                 clearInterval(loadingInterval);
-                showPage('immersive');
+                startGame(); // Use the general startGame function
             }, 10000);
         }
         
@@ -811,16 +878,89 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.design-options .option-btn').forEach(button => {
+            // Start Page buttons
+            document.querySelectorAll('.start-menu button')[0].addEventListener('click', () => showPage('game-mode'));
+            document.querySelectorAll('.start-menu button')[1].addEventListener('click', () => showPage('load-game'));
+            document.querySelectorAll('.start-menu button')[2].addEventListener('click', () => showPage('settings'));
+
+            // Game Mode Selection buttons
+            document.querySelectorAll('#game-mode .design-options .option-btn')[0].addEventListener('click', () => showPage('design'));
+            document.querySelectorAll('#game-mode .design-options .option-btn')[1].addEventListener('click', () => showPage('ai-prompt'));
+            document.querySelector('#game-mode .design-actions .action-btn').addEventListener('click', () => showPage('start'));
+
+            // AI Prompt buttons
+            document.querySelector('#ai-prompt .design-actions .action-btn:nth-child(1)').addEventListener('click', () => showPage('game-mode'));
+            document.querySelector('#ai-prompt .design-actions .action-btn.primary').addEventListener('click', startLoading);
+
+            // Design Page - Ambiance
+            document.querySelectorAll('#design-step-1 .design-options .option-btn').forEach(button => {
+                button.addEventListener('click', (e) => selectAmbiance(e.target.textContent.toLowerCase(), e.target));
+            });
+            document.querySelector('#design-step-1 .design-actions .action-btn:nth-child(1)').addEventListener('click', () => showPage('game-mode'));
+            document.querySelector('#design-step-1 .design-actions .action-btn.primary').addEventListener('click', () => goToStep(2));
+            
+            // Design Page - Location (event listeners already attached for each div)
+            document.querySelectorAll('.location-options .option-btn').forEach(button => {
+                button.addEventListener('click', () => selectLocation(button));
+            });
+            document.querySelector('#design-step-2 .design-actions .action-btn:nth-child(1)').addEventListener('click', () => goToStep(1));
+            document.querySelector('#design-step-2 .design-actions .action-btn.primary').addEventListener('click', () => goToStep(3));
+
+            // Design Page - Difficulty
+            document.querySelectorAll('#design-step-3 .design-options .option-btn').forEach(button => {
+                button.addEventListener('click', (e) => selectDifficulty(e.target));
+            });
+            document.querySelector('#design-step-3 .design-actions .action-btn:nth-child(1)').addEventListener('click', () => goToStep(2));
+            document.querySelector('#design-step-3 .design-actions .action-btn.primary').addEventListener('click', startGame);
+
+            // Settings buttons
+            document.getElementById('music-toggle').addEventListener('click', function() { this.classList.toggle('active'); this.textContent = this.classList.contains('active') ? 'ON' : 'OFF'; });
+            document.getElementById('sfx-toggle').addEventListener('click', function() { this.classList.toggle('active'); this.textContent = this.classList.contains('active') ? 'ON' : 'OFF'; });
+            document.querySelector('#settings .design-actions .action-btn.primary').addEventListener('click', closeSettings);
+
+            // Load Game buttons
+            document.querySelectorAll('.saved-game-item').forEach(item => item.addEventListener('click', () => showPage('immersive')));
+            document.querySelector('#load-game .design-actions .action-btn').addEventListener('click', () => showPage('start'));
+
+            // Immersive page buttons (using data attributes for actions)
+            document.querySelectorAll('.immersive-options .immersive-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    const action = e.target.dataset.action;
+                    const value = e.target.dataset.value;
+                    if (action === 'updateObjective') {
+                        updateObjective(value);
+                    } else if (action === 'addItem') {
+                        addItem(value);
+                    } else if (action === 'removeItem') {
+                        removeItem(value);
+                    }
+                    // For now, any click on an immersive option will refresh hints
+                    renderHint(); 
+                });
+            });
+
+            document.getElementById('hint-box').addEventListener('click', requestHint);
+
+            document.querySelectorAll('.retro-actions button').forEach(button => {
                 button.addEventListener('click', (e) => {
-                    if (!e.target.closest('#design-step-1')) {
-                        const optionsContainer = e.target.parentElement;
-                        optionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
-                        e.target.classList.add('active');
+                    const action = e.target.dataset.action;
+                    const value = e.target.dataset.value;
+                    if (action === 'showPage') {
+                        showPage(value);
+                    } else if (action === 'saveGame') {
+                        saveGame();
                     }
                 });
             });
-            // initGame(); // Initialize game on page load for testing
+
+            // Set initial state for ambiance selection
+            // This ensures selectedLocationImg is initialized even if user doesn't click ambiance first
+            const initialAmbianceButton = document.querySelector('#design-step-1 .design-options .option-btn.active');
+            if (initialAmbianceButton) {
+                selectAmbiance(initialAmbianceButton.textContent.toLowerCase(), initialAmbianceButton);
+            }
+             // Initialize game on page load for testing
+            // initGame();
         });
     </script>
 
