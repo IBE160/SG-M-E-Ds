@@ -395,7 +395,7 @@
                                 <h3>DESIGN YOUR OWN</h3>
                                 <p>Manually select the ambiance, location, and difficulty for a tailored experience.</p>
                             </button>
-                            <button class="option-btn large" onclick="startLoading()">
+                            <button class="option-btn large" onclick="showPage('ai-prompt')">
                                 <h3>AI-DRIVEN</h3>
                                 <p>Let the AI generate a completely unique and unpredictable challenge for you.</p>
                             </button>
@@ -405,6 +405,25 @@
                         </div>
                         <div class="design-actions">
                             <button class="action-btn" onclick="showPage('start')">BACK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Prompt Page -->
+        <div id="ai-prompt" class="mockup">
+            <div class="mockup-header">
+                <h2>Describe Your Adventure</h2>
+                <p>Tell the AI what kind of game you want to play. Be as specific or as vague as you like.</p>
+            </div>
+            <div class="mockup-content">
+                <div class="game-screen design-screen">
+                    <div class="design-content">
+                        <textarea id="ai-prompt-input" placeholder="e.g., 'A cyberpunk detective story in a rainy city' or 'A fantasy quest to find a lost artifact'" style="width: 100%; height: 150px; font-family: var(--font-family-body); background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border); padding: 1rem; font-size: 1.1rem; resize: none;"></textarea>
+                        <div class="design-actions">
+                            <button class="action-btn" onclick="showPage('game-mode')">BACK</button>
+                            <button class="action-btn primary" onclick="startLoading()">GENERATE</button>
                         </div>
                     </div>
                 </div>

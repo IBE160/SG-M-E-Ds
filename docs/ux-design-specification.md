@@ -145,10 +145,11 @@ This flow covers the user's journey from starting the application to beginning a
 graph TD
     A[Start Page] -->|Clicks 'NEW GAME'| B(Game Mode Selection);
     B -->|Selects 'DESIGN YOUR OWN'| C(Design Step 1: Ambiance);
-    B -->|Selects 'AI-DRIVEN'| G(Loading Screen);
+    B -->|Selects 'AI-DRIVEN'| H(AI Prompt Screen);
     C -->|Clicks 'NEXT'| D(Design Step 2: Location);
     D -->|Clicks 'NEXT'| E(Design Step 3: Difficulty);
     E -->|Clicks 'START ADVENTURE'| F(Immersive Game Screen);
+    H -->|Clicks 'GENERATE'| G(Loading Screen);
     G --> F;
 
     subgraph "Design Your Own Wizard"
@@ -164,6 +165,7 @@ graph TD
     style E fill:#343A40,stroke:#495057,stroke-width:2px,color:#F8F9FA
     style F fill:#212529,stroke:#A0522D,stroke-width:2px,color:#F8F9FA
     style G fill:#212529,stroke:#17A2B8,stroke-width:2px,color:#F8F9FA
+    style H fill:#343A40,stroke:#495057,stroke-width:2px,color:#F8F9FA
 ```
 
 ### 5.2. Load Game
@@ -260,7 +262,16 @@ This section specifies the reusable components and formalizes the UX patterns th
     - When used as a group, should be contained within a `radiogroup` or similar structure.
     - The `.active` state must be programmatically communicated (e.g., `aria-checked="true"`).
 
-### 6.4. UX Pattern Consistency Rules
+### 6.4. Text Area Input (`#ai-prompt-input`)
+
+- **Purpose:** To allow users to enter multi-line text prompts for the AI-driven game generation.
+- **Content:** Displays placeholder text to guide the user.
+- **User Actions:** Text entry.
+- **Accessibility:**
+    - Must be associated with a descriptive `<label>`.
+    - The placeholder text should not be used as a substitute for a proper label.
+
+### 6.5. UX Pattern Consistency Rules
 
 This section defines the rules for using common UX patterns to ensure a consistent and predictable user experience.
 
