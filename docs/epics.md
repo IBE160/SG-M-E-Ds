@@ -20,10 +20,12 @@
 *   **Rationale:** This isolates the challenge of narrative generation from puzzle generation. It directly integrates "Narrative Archetypes" to ensure the story is logical, tackling a key risk early.
 
 ### Epic 3: The AI Puzzle Master
+*   **Related Functional Requirements (FRs):** FR-001 (Dynamic Content Generation), FR-005 (Detailed specifications for puzzle types), FR-009 (Small Puzzle Set)
 *   **Goal:** Empower the AI to dynamically generate and adapt puzzles within the coherent narrative framework.
 *   **Rationale:** This introduces the complexity of dynamic puzzles only after the narrative framework is stable. It uses "Puzzle Dependency Chains" to ensure all generated games are solvable.
 
 ### Epic 4: Expanding Variety and Replayability
+*   **Related Functional Requirements (FRs):** FR-001 (Dynamic Content Generation), FR-002 (Player-Driven Customization), FR-005 (Detailed specifications for puzzle types), FR-006 (User flow for Game Setup)
 *   **Goal:** Increase the breadth of content and player choice to deliver on the promise of endless replayability.
 *   **Rationale:** This epic now focuses on scaling content (more themes, puzzles, visuals), which is a much lower risk after the core dynamic systems have been proven to be stable and coherent.
 
@@ -57,6 +59,8 @@ As a developer,
 I want to implement a basic game state management system,
 So that we can track the player's progress through the escape room.
 
+**Related Functional Requirements (FRs):** FR-002 (Player-Driven Customization)
+
 **Acceptance Criteria:**
 
 **Given** a new game is started,
@@ -75,6 +79,8 @@ As a game designer,
 I want to create a single, hard-coded escape room with a few rooms and puzzles,
 So that we have a complete, playable experience to test the core mechanics.
 
+**Related Functional Requirements (FRs):** FR-009 (Small Puzzle Set), FR-004 (Core Interaction Loop)
+
 **Acceptance Criteria:**
 
 **Given** the game has started,
@@ -92,6 +98,8 @@ As a player,
 I want to interact with the game world through a set of contextual options and a "go back" function,
 So that I can navigate and solve puzzles.
 
+**Related Functional Requirements (FRs):** FR-003 (Hybrid Interaction Model), FR-004 (Core Interaction Loop)
+
 **Acceptance Criteria:**
 
 **Given** the player is in a room with a "locked door" and a "note",
@@ -108,6 +116,8 @@ So that I can navigate and solve puzzles.
 As a player,
 I want to see a background image for each room,
 So that the game feels more immersive.
+
+**Related Functional Requirements (FRs):** FR-010 (Basic Visuals)
 
 **Acceptance Criteria:**
 
@@ -131,6 +141,8 @@ As a developer,
 I want to integrate an AI service capable of generating narrative text,
 So that we can dynamically create story elements for the game.
 
+**Related Functional Requirements (FRs):** FR-001 (Dynamic Content Generation), FR-007 (AI-Generated Narrative)
+
 **Acceptance Criteria:**
 
 **Given** an AI narrative generation service (e.g., Gemini API, OpenAI GPT),
@@ -147,6 +159,8 @@ So that we can dynamically create story elements for the game.
 As a game designer,
 I want the AI to dynamically generate unique room descriptions based on the chosen theme and narrative,
 So that each playthrough offers fresh environments.
+
+**Related Functional Requirements (FRs):** FR-001 (Dynamic Content Generation), FR-007 (AI-Generated Narrative)
 
 **Acceptance Criteria:**
 
@@ -165,6 +179,8 @@ As a game designer,
 I want to guide the AI with narrative archetypes or story skeletons,
 So that the generated stories remain coherent and logical across playthroughs.
 
+**Related Functional Requirements (FRs):** FR-001 (Dynamic Content Generation), FR-007 (AI-Generated Narrative)
+
 **Acceptance Criteria:**
 
 **Given** a set of predefined narrative archetypes,
@@ -181,6 +197,8 @@ So that the generated stories remain coherent and logical across playthroughs.
 As a player,
 I want my chosen theme and location to influence the AI-generated story and room descriptions,
 So that my customization choices feel impactful.
+
+**Related Functional Requirements (FRs):** FR-001 (Dynamic Content Generation), FR-002 (Player-Driven Customization)
 
 **Acceptance Criteria:**
 
@@ -203,6 +221,8 @@ So that my customization choices feel impactful.
 As a player,
 I want to save my game progress and load it later,
 So that I can continue my adventure at any time.
+
+**Note on Scope:** The `prd.md` explicitly lists "Load/Save game functionality" as "Out of Scope (MVP)". Its inclusion here suggests a change in MVP scope or that Epic 5 is intended for a post-MVP phase. This discrepancy needs clarification.
 
 **Acceptance Criteria:**
 

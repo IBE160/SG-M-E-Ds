@@ -26,22 +26,21 @@ The primary user is **'Chloe, the Curious Problem-Solver.'**
 
 ## 4. Features
 ### 4.1 High-Level Features
-*   **Dynamic Content Generation**: The AI generates unique storylines, adapts puzzles, and creates room descriptions based on user input, ensuring no two games are the same.
-*   **Player-Driven Customization (Game Setup)**: Players tailor their adventure by choosing a theme, location, difficulty level, and number of rooms.
-*   **Hybrid Interaction Model**: A blend of text-based commands for interaction combined with dynamic visual feedback (still background images for each room).
-*   **Core Interaction Loop**: Players interact with rooms and objects through a system of contextual options and a "go back" function to navigate.
+*   **FR-001: Dynamic Content Generation**: The AI generates unique storylines, adapts puzzles, and creates room descriptions based on user input, ensuring no two games are the same.
+*   **FR-002: Player-Driven Customization (Game Setup)**: Players tailor their adventure by choosing a theme, location, difficulty level, and number of rooms.
+*   **FR-003: Hybrid Interaction Model**: A blend of text-based commands for interaction combined with dynamic visual feedback (still background images for each room).
+*   **FR-004: Core Interaction Loop**: Players interact with rooms and objects through a system of contextual options and a "go back" function to navigate.
 
 ### 4.2 Detailed Features
-*   Detailed specifications for puzzle types (Observation, Riddle, etc.) and the AI's adaptation logic will be developed.
-*   The user flow for the Game Setup will guide the player through choices (Theme -> Location -> Room Count -> Difficulty) before starting.
+*   **FR-005**: Detailed specifications for puzzle types (Observation, Riddle, etc.) and the AI's adaptation logic will be developed.
+*   **FR-006**: The user flow for the Game Setup will guide the player through choices (Theme -> Location -> Room Count -> Difficulty) before starting.
 
 ## 5. Scope
 ### 5.1 In Scope (MVP)
-*   **AI-Generated Narrative**: The core ability for the AI to create a unique story.
-*   **Game Setup Flow**: A basic menu allowing players to choose theme, location, room count, and difficulty.
-*   **Small Puzzle Set**: 2-3 distinct puzzle types (e.g., Observation, Riddle) that the AI can adapt.
-*   **Core Interaction Model**: A system presenting players with four contextual options and a "go back" function.
-*   **Basic Visuals**: A pre-selected, free-to-use image library organized by theme to provide atmospheric background images for rooms.
+*   **FR-007: AI-Generated Narrative**: The core ability for the AI to create a unique story.
+*   **FR-008: Game Setup Flow**: A basic menu allowing players to choose theme, location, room count, and difficulty.
+*   **FR-009: Small Puzzle Set**: 2-3 distinct puzzle types (e.g., Observation, Riddle) that the AI can adapt.
+*   **FR-010: Basic Visuals**: A pre-selected, free-to-use image library organized by theme to provide atmospheric background images for rooms.
 
 ### 5.2 Out of Scope (MVP / Future Vision)
 *   Hint system or button.
