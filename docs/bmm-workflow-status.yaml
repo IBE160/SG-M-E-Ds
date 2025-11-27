@@ -31,12 +31,12 @@ workflow_path: "method-greenfield.yaml"
 workflow_status:
   # Phase 0: Discovery (Optional)
   brainstorm-project: docs/brainstorming-session-results-2025-10-30.md
-  research: optional
-  product-brief: optional
+  research: completed
+  product-brief: docs/product-brief-AI Escape-2025-11-10.md
 
   # Phase 1: Planning
-  prd: required
-  validate-prd: optional
+  prd: completed
+  validate-prd: docs/validation-report-prd-2025-11-14.md
   create-design: conditional
 
   # Phase 2: Solutioning

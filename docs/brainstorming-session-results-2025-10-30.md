@@ -27,8 +27,8 @@ This session focused on a detailed brainstorm for the "AI Escape Room" project, 
 
 *   The "random" storyline is effectively AI-generated based on user-defined parameters, offering controlled creativity.
 *   Leveraging a predefined pool of puzzles with detailed attributes (difficulty, core mechanism, thematic tags, adaptation points) is crucial for managing complexity and ensuring quality in dynamic adaptation.
-*   The hint system is well-defined with a cooldown and difficulty-based budget, balancing assistance with challenge.
-*   The interaction model, combining text with dynamic visuals, presents an innovative user experience.
+*   The hint system is well-defined with a cooldown of 15 seconds and a difficulty-based budget (Easy: 8 hints, Normal: 5 hints, Hard: 3 hints), balancing assistance with challenge.
+*   The interaction model, combining text with dynamic backgrounds, presents an innovative user experience. The game setup now features a multi-step wizard (Game Mode Selection -> Ambiance -> Location -> Difficulty) for player-driven customization.
 *   The importance of explicitly defining the AI's "rules" (like Puzzle Dependency Chains and Narrative Archetypes) is paramount for game integrity, even if these are areas for deeper development.
 
 ## Identified Risks and Mitigations
@@ -45,7 +45,7 @@ This session focused on a detailed brainstorm for the "AI Escape Room" project, 
 
 *   **Content Generation Scalability and Quality**: Ensuring consistently high-quality, engaging, and varied narrative/descriptive content across many playthroughs could be challenging.
 *   **Visual Asset Management and Cohesion**: Sourcing/generating high-quality, thematic visual assets for the hybrid text/visual model is a significant undertaking.
-    *   **Adjustment**: The "zoom-in" visual effect is now considered a "Nice to Have" or can be simplified. The core requirement is a background image fitting the environment.
+    *   **Adjustment**: The "zoom-in" visual effect is now considered a "Nice to Have" or can be simplified. The core requirement is a background image fitting the environment, currently using Unsplash placeholders for dynamic backgrounds.
 *   **Player Expectation vs. AI Reality**: Players might have very high expectations for AI-generated content, potentially leading to disappointment.
 *   **Balancing Dynamic Difficulty**: Fine-tuning dynamic difficulty adjustment to be subtle and effective is difficult.
     *   **Adjustment**: Dynamic Difficulty Adjustment is now considered a "Nice to Have" (optional extension) to reduce immediate implementation complexity.
@@ -66,11 +66,9 @@ This session focused on a detailed brainstorm for the "AI Escape Room" project, 
 
 *   **Why a priority**: It's the player's first interaction, setting expectations and allowing for personalized experiences. Crucial for engagement and influencing AI generation.
 *   **Concrete next steps**:
-    *   Define User Flow: Map out the exact sequence of player choices (Theme -> Location -> Room Count -> Difficulty -> Start Game).
-    *   Implement Room Count Selection: Develop UI/text options for players to choose the number of rooms (e.g., 1, 2, 3).
-    *   Develop Playtime Estimation Logic: Create a formula/lookup table for estimated playtime based on selected room count and difficulty.
+    *   Define User Flow: Map out the exact sequence of player choices through the Game Mode Selection (Design Your Own / AI-Driven) and the 3-step design wizard (Ambiance -> Location -> Difficulty).
     *   Integrate with AI Generation: Ensure chosen parameters are correctly passed to the AI.
-    *   Design "Generate New Space" Logic: Implement AI creation of unpredictable settings, including player warnings.
+    *   Design "Generate New Space" Logic: Implement AI creation of unpredictable settings, including player warnings for the AI-Driven path.
 *   **Resource needs**: UI/UX Design, Frontend Development, Backend/AI Integration, Game Design.
 *   **Timeline**: 2-3 weeks for a functional prototype of the setup flow.
 

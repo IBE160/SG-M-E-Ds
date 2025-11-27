@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Escape - Color Theme Visualizer (Dark Mode)</title>
+    <style>
+        :root {
+            /* Default fallback for initial load or non-themed elements */
+            --color-primary: #F8F9FA;
+            --color-secondary: #8B4513;
+            --color-accent: #D2691E; 
+            --color-success: #28A745;
+            --color-warning: #FFC107;
+            --color-error: #DC3545;
+            --color-info: #17A2B8; 
+
+            --color-neutral-100: #212529; 
+            --color-neutral-200: #343A40; 
+            --color-neutral-300: #495057;
+            --color-neutral-400: #6C757D;
+            --color-neutral-500: #ADB5BD; 
+            --color-neutral-600: #CED4DA;
+            --color-neutral-700: #E9ECEF;
+            --color-neutral-800: #F8F9FA; 
+
+            --font-family-heading: 'Press Start 2P', cursive;
+            --font-family-body: 'Roboto Mono', monospace;
+            --font-family-monospace: 'Roboto Mono', monospace;
+
+            --spacing-unit: 8px;
+            --spacing-xs: calc(0.5 * var(--spacing-unit));
+            --spacing-sm: var(--spacing-unit);
+            --spacing-md: calc(1.5 * var(--spacing-unit));
+            --spacing-lg: calc(2 * var(--spacing-unit));
+            --spacing-xl: calc(3 * var(--spacing-unit));
+        }
+
+        .theme-grit {
+            /* Retro-Futuristic Grit Theme (Dark Mode) */
+            --color-primary: #F8F9FA; /* Light Grey - for text/main elements on dark background */
+            --color-secondary: #8B4513; /* Saddle Brown - earthy, historical */
+            --color-accent: #D2691E; /* Chocolate/Rust */
+
+            --color-success: #28A745;
+            --color-warning: #FFC107;
+            --color-error: #DC3545;
+            --color-info: #17A2B8; /* User likes this blue */
+
+            /* Neutral colors for dark mode */
+            --color-neutral-100: #212529; /* Darkest Grey - Background */
+            --color-neutral-200: #343A40; /* Darker Grey - Borders */
+            --color-neutral-300: #495057;
+            --color-neutral-400: #6C757D;
+            --color-neutral-500: #ADB5BD; /* Medium Grey - Secondary Text */
+            --color-neutral-600: #CED4DA;
+            --color-neutral-700: #E9ECEF;
+            --color-neutral-800: #F8F9FA; /* Lightest Grey - Primary Text */
+        }
+
+        .theme-cyberpunk {
+            --color-primary: #00F0FF; /* Electric Blue */
+            --color-secondary: #FF00EE; /* Magenta */
+            --color-accent: #00FF00; /* Neon Green */
+            --color-success: #00E676; /* Green */
+            --color-warning: #FFD600; /* Yellow */
+            --color-error: #FF1744; /* Red */
+            --color-info: #00B0FF; /* Bright Blue */
+
+            --color-neutral-100: #1A1A1A; /* Dark Background */
+            --color-neutral-200: #2B2B2B;
+            --color-neutral-300: #404040;
+            --color-neutral-400: #555555;
+            --color-neutral-500: #AAAAAA; 
+            --color-neutral-600: #BBBBBB;
+            --color-neutral-700: #CCCCCC;
+            --color-neutral-800: #E0FFFF; /* Primary Text for Cyberpunk */
+        }
+
+        .theme-ancient {
+            --color-primary: #F5DEB3; /* Wheat - parchment */
+            --color-secondary: #A0522D; /* Sienna - earthy */
+            --color-accent: #DAA520; /* Goldenrod - gold */
+            --color-success: #5F8F5F; /* Muted Green */
+            --color-warning: #C28B37; /* Brownish Orange */
+            --color-error: #B06565; /* Muted Red */
+            --color-info: #87CEEB; /* Sky Blue */
+
+            --color-neutral-100: #4A3C2F; /* Dark Brown Background */
+            --color-neutral-200: #6F5E4C;
+            --color-neutral-300: #8B735F;
+            --color-neutral-400: #A28C75;
+            --color-neutral-500: #B8A38B; 
+            --color-neutral-600: #D0C0A8;
+            --color-neutral-700: #E0D0BB;
+            --color-neutral-800: #F5DEB3; /* Primary Text for Ancient */
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            line-height: 1.6;
+            color: var(--color-neutral-800); /* Light text on dark background */
+            background-color: var(--color-neutral-100); /* Dark background */
+            margin: 0;
+            padding: var(--spacing-lg);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xl);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-family-heading);
+            color: var(--color-primary); /* Light headings */
+            margin-top: var(--spacing-lg);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        h1 { font-size: 2.5rem; }
+        h2 { font-size: 2rem; }
+        h3 { font-size: 1.75rem; }
+        h4 { font-size: 1.5rem; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-md);
+            background-color: var(--color-neutral-100); /* Dark container background */
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            border-bottom: 2px solid var(--color-primary);
+            padding-bottom: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .color-swatch {
+            border-radius: 4px;
+            padding: var(--spacing-sm);
+            color: var(--color-neutral-800); /* Light text on swatches */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 80px;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+        }
+        .color-swatch.dark-text { color: var(--color-neutral-100); text-shadow: none; } /* For very light backgrounds */
+
+        .color-swatch div {
+            font-weight: bold;
+        }
+        .color-swatch span {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        /* Specific color backgrounds */
+        .bg-primary { background-color: var(--color-primary); color: var(--color-neutral-100); } /* Primary is light, so text is dark */
+        .bg-secondary { background-color: var(--color-secondary); }
+        .bg-accent { background-color: var(--color-accent); }
+        .bg-success { background-color: var(--color-success); }
+        .bg-warning { background-color: var(--color-warning); }
+        .bg-error { background-color: var(--color-error); }
+        .bg-info { background-color: var(--color-info); }
+
+        .bg-neutral-100 { background-color: var(--color-neutral-100); }
+        .bg-neutral-200 { background-color: var(--color-neutral-200); }
+        .bg-neutral-300 { background-color: var(--color-neutral-300); }
+        .bg-neutral-400 { background-color: var(--color-neutral-400); }
+        .bg-neutral-500 { background-color: var(--color-neutral-500); }
+        .bg-neutral-600 { background-color: var(--color-neutral-600); }
+        .bg-neutral-700 { background-color: var(--color-neutral-700); }
+        .bg-neutral-800 { background-color: var(--color-neutral-800); }
+
+        /* Component Examples */
+        .component-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .component-card {
+            background-color: var(--color-neutral-200); /* Slightly lighter than body background */
+            border: 1px solid var(--color-neutral-300);
+            border-radius: 8px;
+            padding: var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        button {
+            font-family: var(--font-family-body);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: var(--color-neutral-100); /* Dark text on light primary */
+        }
+        .btn-primary:hover { background-color: #E0E0E0; }
+
+        .btn-secondary {
+            background-color: var(--color-secondary);
+            color: #fff;
+        }
+        .btn-secondary:hover { background-color: #7B3503; }
+
+        .btn-accent {
+            background-color: var(--color-accent);
+            color: var(--color-neutral-100); /* Dark text on accent */
+        }
+        .btn-accent:hover { background-color: #008F5A; }
+
+        .btn-disabled {
+            background-color: var(--color-neutral-400);
+            color: var(--color-neutral-600);
+            cursor: not-allowed;
+        }
+
+        input[type="text"], textarea {
+            font-family: var(--font-family-body);
+            padding: var(--spacing-sm);
+            border: 1px solid var(--color-neutral-400);
+            border-radius: 4px;
+            background-color: var(--color-neutral-300); /* Darker input background */
+            color: var(--color-neutral-800); /* Light text */
+            width: 100%;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 2px rgba(0, 168, 107, 0.2);
+        }
+        .input-error {
+            border-color: var(--color-error);
+        }
+
+        .card {
+            background-color: var(--color-neutral-200);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: 8px;
+            padding: var(--spacing-md);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .alert {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: var(--color-neutral-800); /* Light text for alerts */
+        }
+        .alert-success { background-color: #1E6F36; border-color: #28A745; } /* Darker background for alerts */
+        .alert-error { background-color: #8B1A24; border-color: #DC3545; }
+        .alert-warning { background-color: #856404; border-color: #FFC107; }
+        .alert-info { background-color: #0C5460; border-color: #17A2B8; }
+
+        .typography-example h1, .typography-example h2, .typography-example h3, .typography-example h4, .typography-example p {
+            margin-top: 0;
+            margin-bottom: var(--spacing-sm);
+        }
+        .typography-example p {
+            font-family: var(--font-family-body);
+            font-size: 1rem;
+            color: var(--color-neutral-800);
+        }
+        .typography-example .small-text {
+            font-size: 0.85rem;
+            color: var(--color-neutral-500);
+        }
+
+        .theme-personality {
+            background-color: var(--color-neutral-200);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: 8px;
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+            color: var(--color-neutral-800);
+        }
+        .theme-personality h3 {
+            margin-top: 0;
+            color: var(--color-primary);
+        }
+        .theme-personality ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .theme-personality li {
+            margin-bottom: var(--spacing-xs);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="theme-grit">
+    <div style="margin-bottom: 2rem; text-align: center;">
+        <button class="theme-switcher-btn active" data-theme="grit">Retro Grit</button>
+        <button class="theme-switcher-btn" data-theme="cyberpunk">Cyberpunk Neon</button>
+        <button class="theme-switcher-btn" data-theme="ancient">Ancient Explorer</button>
+    </div>
+    <div class="container">
+        <h1 class="section-title">AI Escape - Color Theme Visualizer (Dark Mode)</h1>
+        <p>This visualizer explores the "Retro-Futuristic Grit" theme, inspired by the classic Oregon Trail game, adapted for an AI-driven puzzle experience, now with a dark mode preference.</p>
+
+        <h2>Color Palette</h2>
+        <div class="color-palette">
+            <div class="color-swatch bg-primary">
+                <div>Primary</div>
+                <span>#F8F9FA</span>
+            </div>
+            <div class="color-swatch bg-secondary">
+                <div>Secondary</div>
+                <span>#8B4513</span>
+            </div>
+            <div class="color-swatch bg-accent">
+                <div>Accent</div>
+                <span>#D2691E</span>
+            </div>
+            <div class="color-swatch bg-success">
+                <div>Success</div>
+                <span>#28A745</span>
+            </div>
+            <div class="color-swatch bg-warning">
+                <div>Warning</div>
+                <span>#FFC107</span>
+            </div>
+            <div class="color-swatch bg-error">
+                <div>Error</div>
+                <span>#DC3545</span>
+            </div>
+            <div class="color-swatch bg-info">
+                <div>Info</div>
+                <span>#17A2B8</span>
+            </div>
+            <div class="color-swatch bg-neutral-800">
+                <div>Text</div>
+                <span>#F8F9FA</span>
+            </div>
+            <div class="color-swatch bg-neutral-500">
+                <div>Secondary Text</div>
+                <span>#ADB5BD</span>
+            </div>
+            <div class="color-swatch bg-neutral-100">
+                <div>Background</div>
+                <span>#212529</span>
+            </div>
+            <div class="color-swatch bg-neutral-200">
+                <div>Border</div>
+                <span>#343A40</span>
+            </div>
+        </div>
+
+        <h2>Typography</h2>
+        <div class="typography-example component-card">
+            <h1>Heading 1 - AI Escape</h1>
+            <h2>Heading 2 - The Puzzle Awaits</h2>
+            <h3>Heading 3 - A New Adventure</h3>
+            <h4>Heading 4 - Your Journey Begins</h4>
+            <p>This is body text, using the Roboto Mono font. It's designed for readability in a technical or game-like context. The quick brown fox jumps over the lazy dog.</p>
+            <p class="small-text">Small text for captions or less important information. The quick brown fox jumps over the lazy dog.</p>
+            <p style="font-family: var(--font-family-monospace);"><code>This is monospace text, often used for code or game commands.</code></p>
+        </div>
+
+        <h2>Component Examples</h2>
+        <div class="component-examples">
+            <div class="component-card">
+                <h3>Buttons</h3>
+                <button class="btn-primary">Primary Action</button>
+                <button class="btn-secondary">Secondary Action</button>
+                <button class="btn-accent">Accent Action</button>
+                <button class="btn-disabled">Disabled Action</button>
+            </div>
+
+            <div class="component-card">
+                <h3>Form Input</h3>
+                <input type="text" placeholder="Enter your name...">
+                <input type="text" value="Error State" class="input-error">
+                <textarea placeholder="Your message..."></textarea>
+            </div>
+
+            <div class="component-card">
+                <h3>Cards</h3>
+                <div class="card">
+                    <h4>Card Title</h4>
+                    <p>This is a sample card demonstrating the theme's styling for content blocks.</p>
+                    <button class="btn-primary">Read More</button>
+                </div>
+            </div>
+
+            <div class="component-card">
+                <h3>Alerts</h3>
+                <div class="alert alert-success">Success: Your action was completed.</div>
+                <div class="alert alert-error">Error: Something went wrong.</div>
+                <div class="alert alert-warning">Warning: Proceed with caution.</div>
+                <div class="alert alert-info">Info: Here's some information.</div>
+            </div>
+        </div>
+
+        <div class="theme-personality">
+            <h3>Theme Personality: Retro-Futuristic Grit (Dark Mode)</h3>
+            <ul>
+                <li><strong>Emotional Impact:</strong> Evokes a sense of ruggedness, challenge, and nostalgic adventure, with a subtle hint of the unknown and technological mystery. The dark background enhances immersion and focus.</li>
+                <li><strong>Best for:</strong> Games that emphasize exploration, problem-solving, and a unique blend of past and future aesthetics.</li>
+                <li><strong>Visual Style:</strong> Muted, earthy tones grounded in classic adventure, contrasted with desaturated green accents for a subtle futuristic edge. Typography blends pixelated retro with clean monospace for a distinct identity.</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeButtons = document.querySelectorAll('.theme-switcher-btn');
+            const body = document.body;
+
+            themeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    themeButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to the clicked button
+                    button.classList.add('active');
+
+                    // Remove existing theme classes from body
+                    body.classList.remove('theme-grit', 'theme-cyberpunk', 'theme-ancient');
+                    // Add the selected theme class to body
+                    body.classList.add(`theme-${button.dataset.theme}`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
