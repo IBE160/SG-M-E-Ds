@@ -1,0 +1,29 @@
+{
+  "name": "sg-m-e-ds",
+  "version": "1.0.0",
+  "description": "Repository for SG-M-E-Ds - IBE160 Programmering med KI.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:e2e": "playwright test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IBE160/SG-M-E-Ds.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/IBE160/SG-M-E-Ds/issues"
+  },
+  "homepage": "https://github.com/IBE160/SG-M-E-Ds#readme",
+  "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
+    "@playwright/test": "^1.57.0"
+  }
+}
