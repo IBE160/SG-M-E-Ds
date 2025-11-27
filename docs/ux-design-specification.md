@@ -139,7 +139,7 @@ This section documents the primary user flows through the application.
 
 ### 5.1. New Game Creation
 
-This flow covers the user's journey from starting the application to beginning a new game, either by designing it themselves or by letting the AI generate it.
+This flow covers the user's journey from starting the application to beginning a new game, either by designing it themselves or by letting the AI generate it. In the "Design Your Own" wizard, the "MYSTERIOUS" ambiance and "NORMAL" difficulty are selected by default to ensure a smooth and continuous flow for the user.
 
 ```mermaid
 graph TD
@@ -170,7 +170,7 @@ graph TD
 
 ### 5.2. Load Game
 
-This flow covers the user's journey from the start page to loading a previously saved game.
+This flow covers the user's journey from the start page to loading a previously saved game. Each save slot on the "Load Game" screen should display the saved game's name (e.g., location), the date it was saved, and the total time elapsed in that session (e.g., `Time: HH:MM:SS`).
 
 ```mermaid
 graph TD
@@ -270,6 +270,13 @@ This section specifies the reusable components and formalizes the UX patterns th
 - **Accessibility:**
     - The `<h4>` provides a clear heading for the content.
     - For the interactive hint box, ARIA attributes should be used to announce its state (e.g., `aria-disabled`).
+
+### 6.2.1. Game Timer
+
+- **Purpose:** To display the elapsed time for the current game session.
+- **Content:** Displays a text-based timer in `HH:MM:SS` format.
+- **Styling:** Uses the Body Font (`Roboto Mono`) for a consistent "computer terminal" aesthetic.
+- **Location:** Placed within the Game Status sidebar (`immersive-sidebar`), directly above the "Current Location" text.
 
 ### 6.3. Option Button (`.option-btn`)
 

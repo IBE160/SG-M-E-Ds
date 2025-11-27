@@ -15,6 +15,24 @@
     - **Implementation Readiness:** Ready for Development
 - **Ready for next phase?** Yes - Proceed to Development
 
+## Addendum: Post-Validation Design Refinements (2025-11-27)
+
+Following the initial validation, several minor design refinements were implemented based on user feedback to enhance clarity and user flow. The `ux-design-specification.md` and `ux-design-directions.html` files have been updated accordingly.
+
+1.  **Game Timer Added:**
+    *   **Change:** A new timer element (`TIME: HH:MM:SS`) was added to the "Game Status" sidebar in the immersive game screen.
+    *   **Rationale:** To provide players with clear feedback on their session duration, enhancing immersion and challenge.
+
+2.  **Time Included in Save Slots:**
+    *   **Change:** The "Load Game" screen's save slots were updated to include the elapsed time for that saved game (e.g., "Date: 2025-11-20 | Time: 01:23:45").
+    *   **Rationale:** To give players better context when choosing which game to load.
+
+3.  **Default Selections in Game Setup:**
+    *   **Change:** In the "Design Your Own" wizard, "MYSTERIOUS" is now the default ambiance and "NORMAL" is the default difficulty.
+    *   **Rationale:** To ensure a smoother user journey by preventing the user from proceeding without a selection and to provide a sensible starting point.
+
+These changes address aspects of "User Journey Flows" and "UX Pattern Consistency Rules" by improving guidance and clarity.
+
 ## Section Results
 
 ### 1. Output Files Exist

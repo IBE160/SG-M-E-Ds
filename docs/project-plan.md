@@ -1,7 +1,7 @@
 # Project Plan
 
 <<<<<<< HEAD
-## Fase 0
+## Fase 1
 
 - [x] /run-agent-task analyst *workflow-init
   - [x] File: bmm-workflow-status.yaml
@@ -19,7 +19,7 @@
   - [x] /run-agent-task analyst *product-brief "Read the two brainstorming sessions the research session and the @proposal.md file, and create a product brief for the project."
     - [x] File: product-brief.md
 
-## Fase 1
+## Fase 2
 
 - [ ] Planning
   - [x] /run-agent-task pm *prd
@@ -35,7 +35,7 @@
   - [ ] /run-agent-task tea *ci {prompt / user-input-file}
   - [ ] /run-agent-task tea *test-design {prompt / user-input-file}
 
-## Fase 2
+## Fase 3
 
 - [ ] Solutioning
   - [ ] /run-agent-task architect *create-architecture {prompt / user-input-file}

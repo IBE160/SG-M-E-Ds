@@ -435,6 +435,8 @@
         .immersive-option { padding: 0.5rem; cursor: pointer; }
         .immersive-option:hover { background-color: var(--color-accent); color: var(--color-background); }
         .immersive-sidebar { background-color: rgba(0, 0, 0, 0.4); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; border-left: 2px solid var(--color-border); backdrop-filter: blur(5px); align-items: center; }
+        .game-timer { font-family: var(--font-family-body); font-size: 1rem; color: var(--color-primary); margin: -1rem 0 0 0; text-align: center; width: 100%; }
+        .immersive-sidebar h3 { font-family: var(--font-family-heading); font-size: 1.2rem; color: var(--color-primary); margin-bottom: 0.5rem; }
 
         body.mobile-view .mockup-container {
             max-width: 375px; /* Common mobile width */
@@ -630,7 +632,7 @@
                             <div class="design-options">
                                 <button class="option-btn">SCARY</button>
                                 <button class="option-btn">FUNNY</button>
-                                <button class="option-btn">MYSTERIOUS</button>
+                                <button class="option-btn active">MYSTERIOUS</button>
                             </div>
                             <div class="design-actions">
                                 <button class="action-btn">BACK</button>
@@ -663,7 +665,7 @@
                             <h3><span class="step-counter">3/3</span> SELECT DIFFICULTY</h3>
                             <div class="design-options">
                                 <button class="option-btn">EASY</button>
-                                <button class="option-btn">NORMAL</button>
+                                <button class="option-btn active">NORMAL</button>
                                 <button class="option-btn">HARD</button>
                             </div>
                             <div class="design-actions">
@@ -731,11 +733,11 @@
                     <div class="saved-games-list">
                         <div class="saved-game-item">
                             <p>Save Slot 1 - Haunted Mansion</p>
-                            <small>Date: 2025-11-20</small>
+                            <small>Date: 2025-11-20 | Time: 01:23:45</small>
                         </div>
                         <div class="saved-game-item">
                             <p>Save Slot 2 - Ancient Tomb</p>
-                            <small>Date: 2025-11-19</small>
+                            <small>Date: 2025-11-19 | Time: 00:45:12</small>
                         </div>
                         <div class="design-actions">
                             <button class="action-btn">BACK</button>
@@ -763,6 +765,7 @@
                     </div>
                     <div class="immersive-sidebar">
                         <h3>GAME STATUS</h3>
+                        <p class="game-timer">TIME: 00:12:34</p>
                         <p class="current-location-subtext">Current Location: The Forgotten Crypt</p>
                         <div class="status-box">
                             <h4>OBJECTIVE</h4>
