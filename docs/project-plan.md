@@ -21,7 +21,7 @@
 
 ## Fase 2
 
-- [ ] Planning
+- [x] Planning
   - [x] /run-agent-task pm *prd
     - [x] File: PRD.md
   - [x] /run-agent-task pm *validate-prd
@@ -31,24 +31,20 @@
     - [x] File: ux-color-themes.html
     - [x] File: ux-design-directions.html
   - [x] /run-agent-task ux-designer *validate-ux-design {prompt / user-input-file}
-  - [ ] /run-agent-task tea *framework {prompt / user-input-file}
-  - [ ] /run-agent-task tea *ci {prompt / user-input-file}
-  - [ ] /run-agent-task tea *test-design {prompt / user-input-file}
+  - [x] /run-agent-task tea *framework {prompt / user-input-file}
+  - [x] /run-agent-task tea *ci {prompt / user-input-file}
+  - [x] /run-agent-task tea *test-design {prompt / user-input-file}
 
 ## Fase 3
 
 - [ ] Solutioning
   - [ ] /run-agent-task architect *create-architecture {prompt / user-input-file}
     - [ ] File: architecture.md
+  - [ ] /run-agent-task architect *validate-architecture {prompt / user-input-file}
   - [ ] /run-agent-task pm *create-epics-and-stories {prompt / user-input-file}
     - [ ] File: epics.md
   - [ ] /run-agent-task tea *test-design {prompt / user-input-file}
   - [ ] /run-agent-task architect *solutioning-gate-check {prompt / user-input-file}
-## Fase 3
-
-- [ ] Solutioning
-  - [ ] /run-agent-task architect *architecture {prompt / user-input-file}
-  - [ ] /run-agent-task architect *validate-architecture {prompt / user-input-file}
 
 ## Fase 4
 
