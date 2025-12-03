@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-The "AI Escape" project is an AI-driven puzzle game designed for high replayability, offering dynamically generated stories and puzzles. Key objectives include addressing limited replayability of traditional escape rooms and providing an immersive, customizable experience. The project encompasses 5 epics and 12 user stories, with a strong focus on a retro-futuristic UI, responsive design, and WCAG 2.1 Level AA accessibility. A primary architectural challenge is ensuring the coherence and logical consistency of AI-generated content.
+The "AI Escape" project is an AI-driven puzzle game designed for high replayability, offering dynamically generated stories and puzzles to provide an immersive, customizable experience. The architecture is a standard Python Flask web application using Supabase for data persistence and the Gemini API for content generation. A primary challenge is ensuring the coherence and logical consistency of the AI-generated narrative.
 
 ## Project Initialization
 
@@ -45,29 +45,40 @@ Based on the project requirements and analysis, we have identified the following
 *   **AI Service Integration:** Which specific AI model/API to use for narrative and puzzle generation.
 *   **Prompt Management Strategy:** How to ensure coherence and guide AI generation (Narrative Archetypes, Puzzle Dependency Chains).
 *   **Game State Management & Persistence:** How to store player progress, inventory, and dynamic game elements.
-*   **Deployment Strategy:** How to deploy the Next.js application, especially considering AI service integration.
+*   **Deployment Strategy:** How to deploy the Flask application, especially considering AI service integration.
 
 ### Important Decisions (Shapes architecture and user experience):
 *   **Asset Management/Storage:** How to handle the pre-selected image library (e.g., local, CDN, cloud storage).
 *   **Error Handling Strategy:** How to handle failures in AI generation or game logic.
 *   **Accessibility Implementation:** How to ensure WCAG 2.1 Level AA compliance, given the UI.
-*   **API Pattern for AI interactions:** How the frontend communicates with the AI generation logic (e.g., Next.js API routes).
+*   **API Pattern for AI interactions:** How the frontend communicates with the AI generation logic (e.g., Flask API routes).
+*   **User Authentication:** How to manage user identity and secure access.
 
 ### Nice-to-Have Decisions (Can be deferred):
-*   **Background Processing for AI:** If AI generation is slow, how to offload it.
+*   **Background Processing for AI:** To prevent slow AI generation from blocking web requests, offload these tasks to a background worker. Proposing **Celery with Redis** as the broker. Implementation can be deferred until performance testing indicates a need.
 
 ## Decision Summary
 
+*Versions verified as of 2025-12-03.*
+
 | Category | Decision | Version | Affects Epics | Rationale |
 | -------- | -------- | ------- | ------------- | --------- |
+| Language | Python | 3.14.1 | All | Modern, stable, and widely supported language. |
+| Web Framework | Flask | 3.1.2 | All | Lightweight and flexible framework, aligning with project goals. |
 | AI Integration | AI Service Provider | Gemini Pro / Gemini 1.5 Pro | All AI-related epics | Gemini API offers powerful, flexible narrative and puzzle generation. |
+| AI Integration | AI Client Library | google-generativeai 0.8.5 | Epic 2, Epic 3 | The official Google client library for interacting with the Gemini API. |
 | AI Integration | Prompt Management Strategy | N/A | All AI-related epics | Structured prompting with narrative archetypes and puzzle dependency chains ensures coherence. |
-| Data Persistence | Game State Management | Supabase (PostgreSQL compatible) / SQLAlchemy (Latest Stable) | Epic 1, Epic 5 | Supabase, offering a PostgreSQL-compatible database and additional services, with SQLAlchemy ORM for robust and easy-to-manage persistent game state. Verify latest stable versions at implementation. |
+| Data Persistence | Database | Supabase (PostgreSQL 16.x) | Epic 1, Epic 5 | Managed PostgreSQL service that simplifies setup and provides auth/storage services. |
+| Data Persistence | ORM | SQLAlchemy 2.0.44 | Epic 1, Epic 5 | Robust and easy-to-manage ORM for persistent game state. |
+| Data Persistence | DB Client Library | supabase 2.24.0 | Epic 1, Epic 5 | The official Python client for interacting with Supabase services. |
 | Deployment | Application Deployment | N/A | All | Standard Python web server deployment (e.g., Gunicorn/WSGI + Nginx) provides robust and scalable hosting for Flask applications. |
-| Assets | Image Asset Storage | N/A | Epic 1, Epic 2 | Start with local storage in `public` directory, easily migratable to CDN for scalability. |
-| Error Handling | Application Error Handling | N/A | All | Centralized error handling within Next.js with user-friendly feedback via toast notifications and retry options for AI failures. |
-| UX | Accessibility Compliance | N/A | All | Active integration of WCAG 2.1 Level AA best practices, including semantic HTML, keyboard navigation, ARIA attributes, and automated/manual testing. |
+| Assets | Image Asset Storage | N/A | Epic 1, Epic 2 | Start with local storage in `static/` directory, easily migratable to CDN for scalability. |
+| Error Handling | Application Error Handling | N/A | All | Centralized error handling within Flask with user-friendly feedback via toast notifications and retry options for AI failures. |
+| UX | Styling Solution | Tailwind CSS 4.1.17 | All | A utility-first CSS framework for rapid UI development. |
+| UX | Accessibility Compliance | WCAG 2.1 AA | All | Active integration of WCAG 2.1 Level AA best practices, including semantic HTML, keyboard navigation, ARIA attributes, and automated/manual testing. |
 | API | AI Interaction API Pattern | N/A | Epic 2, Epic 3 | Flask API Routes to secure AI API keys and provide simple RESTful endpoints for frontend interaction. |
+| Security | User Authentication | N/A | Epic 5 | **Stateless JWT Authentication**. Leverage Supabase's built-in authentication for user management (sign-up, login) and JWT generation. The Flask backend will validate the JWT on protected routes. |
+| Performance | Background Processing | Celery, Redis | Epic 2, Epic 3 | To prevent slow AI generation from blocking web requests, offload these tasks to a background worker using Celery with Redis as the message broker. Implementation is deferred. |
 
 ## Project Structure
 
@@ -115,14 +126,17 @@ ai-escape-app/
 
 ## Technology Stack Details
 
+*Versions verified as of 2025-12-03. Using the latest stable version is recommended.*
+
 ### Core Technologies
 
-*   **Web Framework:** Python Flask
-*   **Language:** Python
-*   **Styling:** Tailwind CSS
-*   **Database:** Supabase (PostgreSQL Compatible)
-*   **ORM:** SQLAlchemy (compatible with Supabase's PostgreSQL)
-*   **AI Integration:** Gemini API
+*   **Language:** Python (`3.14.1`)
+*   **Web Framework:** Flask (`3.1.2`)
+*   **Styling:** Tailwind CSS (`4.1.17`)
+*   **Database:** Supabase (PostgreSQL `16.x`)
+*   **ORM:** SQLAlchemy (`2.0.44`)
+*   **DB Client Library:** supabase (`2.24.0`)
+*   **AI Integration:** Gemini API via `google-generativeai` (`0.8.5`)
 *   **Deployment:** Standard Python Web Server (e.g., Gunicorn + Nginx)
 
 ### Integration Points
@@ -135,6 +149,17 @@ ai-escape-app/
 ## Novel Pattern Designs
 
 All core patterns identified in this project (e.g., AI integration, game state management, API communication) have established architectural solutions. The unique aspect lies in the specific application and orchestration of these patterns for dynamic content generation, guided by narrative archetypes and puzzle dependency chains. Therefore, we will proceed with adapting standard architectural patterns rather than designing wholly new ones.
+
+### Game State Transition Flow
+
+The core game loop follows a well-defined state transition flow, managed by the backend:
+1.  **Start Game:** A new `GameSession` is created with initial `narrativeState` and `puzzleState`. The first room description is generated by the AI and sent to the client.
+2.  **Player Action:** The client sends a player command (e.g., "look at the desk", "use key on door") to a backend API endpoint.
+3.  **State Update & AI Prompt:** The backend updates the `gameHistory` and `inventory` in the `GameSession`. It then constructs a new prompt for the Gemini API, including the current `narrativeState`, `puzzleState`, and the latest player action.
+4.  **AI Response & State Change:** The Gemini API returns a response containing the outcome of the action. The backend parses this response to update the `currentRoom`, `narrativeState`, `puzzleState`, and other `GameSession` fields.
+5.  **Send to Client:** The updated state (e.g., new room description, result of action) is sent back to the client, which renders the update. The loop then returns to Step 2.
+
+This explicit flow ensures that the game state is managed authoritatively by the backend, and each player action results in a predictable cycle of state updates and AI interaction.
 
 ## Consistency Rules
 
@@ -157,13 +182,29 @@ To ensure a unified codebase and prevent conflicts when multiple AI agents (or h
 *   **Static Files:** Frontend assets (CSS, JavaScript, images) will be placed in the `static/` directory, with subdirectories for organization (e.g., `static/css/`, `static/js/`, `static/images/`).
 *   **Services:** Business logic and external API integrations (like the Gemini API client) will be organized into Python modules within the `services/` directory.
 *   **Tests:** All tests will reside in a dedicated `tests/` directory, mirroring the application's module structure (e.g., `tests/unit/services/ai_service.py`).
-### Error Handling
+### Lifecycle Patterns
 
-(Already covered in Cross-Cutting Concerns)
+*   **Loading States:** Any client-side action that triggers an asynchronous API call (e.g., generating a new puzzle, saving the game) must display a loading indicator to the user. This can be a spinner, a disabled button with text, or a general "loading" overlay. The UI must clearly communicate that a process is underway.
+*   **Error Recovery:** For failed operations, especially AI-related ones, the UI should provide a clear error message (as received from the standardized API error response) and a "Retry" button to allow the user to attempt the action again.
+*   **Empty States:** When a list or collection is empty (e.g., no saved games), the UI should display a helpful message rather than a blank space (e.g., "You have no saved games. Start a new game to see it here!").
 
 ### Logging Strategy
 
-(Already covered in Cross-Cutting Concerns)
+A structured logging approach will be used to ensure logs are machine-readable and easy to query.
+
+*   **Library:** Python's built-in `logging` module will be configured.
+*   **Format:** Logs will be formatted as JSON. Each log entry will contain a minimum of:
+    *   `timestamp` (ISO 8601 in UTC)
+    *   `level` (e.g., `INFO`, `WARNING`, `ERROR`)
+    *   `message`
+    *   `request_id` (a unique ID for each incoming request to trace its entire lifecycle)
+    *   Relevant context (e.g., `game_session_id`, `user_id`)
+*   **Levels:**
+    *   `INFO`: For general application flow events (e.g., user login, game started).
+    *   `WARNING`: For non-critical issues or potential problems that do not prevent the current operation from completing.
+    *   `ERROR`: For server-side errors that prevent an operation from completing.
+    *   `DEBUG`: For verbose, development-only logging. This level will be disabled in production.
+*   **Output:** In development, logs will be written to the console. In production, logs will be written to `stdout` to be collected by the hosting platform's logging service (e.g., AWS CloudWatch, Heroku Logplex).
 
 ### Data Fetching and State Management
 
@@ -172,8 +213,18 @@ To ensure a unified codebase and prevent conflicts when multiple AI agents (or h
 *   **Game State Management:** Game state will primarily be managed on the server-side within the Flask application, stored in the database, and retrieved/updated via requests from the client. For transient client-side UI states, vanilla JavaScript or a lightweight library can be used.
 ### API Contracts
 
-*   **Request/Response Format:** All API interactions (both internal API routes and external AI service calls) will strictly use **JSON** for request and response bodies.
-*   **Error Responses:** Standardized error format as defined in Cross-Cutting Concerns.
+*   **Request/Response Format:** All API interactions will strictly use **JSON** for request and response bodies.
+*   **Date Handling:** All dates and times in API requests and responses will be in **ISO 8601** format and in UTC (e.g., `2025-12-03T10:00:00Z`).
+*   **Error Responses:** API errors will return a standardized JSON response body, containing a machine-readable error code and a human-readable message.
+    ```json
+    {
+      "error": {
+        "code": "resource_not_found",
+        "message": "The requested game session could not be found."
+      }
+    }
+    ```
+    This structure will be used for all `4xx` and `5xx` HTTP status code responses.
 
 ### Location Patterns
 
@@ -186,7 +237,7 @@ To ensure a unified codebase and prevent conflicts when multiple AI agents (or h
 
 ## Coherence Validation
 
-A review of the architectural decisions confirms their compatibility across the chosen technology stack (Next.js, TypeScript, Tailwind, PostgreSQL, Prisma, OpenAI API, Vercel). All identified epics are supported by the proposed project structure and technical choices. The defined implementation and consistency patterns are deemed complete enough to prevent agent conflicts and guide consistent development. No conflicting choices or significant architectural gaps were identified.
+A review of the architectural decisions confirms their compatibility across the chosen technology stack (Python, Flask, Tailwind CSS, Supabase (PostgreSQL), SQLAlchemy, Gemini API). All identified epics are supported by the proposed project structure and technical choices. The defined implementation and consistency patterns are deemed complete enough to prevent agent conflicts and guide consistent development. No conflicting choices or significant architectural gaps were identified.
 
 ## Data Architecture
 
@@ -244,11 +295,73 @@ The primary data will revolve around `GameSession` to capture the state of each 
 
 
 
-*   **API Keys:** All sensitive API keys (e.g., Gemini API key) will be stored as environment variables on the server-side (Vercel) and accessed only via Next.js API Routes. They will never be exposed to the client.
+
+
+
+
+*   **Authentication (JWT Flow):** User identity will be managed using stateless JSON Web Tokens (JWTs).
+
+
+
+    1.  **Client-Side:** The frontend will use the Supabase client library to handle user sign-up and login.
+
+
+
+    2.  **Supabase Auth:** Upon successful login, Supabase provides the client with a secure JWT.
+
+
+
+    3.  **API Requests:** For all requests to protected backend endpoints, the client will include the JWT in the `Authorization` header (e.g., `Authorization: Bearer <jwt>`).
+
+
+
+    4.  **Backend Validation:** The Flask backend will use a decorator on protected routes to:
+
+
+
+        *   Extract the JWT from the `Authorization` header.
+
+
+
+        *   Validate the token's signature using the Supabase project's public JWT secret.
+
+
+
+        *   Ensure the token is not expired and is otherwise valid.
+
+
+
+        *   If valid, the request proceeds, often with the user's identity attached to the request context. If invalid, a `401 Unauthorized` error is returned.
+
+
+
+
+
+
+
+*   **API Keys:** All sensitive API keys (e.g., Gemini API key) will be stored as environment variables on the server-side (e.g., chosen hosting platform like AWS, Heroku) and accessed only via Flask API Routes. They will never be exposed to the client.
+
+
+
+
+
+
 
 *   **Input Sanitization:** All user inputs and data passed to AI services will be sanitized to prevent prompt injection or other malicious data.
 
-*   **Rate Limiting:** Implement rate limiting on Next.js API Routes, especially for AI generation endpoints, to prevent abuse and manage API costs.
+
+
+
+
+
+
+*   **Rate Limiting:** Implement rate limiting on Flask API Routes, especially for AI generation endpoints, to prevent abuse and manage API costs.
+
+
+
+
+
+
 
 *   **Communication:** All communication (frontend to backend, backend to external APIs) will utilize HTTPS/SSL for encryption in transit.
 
@@ -260,11 +373,10 @@ The primary data will revolve around `GameSession` to capture the state of each 
 
 *   **AI API Caching:** Implement caching for AI responses, especially for common prompts or recurring narrative/puzzle elements, to reduce latency and API costs.
 
-*   **Database Query Optimization:** Optimize Prisma queries, ensure appropriate indexing on `GameSession` fields (e.g., `playerId`, `lastUpdated`) to maintain responsive game state management.
+*   **Database Query Optimization:** Optimize SQLAlchemy queries, ensure appropriate indexing on `GameSession` fields (e.g., `playerId`, `lastUpdated`) to maintain responsive game state management.
+*   **Background Jobs for AI:** If AI generation proves to be slow ( >1-2 seconds), it should be offloaded to a background task using a framework like Celery with Redis. This will prevent blocking the main web server process and improve user experience. This decision is deferred pending performance testing.
 
-*   **Next.js Optimizations:** Leverage Next.js's built-in image optimization, code splitting, and lazy loading for efficient frontend performance.
 
-*   **Serverless Cold Starts:** Monitor and optimize Next.js serverless function cold starts on Vercel for AI generation and game logic to ensure a fluid user experience.
 
 
 
@@ -292,7 +404,19 @@ The primary data will revolve around `GameSession` to capture the state of each 
 
 
 
-*   **Database:** A managed Supabase (PostgreSQL compatible) database service will be used. This offloads database management, backup, and scaling concerns, and provides additional services like authentication and storage if needed.
+    
+
+
+
+    *   **Scalability:** The architecture is designed to scale horizontally. Additional instances of the Flask application can be run behind a load balancer to handle increased traffic. The database, being a managed Supabase instance, can be scaled independently as needed. Caching strategies (see Performance Considerations) will also reduce load.
+
+
+
+    
+
+
+
+    *   **Database:** A managed Supabase (PostgreSQL compatible) database service will be used. This offloads database management, backup, and scaling concerns, and provides additional services like authentication and storage if needed.
 
 
 
@@ -484,9 +608,10 @@ Key architectural decisions made throughout this process include:
 
 
 
-7.  **Comprehensive Testing Strategy:** A multi-layered approach (Unit, Integration, E2E) ensures code quality and reliability, covering both frontend (if applicable) and backend Python logic.
-
-
+7.  **Comprehensive Testing Strategy:** A multi-layered approach ensures code quality and reliability:
+    *   **Unit Tests:** Use **Pytest** with `pytest-mock` to test individual functions and classes in isolation.
+    *   **Integration Tests:** Use **Pytest** to test the interaction between components, such as API endpoints and service-layer logic, including database interactions.
+    *   **E2E Tests:** Use a framework like **Playwright** (which supports Python) to test full user flows through the browser.
 
 8.  **Strict Consistency Rules:** Detailed guidelines for naming conventions, code organization, and data handling prevent conflicts and ensure a unified codebase, crucial for multi-agent development.
 
@@ -552,7 +677,7 @@ N/A
 
 
 
-*   Verify the latest stable versions of PostgreSQL and Prisma at the time of implementation.
+*   Verify the latest stable versions of PostgreSQL and SQLAlchemy at the time of implementation.
 
 
 
@@ -560,7 +685,7 @@ N/A
 
 
 
-*   Further define the project's testing approach, including specific libraries (e.g., Vitest for unit tests, React Testing Library for integration tests, Playwright for E2E tests) and detailed test structure.
+*   Implement the defined testing strategy using Pytest for unit/integration tests and Playwright for E2E tests.
 
 
 
