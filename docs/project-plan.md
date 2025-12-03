@@ -12,7 +12,7 @@
     - [x] File: brainstorming-session-results-date.md
   - [x] /run-agent-task analyst *brainstorm "Brainstorm what it means to have a paid user"
     - [x] File: brainstorming-session-results-date.md
-- [ ] Research
+- [x] Research
   - [x] /run-agent-task analyst *research "Which AI library should we use for orchestrating LLM interactions?"
     - [x] File: research-technical-date.md
 - [x] Product Brief
@@ -40,7 +40,7 @@
 - [ ] Solutioning
   - [x] /run-agent-task architect *create-architecture {prompt / user-input-file}
     - [x] File: architecture.md
-  - [ ] /run-agent-task architect *validate-architecture {prompt / user-input-file}
+  - [x] /run-agent-task architect *validate-architecture {prompt / user-input-file}
   - [x] /run-agent-task pm *create-epics-and-stories {prompt / user-input-file}
     - [x] File: epics.md
   - [ ] /run-agent-task tea *test-design {prompt / user-input-file}
@@ -49,20 +49,20 @@
 ## Fase 4
 
 - [ ] Implementation
-  - [x] /run-agent-task sm *sprint-planning {prompt / user-input-file}
+  - [ ] /run-agent-task sm *sprint-planning {prompt / user-input-file}
     - [ ] File: sprint-artifacts/sprint-status.yaml
   - foreach epic in sprint planning:
-    - [ ] /run-agent-task sm create-epic-tech-context {prompt / user-input-file}
-      - [ ] File: sprint-artifacts/tech-spec-epic-{{epic_id}}.md
-    - [ ] /run-agent-task sm validate-epic-tech-context {prompt / user-input-file}
+    - [x] /run-agent-task sm create-epic-tech-context {prompt / user-input-file}
+      - [x] File: sprint-artifacts/tech-spec-epic-{{epic_id}}.md
+    - [x] /run-agent-task sm validate-epic-tech-context {prompt / user-input-file}
     - foreach story in epic:
       - [x] /run-agent-task sm *create-story {prompt / user-input-file}
         - [x] File: sprint-artifacts/{{story_key}}.md
       - [x] /run-agent-task sm *validate-create-story {prompt / user-input-file}
-      - [x] /run-agent-task sm *create-story-context {prompt / user-input-file}
-        - [x] File: sprint-artifacts/{{story_key}}.context.xml
-      - [x] /run-agent-task sm *validate-story-context {prompt / user-input-file}
-      - [x] /run-agent-task sm *story-ready-for-dev {prompt / user-input-file}
+      - [ ] /run-agent-task sm *create-story-context {prompt / user-input-file}
+        - [ ] File: sprint-artifacts/{{story_key}}.context.xml
+      - [ ] /run-agent-task sm *validate-story-context {prompt / user-input-file}
+      - [ ] /run-agent-task sm *story-ready-for-dev {prompt / user-input-file}
       while code-review != approved:
         - [ ] /run-agent-task dev *develop-story {prompt / user-input-file}
         - [ ] /run-agent-task dev *code-review {prompt / user-input-file}

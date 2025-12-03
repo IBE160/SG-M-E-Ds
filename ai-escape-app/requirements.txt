@@ -1,0 +1,6 @@
+Flask
+python-dotenv
+gunicorn
+pytest
+SQLAlchemy
+supabase

@@ -1,6 +1,6 @@
 # Story 1.2: Implement Basic Game State Management
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -15,22 +15,22 @@ So that we can track the player's progress through the escape room.
 
 ## Tasks / Subtasks
 
-- [ ] AC 1: Define `GameSession` data model using SQLAlchemy.
-  - [ ] Subtask: Create `models.py` to define the `GameSession` class with `currentRoom`, `inventory`, `gameHistory`, `narrativeState`, `puzzleState`, `startTime`, `lastUpdated`, `theme`, `location`, `difficulty` fields. [Source: docs/architecture.md#Data-Architecture]
-  - [ ] Subtask: Configure SQLAlchemy to connect to Supabase (PostgreSQL). [Source: docs/architecture.md#Data-Persistence]
-- [ ] AC 1: Implement basic CRUD operations for `GameSession`.
-  - [ ] Subtask: Create function to initialize a new `GameSession` (start game).
-  - [ ] Subtask: Create function to retrieve an existing `GameSession`.
-  - [ ] Subtask: Create function to update `GameSession` (e.g., `currentRoom`).
-- [ ] AC 1: Integrate `GameSession` updates with Flask routes.
-  - [ ] Subtask: Create a Flask route for player movement that updates `currentRoom` in `GameSession`. [Source: docs/architecture.md#Game-State-Transition-Flow]
-- [ ] AC 2: Extend `GameSession` update function for `inventory` management.
-  - [ ] Subtask: Implement logic to add items to `inventory` list within `GameSession`.
-  - [ ] Subtask: Implement logic to remove items from `inventory` list within `GameSession`.
-- [ ] AC 2: Integrate `inventory` updates with Flask routes.
-  - [ ] Subtask: Create a Flask route for player interaction that updates `inventory` in `GameSession`. [Source: docs/architecture.md#Game-State-Transition-Flow]
-- [ ] AC 1, 2: Implement unit tests for `GameSession` model definition and CRUD operations.
-- [ ] AC 1, 2: Implement integration tests for Flask routes that update `GameSession` fields (`currentRoom`, `inventory`).
+- [x] AC 1: Define `GameSession` data model using SQLAlchemy.
+  - [x] Subtask: Create `models.py` to define the `GameSession` class with `currentRoom`, `inventory`, `gameHistory`, `narrativeState`, `puzzleState`, `startTime`, `lastUpdated`, `theme`, `location`, `difficulty` fields. [Source: docs/architecture.md#Data-Architecture]
+  - [x] Subtask: Configure SQLAlchemy to connect to Supabase (PostgreSQL). [Source: docs/architecture.md#Data-Persistence]
+- [x] AC 1: Implement basic CRUD operations for `GameSession`.
+  - [x] Subtask: Create function to initialize a new `GameSession` (start game).
+  - [x] Subtask: Create function to retrieve an existing `GameSession`.
+  - [x] Subtask: Create function to update `GameSession` (e.g., `currentRoom`).
+- [x] AC 1: Integrate `GameSession` updates with Flask routes.
+  - [x] Subtask: Create a Flask route for player movement that updates `currentRoom` in `GameSession`. [Source: docs/architecture.md#Game-State-Transition-Flow]
+- [x] AC 2: Extend `GameSession` update function for `inventory` management.
+  - [x] Subtask: Implement logic to add items to `inventory` list within `GameSession`.
+  - [x] Subtask: Implement logic to remove items from `inventory` list within `GameSession`.
+- [x] AC 2: Integrate `inventory` updates with Flask routes.
+  - [x] Subtask: Create a Flask route for player interaction that updates `inventory` in `GameSession`. [Source: docs/architecture.md#Game-State-Transition-Flow]
+- [x] AC 1, 2: Implement unit tests for `GameSession` model definition and CRUD operations.
+- [x] AC 1, 2: Implement integration tests for Flask routes that update `GameSession` fields (`currentRoom`, `inventory`).
 
 ## Dev Notes
 
@@ -104,9 +104,23 @@ Story 1.1 established the initial Python Flask project structure. This story sho
 ### Debug Log References
 
 ### Completion Notes List
+- Defined GameSession data model using SQLAlchemy, including the addition of `SQLAlchemy` and `supabase` to `requirements.txt` and configuring database connection.
+- Implemented basic CRUD operations for GameSession in `services/game_logic.py`, ensuring correct tracking of inventory updates.
+- Integrated GameSession updates with Flask routes by modifying `app.py` and creating `routes.py` with dedicated API endpoints for game session management.
+- Implemented comprehensive unit tests for the GameSession model and CRUD operations, and integration tests for all new Flask API routes, with all tests passing successfully.
 
 ### File List
+- ai-escape-app/
+  - models.py
+  - services/
+    - game_logic.py
+  - routes.py
+  - requirements.txt (updated with SQLAlchemy, supabase)
+  - tests/
+    - test_game_logic.py
+    - test_app.py (updated)
 
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-03**: Story completed.
