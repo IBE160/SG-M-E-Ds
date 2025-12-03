@@ -1,0 +1,179 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>2</storyId>
+    <title>Implement Basic Game State Management</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-2-implement-basic-game-state-management.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>to implement a basic game state management system</iWant>
+    <soThat>we can track the player's progress through the escape room</soThat>
+    <tasks>
+      <task>AC 1: Define `GameSession` data model using SQLAlchemy.
+        <subtask>Create `models.py` to define the `GameSession` class with `currentRoom`, `inventory`, `gameHistory`, `narrativeState`, `puzzleState`, `startTime`, `lastUpdated`, `theme`, `location`, `difficulty` fields. [Source: docs/architecture.md#Data-Architecture]</subtask>
+        <subtask>Configure SQLAlchemy to connect to Supabase (PostgreSQL). [Source: docs/architecture.md#Data-Persistence]</subtask>
+      </task>
+      <task>AC 1: Implement basic CRUD operations for `GameSession`.
+        <subtask>Create function to initialize a new `GameSession` (start game).</subtask>
+        <subtask>Create function to retrieve an existing `GameSession`.</subtask>
+        <subtask>Create function to update `GameSession` (e.g., `currentRoom`).</subtask>
+      </task>
+      <task>AC 1: Integrate `GameSession` updates with Flask routes.
+        <subtask>Create a Flask route for player movement that updates `currentRoom` in `GameSession`. [Source: docs/architecture.md#Game-State-Transition-Flow]</subtask>
+      </task>
+      <task>AC 2: Extend `GameSession` update function for `inventory` management.
+        <subtask>Implement logic to add items to `inventory` list within `GameSession`.</subtask>
+        <subtask>Implement logic to remove items from `inventory` list within `GameSession`.</subtask>
+      </task>
+      <task>AC 2: Integrate `inventory` updates with Flask routes.
+        <subtask>Create a Flask route for player interaction that updates `inventory` in `GameSession`. [Source: docs/architecture.md#Game-State-Transition-Flow]</subtask>
+      </task>
+      <task>AC 1, 2: Implement unit tests for `GameSession` model definition and CRUD operations.
+        <subtask>Write unit tests to verify project structure (e.g., file existence, basic content). (AC: 1, 2)</subtask>
+        <subtask>Write integration tests to verify "Hello World" app functionality. (AC: 3)</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion>Given a new game is started, when the player moves from "Room 1" to "Room 2", then the game state object is updated to `{'current_room': 'Room 2'}`.</criterion>
+    <criterion>And when the player interacts with the "key" in "Room 2", then the game state object is updated to `{'inventory': ['key']}`.</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document: AI Escape</title>
+        <section>FR-002: Player-Driven Customization (Game Setup)</section>
+        <snippet>FR-002: Player-Driven Customization (Game Setup) indicates players tailor their adventure by choosing a theme, location, difficulty level, and number of rooms. This requires robust game state management.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Identified Architectural Decisions</section>
+        <snippet>Game state management and persistence will be handled by Supabase (PostgreSQL 16.x) using SQLAlchemy (2.0.44) and the Supabase Python client library. The core `GameSession` data model tracks player progress, inventory, and dynamic elements.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Decision Summary</section>
+        <snippet>Key decisions include Python 3.14.1, Flask 3.1.2, Tailwind CSS 4.1.17, Supabase (PostgreSQL 16.x), SQLAlchemy 2.0.44, and Gemini Pro/1.5 Pro API.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Project Structure</section>
+        <snippet>The project will follow a structured Flask application layout including `models.py`, `routes.py`, and `services/` for game logic.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Data Architecture</section>
+        <snippet>The primary data will revolve around `GameSession` to capture the state of each player's escape room experience. It includes `id`, `playerId`, `currentRoom`, `inventory`, `gameHistory`, `narrativeState`, `puzzleState`, `startTime`, `lastUpdated`, `theme`, `location`, `difficulty`.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Game State Transition Flow</section>
+        <snippet>The core game loop follows a well-defined state transition flow, managed by the backend: `GameSession` is created at "Start Game", and updated on "Player Action" and "AI Response & State Change" cycles.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>ibe160 - Epic Breakdown</title>
+        <section>Story 1.2: Implement Basic Game State Management</section>
+        <snippet>Story 1.2 implements a basic game state management system using Supabase (PostgreSQL), SQLAlchemy, and the `GameSession` data model to track player progress, inventory, and room changes.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>AI Escape - UX Design Specification</title>
+        <section>5. User Journey Flows</section>
+        <snippet>UX Design outlines user journey flows for New Game Creation and Load Game, which will rely on the backend's game state management to function correctly.</snippet>
+      </doc>
+    </docs>
+    <code></code>
+    <dependencies>
+      <python>
+        <package name="Flask" version="3.1.2" />
+        <package name="python-dotenv" version="?" />
+        <package name="SQLAlchemy" version="2.0.44" />
+        <package name="supabase" version="2.24.0" />
+        <note>Expected to be installed via pip and listed in requirements.txt</note>
+        <note>Additional planned dependencies include Pytest, Black, Flake8 for testing and linting.</note>
+      </python>
+      <node>
+        <package name="playwright" version="?" />
+        <note>Existing Node.js project dependencies will be managed via package.json</note>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>
+      <type>Required Pattern</type>
+      <description>Python Flask application structure (modular, with `app.py`, `static/`, `templates/`, `models.py`, `routes.py`, `services/`, `tests/`).</description>
+      <source>docs/architecture.md#Project-Structure</source>
+    </constraint>
+    <constraint>
+      <type>Required Pattern</type>
+      <description>WCAG 2.1 Level AA accessibility compliance.</description>
+      <source>docs/architecture.md#Accessibility-Implementation</source>
+    </constraint>
+    <constraint>
+      <type>Required Pattern</type>
+      <description>Stateless JWT Authentication.</description>
+      <source>docs/architecture.md#Security-Architecture</source>
+    </constraint>
+    <constraint>
+      <type>Layer Restriction</type>
+      <description>Frontend (Jinja2 templates/Static assets) &lt;-> Backend (Flask Routes/API Endpoints).</description>
+      <source>docs/architecture.md#Integration-Points</source>
+    </constraint>
+    <constraint>
+      <type>Layer Restriction</type>
+      <description>Flask Routes/API Endpoints &lt;-> AI Service (Gemini API).</description>
+      <source>docs/architecture.md#Integration-Points</source>
+    </constraint>
+    <constraint>
+      <type>Layer Restriction</type>
+      <description>Flask Routes/API Endpoints &lt;-> Database (Supabase PostgreSQL via SQLAlchemy).</description>
+      <source>docs/architecture.md#Integration-Points</source>
+    </constraint>
+    <constraint>
+      <type>Testing Requirement</type>
+      <description>Unit Tests (Pytest with `pytest-mock`).</description>
+      <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+    </constraint>
+    <constraint>
+      <type>Testing Requirement</type>
+      <description>Integration Tests (Pytest).</description>
+      <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+    </constraint>
+    <constraint>
+      <type>Testing Requirement</type>
+      <description>E2E Tests (Playwright).</description>
+      <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+    </constraint>
+    <constraint>
+      <type>Coding Standard</type>
+      <description>Python Classes: `PascalCase`, Python Functions/Variables: `snake_case`, Python Modules/Files: `snake_case`, Database Tables: `snake_case` (plural), Database Columns: `snake_case`, API Endpoints: `kebab-case` for URL paths, `snake_case` for query parameters, Constants: `SCREAMING_SNAKE_CASE`.</description>
+      <source>docs/architecture.md#Consistency-Rules</source>
+    </constraint>
+    <constraint>
+      <type>Coding Standard</type>
+      <description>Code Organization: Modular Flask application layout.</description>
+      <source>docs/architecture.md#Code-Organization</source>
+    </constraint>
+  </constraints>
+  <interfaces></interfaces>
+  <tests>
+    <standards></standards>
+    <locations></locations>
+    <ideas></ideas>
+  </tests>
+</story-context>

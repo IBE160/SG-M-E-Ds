@@ -1,0 +1,221 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>Project Initialization and Deployment Setup</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-1-project-initialization-and-deployment-setup.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>to initialize the project structure and set up a basic deployment pipeline</iWant>
+    <soThat>we have a foundation for building and deploying the game</soThat>
+    <tasks>
+      <task>AC 1: Initialize Python Flask project structure.
+        <subtask>Create `ai-escape-app/` directory and navigate into it. [Source: docs/architecture.md#Project-Initialization]</subtask>
+        <subtask>Create Python virtual environment (`venv`). [Source: docs/architecture.md#Project-Initialization]</subtask>
+        <subtask>Activate virtual environment. [Source: docs/architecture.md#Project-Initialization]</subtask>
+        <subtask>Create basic Flask app structure (`app.py`, `static/`, `templates/`, `config.py`, `instance/`, `models.py`, `routes.py`, `services/`, `tests/`). [Source: docs/architecture.md#Project-Structure]</subtask>
+        <subtask>Add `.env` and `.flaskenv` for environment variables. [Source: docs/architecture.md#Project-Structure]</subtask>
+      </task>
+      <task>AC 2: Create initial `README.md`.
+        <subtask>Add basic project description and setup instructions. [Source: docs/architecture.md#Project-Initialization]</subtask>
+      </task>
+      <task>AC 3: Implement "Hello World" Flask application.
+        <subtask>Write minimal `app.py` to return "Hello World".</subtask>
+        <subtask>Define `requirements.txt` and install dependencies (`Flask`, `python-dotenv`). [Source: docs/architecture.md#Project-Initialization]</subtask>
+      </task>
+      <task>AC 3: Set up basic CI/CD for deployment.
+        <subtask>Configure GitHub Actions workflow for basic build and test. [Source: docs/epics.md#Story-1.1]</subtask>
+        <subtask>Investigate free-tier deployment options (e.g., Render, Railway) for Flask application. [Source: docs/epics.md#Story-1.1]</subtask>
+        <subtask>Deploy "Hello World" to chosen free-tier service.</subtask>
+      </task>
+      <task>AC 1, 2, 3: Implement unit and integration tests.
+        <subtask>Write unit tests to verify project structure (e.g., file existence, basic content). (AC: 1, 2)</subtask>
+        <subtask>Write integration tests to verify "Hello World" app functionality. (AC: 3)</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion>Given a new project, when the initialization script is run, then a standard project structure (e.g., `src`, `docs`, `tests`) is created.</criterion>
+    <criterion>And a basic `README.md` is generated with setup instructions.</criterion>
+    <criterion>And a simple "Hello World" version of the application can be automatically built and deployed to a free-tier cloud service (e.g., GitHub Pages, Vercel, Heroku).</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document: AI Escape</title>
+        <section>1. Introduction</section>
+        <snippet>The project is about AI Escape, an AI-driven puzzle game. This story, 'Project Initialization and Deployment Setup', lays the groundwork for the MVP features including AI-Generated Narrative and Game Setup.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Executive Summary</section>
+        <snippet>The 'AI Escape' project architecture is a standard Python Flask web application using Supabase for data persistence and the Gemini API for content generation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Project Initialization</section>
+        <snippet>Project initialization involves Python Flask as the foundation, using Python 3.14.1, Flask 3.1.2, Tailwind CSS 4.1.17. Pytest, Black, and Flake8 are chosen for testing and linting.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Decision Summary</section>
+        <snippet>Key decisions include Python 3.14.1, Flask 3.1.2, Tailwind CSS 4.1.17, Supabase (PostgreSQL 16.x), SQLAlchemy 2.0.44, and Gemini Pro/1.5 Pro API.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Project Structure</section>
+        <snippet>The project will follow a structured Flask application layout including `app.py`, `static/`, `templates/`, `models.py`, `routes.py`, and `services/` directories.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Development Environment</section>
+        <snippet>Development environment prerequisites include Python, pip, and Git. Setup involves cloning the repo, creating a virtual environment, installing dependencies from `requirements.txt`, and configuring `.env`.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Deployment Architecture</section>
+        <snippet>The Python Flask application deployment will use a WSGI server (e.g., Gunicorn, uWSGI) and a reverse proxy (e.g., Nginx) on a cloud provider or PaaS.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>ibe160 - Epic Breakdown</title>
+        <section>Epic 1: Foundational Framework & A Single, Static Escape Room</section>
+        <snippet>Epic 1 aims to build a robust technical foundation and a complete, testable, end-to-end user experience with a single, hard-coded story and puzzle chain.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>ibe160 - Epic Breakdown</title>
+        <section>Story 1.1: Project Initialization and Deployment Setup</section>
+        <snippet>Story 1.1 focuses on project initialization and deployment setup, including setting up the git repository, Python/Flask environment, Tailwind CSS, Pytest, Black, Flake8, pip, and a basic CI/CD pipeline using GitHub Actions.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>AI Escape - UX Design Specification</title>
+        <section>2. Visual Foundation</section>
+        <snippet>The UX Design Specification outlines visual foundations (retro-futuristic colors, `Press Start 2P`, `Roboto Mono` fonts), responsive design strategy for mobile/tablet/desktop, and an accessibility strategy targeting WCAG 2.1 Level AA compliance.</snippet>
+      </doc>
+    </docs>
+    <code></code>
+    <dependencies>
+      <python>
+        <package name="Flask" version="3.1.2" />
+        <package name="python-dotenv" version="?" />
+        <note>Expected to be installed via pip and listed in requirements.txt</note>
+        <note>Additional planned dependencies include Pytest, Black, Flake8 for testing and linting.</note>
+      </python>
+      <node>
+        <package name="playwright" version="?" />
+        <note>Existing Node.js project dependencies will be managed via package.json</note>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>
+      <type>Required Pattern</type>
+      <description>Python Flask application structure (modular, with `app.py`, `static/`, `templates/`, `models.py`, `routes.py`, `services/`, `tests/`).</description>
+      <source>docs/architecture.md#Project-Structure</source>
+    </constraint>
+    <constraint>
+      <type>Required Pattern</type>
+      <description>WCAG 2.1 Level AA accessibility compliance.</description>
+      <source>docs/architecture.md#Accessibility-Implementation</source>
+    </constraint>
+    <constraint>
+      <type>Required Pattern</type>
+      <description>Stateless JWT Authentication.</description>
+      <source>docs/architecture.md#Security-Architecture</source>
+    </constraint>
+    <constraint>
+      <type>Layer Restriction</type>
+      <description>Frontend (Jinja2 templates/Static assets) &lt;-> Backend (Flask Routes/API Endpoints).</description>
+      <source>docs/architecture.md#Integration-Points</source>
+    </constraint>
+    <constraint>
+      <type>Layer Restriction</type>
+      <description>Flask Routes/API Endpoints &lt;-> AI Service (Gemini API).</description>
+      <source>docs/architecture.md#Integration-Points</source>
+    </constraint>
+    <constraint>
+      <type>Layer Restriction</type>
+      <description>Flask Routes/API Endpoints &lt;-> Database (Supabase PostgreSQL via SQLAlchemy).</description>
+      <source>docs/architecture.md#Integration-Points</source>
+    </constraint>
+    <constraint>
+      <type>Testing Requirement</type>
+      <description>Unit Tests (Pytest with `pytest-mock`).</description>
+      <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+    </constraint>
+    <constraint>
+      <type>Testing Requirement</type>
+      <description>Integration Tests (Pytest).</description>
+      <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+    </constraint>
+    <constraint>
+      <type>Testing Requirement</type>
+      <description>E2E Tests (Playwright).</description>
+      <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+    </constraint>
+    <constraint>
+      <type>Coding Standard</type>
+      <description>Python Classes: `PascalCase`, Python Functions/Variables: `snake_case`, Python Modules/Files: `snake_case`, Database Tables: `snake_case` (plural), Database Columns: `snake_case`, API Endpoints: `kebab-case` for URL paths, `snake_case` for query parameters, Constants: `SCREAMING_SNAKE_CASE`.</description>
+      <source>docs/architecture.md#Consistency-Rules</source>
+    </constraint>
+    <constraint>
+      <type>Coding Standard</type>
+      <description>Code Organization: Modular Flask application layout.</description>
+      <source>docs/architecture.md#Code-Organization</source>
+    </constraint>
+  </constraints>
+  <interfaces></interfaces>
+  <tests>
+    <standards>
+      <standard>
+        <framework>Pytest</framework>
+        <type>Unit, Integration</type>
+        <note>Use `pytest-mock` for unit testing isolation.</note>
+        <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+      </standard>
+      <standard>
+        <framework>Playwright</framework>
+        <type>E2E</type>
+        <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+      </standard>
+    </standards>
+    <locations>
+      <location>tests/</location>
+      <note>Mirroring the application's module structure (e.g., `tests/unit/`, `tests/integration/`).</note>
+    </locations>
+    <ideas>
+      <idea ac="1">
+        <description>Verify existence of key directories (`ai-escape-app/`, `venv/`, `static/`, `templates/`, `services/`, `tests/`).</description>
+      </idea>
+      <idea ac="1">
+        <description>Verify existence of key files (`app.py`, `config.py`, `.env`, `requirements.txt`).</description>
+      </idea>
+      <idea ac="2">
+        <description>Verify `README.md` exists and contains expected setup sections.</description>
+      </idea>
+      <idea ac="3">
+        <description>Run local Flask development server and assert "Hello World" response.</description>
+      </idea>
+      <idea ac="3">
+        <description>Verify successful deployment to a free-tier cloud service via CI/CD.</description>
+      </idea>
+    </ideas>
+  </tests>
+</story-context>
