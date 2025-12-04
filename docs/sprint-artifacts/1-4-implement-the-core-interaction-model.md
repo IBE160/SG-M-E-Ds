@@ -75,6 +75,7 @@ So that I can navigate and solve puzzles.
 ## Dev Agent Record
 
 ### Context Reference
+- docs/sprint-artifacts/1-4-implement-the-core-interaction-model.context.xml
 
 ### Agent Model Used
 

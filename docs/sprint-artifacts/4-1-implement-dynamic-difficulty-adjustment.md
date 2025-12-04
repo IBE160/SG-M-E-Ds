@@ -1,6 +1,6 @@
 # Story 4.1: Implement Dynamic Difficulty Adjustment
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -77,6 +77,7 @@ So that the challenge remains engaging and fair.
 ## Dev Agent Record
 
 ### Context Reference
+- docs/sprint-artifacts/4-1-implement-dynamic-difficulty-adjustment.context.xml
 
 ### Agent Model Used
 

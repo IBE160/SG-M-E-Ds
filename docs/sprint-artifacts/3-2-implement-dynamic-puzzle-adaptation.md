@@ -1,6 +1,6 @@
 # Story 3.2: Implement Dynamic Puzzle Adaptation
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -77,6 +77,7 @@ So that the challenges feel responsive and personalized.
 ## Dev Agent Record
 
 ### Context Reference
+- docs/sprint-artifacts/3-2-implement-dynamic-puzzle-adaptation.context.xml
 
 ### Agent Model Used
 

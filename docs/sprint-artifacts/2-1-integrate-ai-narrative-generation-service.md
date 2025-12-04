@@ -84,6 +84,7 @@ So that we can dynamically create story elements for the game.
 ## Dev Agent Record
 
 ### Context Reference
+- docs/sprint-artifacts/2-1-integrate-ai-narrative-generation-service.context.xml
 
 ### Agent Model Used
 

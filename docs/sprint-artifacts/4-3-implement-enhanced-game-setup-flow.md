@@ -1,6 +1,6 @@
 # Story 4.3: Implement Enhanced Game Setup Flow
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -76,6 +76,7 @@ So that I can customize my experience more effectively.
 ## Dev Agent Record
 
 ### Context Reference
+- docs/sprint-artifacts/4-3-implement-enhanced-game-setup-flow.context.xml
 
 ### Agent Model Used
 

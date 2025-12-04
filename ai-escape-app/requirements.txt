@@ -4,3 +4,4 @@ gunicorn
 pytest
 SQLAlchemy
 supabase
+google-generativeai

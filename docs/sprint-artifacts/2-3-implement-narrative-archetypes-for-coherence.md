@@ -1,6 +1,6 @@
 # Story 2.3: Implement Narrative Archetypes for Coherence
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -77,6 +77,7 @@ So that the generated stories remain coherent and logical across playthroughs.
 ## Dev Agent Record
 
 ### Context Reference
+- docs/sprint-artifacts/2-3-implement-narrative-archetypes-for-coherence.context.xml
 
 ### Agent Model Used
 

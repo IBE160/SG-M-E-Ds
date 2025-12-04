@@ -1,6 +1,6 @@
 # Story 4.2: Expand Library of Visual Assets and Themes
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -72,6 +72,7 @@ So that players have more diverse and immersive choices for their escape rooms.
 ## Dev Agent Record
 
 ### Context Reference
+- docs/sprint-artifacts/4-2-expand-library-of-visual-assets-and-themes.context.xml
 
 ### Agent Model Used
 

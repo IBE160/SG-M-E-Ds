@@ -1,6 +1,6 @@
 # Story 1.5: Display Basic Visuals for Rooms
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -71,6 +71,7 @@ So that the game feels more immersive.
 ## Dev Agent Record
 
 ### Context Reference
+- docs/sprint-artifacts/1-5-display-basic-visuals-for-rooms.context.xml
 
 ### Agent Model Used
 

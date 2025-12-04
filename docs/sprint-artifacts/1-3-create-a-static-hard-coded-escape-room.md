@@ -1,6 +1,6 @@
 # Story 1.3: Create a Static, Hard-coded Escape Room
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -89,6 +89,8 @@ So that we have a complete, playable experience to test the core mechanics.
 ## Dev Agent Record
 
 ### Context Reference
+
+- docs/sprint-artifacts/1-3-create-a-static-hard-coded-escape-room.context.xml
 
 ### Agent Model Used
 
