@@ -45,7 +45,7 @@ development_status:
   epic-1-retrospective: optional
 
   epic-2: contexted
-  2-1-integrate-ai-narrative-generation-service: ready-for-dev
+  2-1-integrate-ai-narrative-generation-service: drafted
   2-2-dynamic-room-description-generation: ready-for-dev
   2-3-implement-narrative-archetypes-for-coherence: ready-for-dev
   2-4-dynamic-theme-and-location-integration: ready-for-dev
@@ -66,6 +66,6 @@ development_status:
 
   epic-5: contexted
   5-1-implement-save-load-game-functionality: ready-for-dev
-  5-2-create-a-help-information-system: ready-for-dev
+  5-2-create-a-help-information-system: drafted
   5-3-implement-an-options-menu: ready-for-dev
   epic-5-retrospective: optional

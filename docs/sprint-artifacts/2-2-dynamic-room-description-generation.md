@@ -1,6 +1,6 @@
 # Story 2.2: Dynamic Room Description Generation
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -50,7 +50,7 @@ So that each playthrough offers fresh environments.
 
 ### Learnings from Previous Story
 
-**From Story 2.1: Integrate AI Narrative Generation Service (Status: drafted)**
+**From Story 2.1: Integrate AI Narrative Generation Service (Status: ready-for-dev)**
 
 -   **Goal:** Integrate an AI service capable of generating narrative text, So that we can dynamically create story elements for the game.
 -   **Acceptance Criteria:** Service returns coherent narrative text; application successfully receives and parses narrative.
@@ -78,6 +78,7 @@ So that each playthrough offers fresh environments.
 ## Dev Agent Record
 
 ### Context Reference
+- docs/sprint-artifacts/2-2-dynamic-room-description-generation.context.xml
 
 ### Agent Model Used
 
@@ -92,3 +93,4 @@ So that each playthrough offers fresh environments.
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-04**: Story context regenerated.

@@ -1,6 +1,6 @@
 # Story 3.4: Integrate Player Puzzle Interaction
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -75,6 +75,7 @@ So that I can attempt solutions and progress through the game.
 ## Dev Agent Record
 
 ### Context Reference
+- docs/sprint-artifacts/3-4-integrate-player-puzzle-interaction.context.xml
 
 ### Agent Model Used
 
@@ -89,3 +90,4 @@ So that I can attempt solutions and progress through the game.
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-04**: Story context regenerated.

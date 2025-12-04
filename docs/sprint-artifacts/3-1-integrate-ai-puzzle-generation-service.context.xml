@@ -1,0 +1,233 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>1</storyId>
+    <title>Integrate AI Puzzle Generation Service</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-04</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/3-1-integrate-ai-puzzle-generation-service.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>to integrate an AI service capable of generating puzzles</iWant>
+    <soThat>we can dynamically create interactive challenges for the game</soThat>
+    <tasks>
+- [ ] AC 1: Ensure Gemini API access is configured.
+  - [ ] Subtask: Verify Gemini API key is accessible (should be configured in Story 2.1).
+- [ ] AC 1: Install `google-generativeai` Python client library (if not already installed).
+  - [ ] Subtask: Verify `google-generativeai` is in `requirements.txt` and installed (should be from Story 2.1).
+- [ ] AC 1, 2: Extend `services/ai_service.py` for puzzle generation.
+  - [ ] Subtask: Implement a function to formulate prompts for puzzle generation, focusing on mechanics and types (e.g., Observation, Riddle).
+  - [ ] Subtask: Call the Gemini API to generate puzzle descriptions and solutions.
+  - [ ] Subtask: Implement logic to receive and parse the AI-generated puzzle.
+- [ ] AC 1, 2: Create Flask API routes for puzzle generation.
+  - [ ] Subtask: Define a `POST /generate_puzzle` endpoint in `routes.py`.
+  - [ ] Subtask: This endpoint will receive a prompt/context, call `services/ai_service.py`, and return the generated puzzle.
+- [ ] AC 1, 2: Implement unit and integration tests.
+  - [ ] Subtask: Write unit tests for `services/ai_service.py`, mocking the Gemini API to verify prompt construction, API calls, and response parsing for puzzles.
+  - [ ] Subtask: Write integration tests for the `POST /generate_puzzle` Flask route, verifying interaction with `services/ai_service.py` and correct puzzle return.
+</tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion>Given an AI puzzle generation service (e.g., Gemini API), when a prompt is sent to the service (e.g., "Generate a riddle for a magical library theme"), then the service returns a coherent puzzle description and solution.</criterion>
+    <criterion>And the application can successfully receive and parse this puzzle.</criterion>
+</acceptanceCriteria>
+
+  <artifacts>
+<docs>
+    <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document: AI Escape</title>
+        <section>FR-001: Dynamic Content Generation</section>
+        <snippet>The AI generates unique storylines, adapts puzzles, and creates room descriptions based on user input, ensuring no two games are the same.</snippet>
+    </doc>
+    <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document: AI Escape</title>
+        <section>FR-005: Detailed specifications for puzzle types</section>
+        <snippet>Detailed specifications for puzzle types (Observation, Riddle, etc.) and the AI's adaptation logic will be developed.</snippet>
+    </doc>
+    <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document: AI Escape</title>
+        <section>FR-009: Small Puzzle Set</section>
+        <snippet>2-3 distinct puzzle types (e.g., Observation, Riddle) that the AI can adapt.</snippet>
+    </doc>
+    <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>AI Service Integration</section>
+        <snippet>Utilizes Gemini Pro / Gemini 1.5 Pro.</snippet>
+    </doc>
+    <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>AI Client Library</section>
+        <snippet>Employs `google-generativeai 0.8.5` for interacting with the Gemini API.</snippet>
+    </doc>
+    <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>API Pattern for AI interactions</section>
+        <snippet>Flask API Routes.</snippet>
+    </doc>
+    <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Prompt Management Strategy</section>
+        <snippet>Structured Prompting with Puzzle Dependency Chains.</snippet>
+    </doc>
+    <doc>
+        <path>docs/epics.md</path>
+        <title>ibe160 - Epic Breakdown</title>
+        <section>Epic 3: The AI Puzzle Master</section>
+        <snippet>This Epic focuses on empowering the AI to dynamically generate and adapt puzzles within the "AI Escape" game, building upon the coherent narrative framework established in Epic 2.</snippet>
+    </doc>
+    <doc>
+        <path>docs/epics.md</path>
+        <title>ibe160 - Epic Breakdown</title>
+        <section>Story 3.1: Integrate AI Puzzle Generation Service</section>
+        <snippet>Story 3.1 focuses on integrating an AI service (Gemini API) to dynamically create interactive puzzle challenges, handling API requests and responses.</snippet>
+    </doc>
+    <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>AI Escape - UX Design Specification</title>
+        <section>5. User Journey Flows</section>
+        <snippet>UX Design outlines user journey flows for New Game Creation and Load Game, which will rely on the backend's game state management to function correctly. This implies the need for dynamic content in the UI.</snippet>
+    </doc>
+</docs>
+    <code>
+        <code-ref>
+            <path>services/ai_service.py</path>
+            <kind>file</kind>
+            <reason>Extend for puzzle generation capabilities</reason>
+        </code-ref>
+        <code-ref>
+            <path>routes.py</path>
+            <kind>file</kind>
+            <reason>Define `POST /generate_puzzle` endpoint</reason>
+        </code-ref>
+        <code-ref>
+            <path>requirements.txt</path>
+            <kind>file</kind>
+            <reason>Verify `google-generativeai` client library installation</reason>
+        </code-ref>
+        <code-ref>
+            <path>tests/</path>
+            <kind>directory</kind>
+            <reason>For new unit and integration tests</reason>
+        </code-ref>
+    </code>
+    <dependencies>
+      <python>
+        <package name="Flask" version="3.1.2" />
+        <package name="python-dotenv" version="?" />
+        <package name="gunicorn" version="?" />
+        <package name="pytest" version="?" />
+        <package name="google-generativeai" version="0.8.5" />
+        <note>Core Python dependencies for the Flask application and Google Gemini API client.</note>
+      </python>
+      <node>
+        <package name="playwright" version="?" />
+        <note>Existing Node.js project dependencies for E2E testing.</note>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>
+        <type>Required Pattern</type>
+        <description>Python Flask application structure (modular, with `app.py`, `static/`, `templates/`, `models.py`, `routes.py`, `services/`, `tests/`).</description>
+        <source>docs/architecture.md#Project-Structure</source>
+    </constraint>
+    <constraint>
+        <type>Required Pattern</type>
+        <description>WCAG 2.1 Level AA accessibility compliance.</description>
+        <source>docs/architecture.md#Accessibility-Implementation</source>
+    </constraint>
+    <constraint>
+        <type>Required Pattern</type>
+        <description>Stateless JWT Authentication.</description>
+        <source>docs/architecture.md#Security-Architecture</source>
+    </constraint>
+    <constraint>
+        <type>Layer Restriction</type>
+        <description>Frontend (Jinja2 templates/Static assets) &lt;-> Backend (Flask Routes/API Endpoints).</description>
+        <source>docs/architecture.md#Integration-Points</source>
+    </constraint>
+    <constraint>
+        <type>Layer Restriction</type>
+        <description>Flask Routes/API Endpoints &lt;-> AI Service (Gemini API).</description>
+        <source>docs/architecture.md#Integration-Points</source>
+    </constraint>
+    <constraint>
+        <type>Layer Restriction</type>
+        <description>Flask Routes/API Endpoints &lt;-> Database (Supabase PostgreSQL via SQLAlchemy).</description>
+        <source>docs/architecture.md#Integration-Points</source>
+    </constraint>
+    <constraint>
+        <type>Testing Requirement</type>
+        <description>Unit Tests (Pytest with `pytest-mock`).</description>
+        <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+    </constraint>
+    <constraint>
+        <type>Testing Requirement</type>
+        <description>Integration Tests (Pytest).</description>
+        <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+    </constraint>
+    <constraint>
+        <type>Testing Requirement</type>
+        <description>E2E Tests (Playwright).</description>
+        <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+    </constraint>
+    <constraint>
+        <type>Coding Standard</type>
+        <description>Python Classes: `PascalCase`, Python Functions/Variables: `snake_case`, Python Modules/Files: `snake_case`, Database Tables: `snake_case` (plural), Database Columns: `snake_case`, API Endpoints: `kebab-case` for URL paths, `snake_case` for query parameters, Constants: `SCREAMING_SNAKE_CASE`.</description>
+        <source>docs/architecture.md#Consistency-Rules</source>
+    </constraint>
+    <constraint>
+        <type>Coding Standard</type>
+        <description>Code Organization: Modular Flask application layout.</description>
+        <source>docs/architecture.md#Code-Organization</source>
+    </constraint>
+</constraints>
+
+<interfaces>
+    <interface>
+        <name>/generate_puzzle</name>
+        <kind>REST endpoint</kind>
+        <signature>POST /generate_puzzle</signature>
+        <path>routes.py</path>
+    </interface>
+</interfaces>
+  <tests>
+    <standards>
+      <standard>
+        <framework>Pytest</framework>
+        <type>Unit, Integration</type>
+        <note>Unit tests should mock the Gemini API.</note>
+        <source>docs/architecture.md#Testing-Strategy</source>
+      </standard>
+      <standard>
+        <framework>Playwright</framework>
+        <type>E2E</type>
+        <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+      </standard>
+    </standards>
+    <locations>
+      <location>tests/</location>
+      <note>Mirroring the application's module structure (e.g., `tests/unit/`, `tests/integration/`).</note>
+    </locations>
+    <ideas>
+      <idea ac="1">
+        <description>Write unit tests for `services/ai_service.py`, mocking the Gemini API to verify prompt construction, API calls, and response parsing for puzzles.</description>
+      </idea>
+      <idea ac="2">
+        <description>Write integration tests for the `POST /generate_puzzle` Flask route, verifying interaction with `services/ai_service.py` and correct puzzle return.</description>
+      </idea>
+    </ideas>
+  </tests>
+</story-context>

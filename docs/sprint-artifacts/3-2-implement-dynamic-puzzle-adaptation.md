@@ -49,15 +49,15 @@ So that the challenges feel responsive and personalized.
 
 ### Learnings from Previous Story
 
-**From Story 3.1: Integrate AI Puzzle Generation Service (Status: drafted)**
+**From Story 3.1: Integrate AI Puzzle Generation Service (Status: ready-for-dev)**
 
 -   **Goal:** Integrate an AI service capable of generating puzzles, So that we can dynamically create interactive challenges for the game.
 -   **Acceptance Criteria:** Service returns coherent puzzle description and solution; application receives and parses puzzle.
 -   **Key Technical Notes:** Ensuring Gemini API access, `google-generativeai` installation, extending `services/ai_service.py` for puzzle generation prompts and API calls, creating `POST /generate_puzzle` Flask endpoint.
 -   **Relevant Learnings for Story 3.2:**
-    *   The `services/ai_service.py` module and Flask API routes for AI interaction are established. This story will further extend `ai_service.py` for puzzle adaptation and a new API endpoint.
-    *   Prompt engineering techniques (from Story 2.x and 3.1) are crucial for guiding AI behavior.
-    *   The `GameSession` model and database persistence (from Epic 1) are foundational for `GameSession.puzzle_state` tracking.
+    *   The `services/ai_service.py` module and Flask API routes for AI interaction are well-established for narrative generation. This story will extend that functionality for puzzle generation.
+    *   Prompt engineering techniques (from Story 2.x and 3.1) will be directly applicable to puzzle generation to ensure theme/location alignment.
+    *   Secure API key handling and error handling (from Story 2.1) are already in place.
 
 [Source: docs/sprint-artifacts/3-1-integrate-ai-puzzle-generation-service.md]
 
@@ -92,3 +92,4 @@ So that the challenges feel responsive and personalized.
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-04**: Story context regenerated.

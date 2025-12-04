@@ -15,9 +15,9 @@ So that we have a complete, playable experience to test the core mechanics.
 
 ## Tasks / Subtasks
 
-- [ ] AC 1: Design and define the 3-room sequence and puzzles.
-  - [ ] Subtask: Identify names and descriptions for Room 1, Room 2, Room 3.
-  - [ ] Subtask: Define at least two distinct puzzle types and their solutions for Room 1 and Room 2.
+- [x] AC 1: Design and define the 3-room sequence and puzzles.
+  - [x] Subtask: Identify names and descriptions for Room 1, Room 2, Room 3.
+  - [x] Subtask: Define at least two distinct puzzle types and their solutions for Room 1 and Room 2.
 - [ ] AC 1: Implement the hard-coded room data.
   - [ ] Subtask: Create a data structure (e.g., Python dictionary in a new module like `data/rooms.py`) to hold room descriptions, connected rooms, and puzzle details.
 - [ ] AC 1: Implement the hard-coded puzzle logic.
@@ -98,10 +98,14 @@ So that we have a complete, playable experience to test the core mechanics.
 
 ### Debug Log References
 
+- **2025-12-04**: Planned and implemented AC 1: Designed 3-room sequence (`ancient_library`, `mysterious_observatory`, `escape_chamber`) and two distinct puzzles (`observation_puzzle`, `riddle_puzzle`). Created `ai-escape-app/data/rooms.py` to hold hard-coded room and puzzle data.
+
 ### Completion Notes List
 
 ### File List
+- ai-escape-app/data/rooms.py
 
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-04**: Story context regenerated.

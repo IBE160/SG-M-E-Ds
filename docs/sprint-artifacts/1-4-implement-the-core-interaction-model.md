@@ -1,6 +1,4 @@
-# Story 1.4: Implement the Core Interaction Model
-
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -90,3 +88,4 @@ So that I can navigate and solve puzzles.
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-04**: Story context regenerated.

@@ -1,5 +1,3 @@
-# Story 2.3: Implement Narrative Archetypes for Coherence
-
 Status: ready-for-dev
 
 ## Story
@@ -92,3 +90,4 @@ So that the generated stories remain coherent and logical across playthroughs.
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-04**: Story context regenerated.

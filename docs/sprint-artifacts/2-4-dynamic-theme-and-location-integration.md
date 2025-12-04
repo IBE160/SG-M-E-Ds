@@ -1,6 +1,6 @@
 # Story 2.4: Dynamic Theme and Location Integration
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -88,3 +88,4 @@ So that my customization choices feel impactful.
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-04**: Story context regenerated.

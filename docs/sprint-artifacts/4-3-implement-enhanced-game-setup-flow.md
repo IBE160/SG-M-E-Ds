@@ -1,6 +1,6 @@
 # Story 4.3: Implement Enhanced Game Setup Flow
 
-Status: ready-for-dev
+Status: drafted
 
 ## Story
 
@@ -91,3 +91,4 @@ So that I can customize my experience more effectively.
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-04**: Story context regenerated.

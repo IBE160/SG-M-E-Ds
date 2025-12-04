@@ -1,6 +1,6 @@
 # Story 3.3: Implement Puzzle Dependency Chains
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -90,3 +90,4 @@ So that players never encounter unsolvable scenarios.
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-04**: Story context regenerated.

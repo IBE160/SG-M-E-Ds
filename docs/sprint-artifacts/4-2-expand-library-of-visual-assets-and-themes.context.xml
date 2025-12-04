@@ -1,0 +1,214 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>2</storyId>
+    <title>Expand Library of Visual Assets and Themes</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-04</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-2-expand-library-of-visual-assets-and-themes.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>game designer</asA>
+    <iWant>to expand the available library of visual assets and themes</iWant>
+    <soThat>players have more diverse and immersive choices for their escape rooms</soThat>
+    <tasks>
+- [ ] AC 1: Curate and integrate new visual assets.
+  - [ ] Subtask: Source and select additional free-to-use images corresponding to new themes.
+  - [ ] Subtask: Store new images in `ai-escape-app/static/images/`.
+- [ ] AC 1: Update AI's understanding of available themes.
+  - [ ] Subtask: Modify `services/ai_service.py` to update prompt engineering based on the expanded library of themes and corresponding visual asset availability.
+  - [ ] Subtask: Ensure AI can generate consistent room descriptions and puzzles for new themes.
+- [ ] AC 1: Implement unit and integration tests.
+  - [ ] Subtask: Write unit tests to verify the new image assets are correctly located and mapped to themes.
+  - [ ] Subtask: Write unit tests for `services/ai_service.py` functions, mocking the Gemini API to verify prompt construction for new themes.
+  - [ ] Subtask: Manual/Exploratory testing to assess the visual consistency of AI-generated content with new themes.
+</tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion>Given a new set of images and themes are added to the game, when a player selects a new theme, then the AI can generate room descriptions and puzzles consistent with the expanded library.</criterion>
+</acceptanceCriteria>
+
+  <artifacts>
+<docs>
+    <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document: AI Escape</title>
+        <section>FR-001: Dynamic Content Generation</section>
+        <snippet>The AI generates unique storylines, and creates room descriptions based on user input.</snippet>
+    </doc>
+    <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document: AI Escape</title>
+        <section>Future Consideration: Content Expansion</section>
+        <snippet>Significantly growing the variety of puzzle types and the library of visual assets.</snippet>
+    </doc>
+    <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Asset Management/Storage</section>
+        <snippet>Local storage in `static/` directory will be expanded. Easily migratable to CDN for scalability.</snippet>
+    </doc>
+    <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>AI Integration</section>
+        <snippet>Utilizes Gemini Pro / Gemini 1.5 Pro (for content generation).</snippet>
+    </doc>
+    <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Prompt Management Strategy</section>
+        <snippet>Structured Prompting Strategy.</snippet>
+    </doc>
+    <doc>
+        <path>docs/epics.md</path>
+        <title>ibe160 - Epic Breakdown</title>
+        <section>Epic 4: Expanding Variety and Replayability</section>
+        <snippet>This Epic aims to significantly increase the breadth of content and player choice within the "AI Escape" game, delivering on the promise of endless replayability.</snippet>
+    </doc>
+    <doc>
+        <path>docs/epics.md</path>
+        <title>ibe160 - Epic Breakdown</title>
+        <section>Story 4.2: Expand Library of Visual Assets and Themes</section>
+        <snippet>Story 4.2 focuses on integrating additional visual assets and themes to offer players more diverse and immersive choices for their escape rooms, consistent with AI generation.</snippet>
+    </doc>
+    <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>AI Escape - UX Design Specification</title>
+        <section>5. User Journey Flows</section>
+        <snippet>UX Design outlines user journey flows for New Game Creation and Load Game, which will rely on the backend's game state management to function correctly. This implies the need for dynamic content in the UI.</snippet>
+    </doc>
+</docs>
+    <code>
+        <code-ref>
+            <path>ai-escape-app/static/images/</path>
+            <kind>directory</kind>
+            <reason>Storage for new visual assets</reason>
+        </code-ref>
+        <code-ref>
+            <path>services/ai_service.py</path>
+            <kind>file</kind>
+            <reason>Modify to update prompt engineering based on expanded library of themes</reason>
+        </code-ref>
+        <code-ref>
+            <path>tests/</path>
+            <kind>directory</kind>
+            <reason>For new unit and integration tests</reason>
+        </code-ref>
+    </code>
+    <dependencies>
+      <python>
+        <package name="Flask" version="3.1.2" />
+        <package name="python-dotenv" version="?" />
+        <package name="gunicorn" version="?" />
+        <package name="pytest" version="?" />
+        <package name="google-generativeai" version="0.8.5" />
+        <note>Core Python dependencies for the Flask application and Google Gemini API client.</note>
+      </python>
+      <node>
+        <package name="playwright" version="?" />
+        <note>Existing Node.js project dependencies for E2E testing.</note>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>
+        <type>Required Pattern</type>
+        <description>Python Flask application structure (modular, with `app.py`, `static/`, `templates/`, `models.py`, `routes.py`, `services/`, `tests/`).</description>
+        <source>docs/architecture.md#Project-Structure</source>
+    </constraint>
+    <constraint>
+        <type>Required Pattern</type>
+        <description>WCAG 2.1 Level AA accessibility compliance.</description>
+        <source>docs/architecture.md#Accessibility-Implementation</source>
+    </constraint>
+    <constraint>
+        <type>Required Pattern</type>
+        <description>Stateless JWT Authentication.</description>
+        <source>docs/architecture.md#Security-Architecture</source>
+    </constraint>
+    <constraint>
+        <type>Layer Restriction</type>
+        <description>Frontend (Jinja2 templates/Static assets) &lt;-> Backend (Flask Routes/API Endpoints).</description>
+        <source>docs/architecture.md#Integration-Points</source>
+    </constraint>
+    <constraint>
+        <type>Layer Restriction</type>
+        <description>Flask Routes/API Endpoints &lt;-> AI Service (Gemini API).</description>
+        <source>docs/architecture.md#Integration-Points</source>
+    </constraint>
+    <constraint>
+        <type>Layer Restriction</type>
+        <description>Flask Routes/API Endpoints &lt;-> Database (Supabase PostgreSQL via SQLAlchemy).</description>
+        <source>docs/architecture.md#Integration-Points</source>
+    </constraint>
+    <constraint>
+        <type>Testing Requirement</type>
+        <description>Unit Tests (Pytest with `pytest-mock`).</description>
+        <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+    </constraint>
+    <constraint>
+        <type>Testing Requirement</type>
+        <description>Integration Tests (Pytest).</description>
+        <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+    </constraint>
+    <constraint>
+        <type>Testing Requirement</type>
+        <description>E2E Tests (Playwright).</description>
+        <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+    </constraint>
+    <constraint>
+        <type>Coding Standard</type>
+        <description>Python Classes: `PascalCase`, Python Functions/Variables: `snake_case`, Python Modules/Files: `snake_case`, Database Tables: `snake_case` (plural), Database Columns: `snake_case`, API Endpoints: `kebab-case` for URL paths, `snake_case` for query parameters, Constants: `SCREAMING_SNAKE_CASE`.</description>
+        <source>docs/architecture.md#Consistency-Rules</source>
+    </constraint>
+    <constraint>
+        <type>Coding Standard</type>
+        <description>Code Organization: Modular Flask application layout.</description>
+        <source>docs/architecture.md#Code-Organization</source>
+    </constraint>
+</constraints>
+
+<interfaces>
+    <interface>
+        <name>/expand_themes</name>
+        <kind>REST endpoint</kind>
+        <signature>POST /expand_themes</signature>
+        <path>routes.py</path>
+    </interface>
+</interfaces>
+  <tests>
+    <standards>
+      <standard>
+        <framework>Pytest</framework>
+        <type>Unit, Integration</type>
+        <note>Unit tests should mock the Gemini API.</note>
+        <source>docs/architecture.md#Testing-Strategy</source>
+      </standard>
+      <standard>
+        <framework>Playwright</framework>
+        <type>E2E</type>
+        <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+      </standard>
+    </standards>
+    <locations>
+      <location>tests/</location>
+      <note>Mirroring the application's module structure (e.g., `tests/unit/`, `tests/integration/`).</note>
+    </locations>
+    <ideas>
+      <idea ac="1">
+        <description>Write unit tests to verify the new image assets are correctly located and mapped to themes.</description>
+      </idea>
+      <idea ac="1">
+        <description>Write unit tests for `services/ai_service.py` functions, mocking the Gemini API to verify prompt construction for new themes.</description>
+      </idea>
+      <idea ac="1">
+        <description>Manual/Exploratory testing to assess the visual consistency of AI-generated content with new themes.</description>
+      </idea>
+    </ideas>
+  </tests>
+</story-context>

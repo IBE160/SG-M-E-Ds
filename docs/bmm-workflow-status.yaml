@@ -35,15 +35,26 @@ workflow_status:
   product-brief: docs/product-brief-AI Escape-2025-11-10.md
 
   # Phase 1: Planning
-  prd: completed
+  prd: docs/prd.md
   validate-prd: docs/validation-report-prd-2025-11-14.md
-  create-design: conditional
+  create-design: docs/ux-design-specification.md, docs/ux-color-themes.html, docs/ux-design-directions.html
+  validate-ux-design: docs/validation-report-ux-design-2025-11-25.md
+  framework: completed
+  ci: completed
+  test-design: completed
 
   # Phase 2: Solutioning
   create-architecture: docs/architecture.md
+  validate-architecture: completed
   create-epics-and-stories: docs/epics.md
-  validate-architecture: optional
   solutioning-gate-check: docs/implementation-readiness-report-2025-11-27.md
 
   # Phase 3: Implementation
   sprint-planning: docs/sprint-artifacts/sprint-status.yaml
+  create-epic-tech-context: completed
+  validate-epic-tech-context: completed
+  create-story: completed
+  validate-create-story: completed
+  create-story-context: completed
+  validate-story-context: completed
+  story-ready-for-dev: completed

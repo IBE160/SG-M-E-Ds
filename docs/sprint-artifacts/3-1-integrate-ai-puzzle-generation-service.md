@@ -1,6 +1,6 @@
 # Story 3.1: Integrate AI Puzzle Generation Service
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -53,7 +53,7 @@ So that we can dynamically create interactive challenges for the game.
 
 ### Learnings from Previous Story
 
-**From Story 2.4: Dynamic Theme and Location Integration (Status: drafted)**
+**From Story 2.4: Dynamic Theme and Location Integration (Status: ready-for-dev)**
 
 -   **Goal:** My chosen theme and location to influence the AI-generated story and room descriptions, So that my customization choices feel impactful.
 -   **Acceptance Criteria:** AI-generated content consistently reflects the chosen theme and location.
@@ -81,6 +81,7 @@ So that we can dynamically create interactive challenges for the game.
 ## Dev Agent Record
 
 ### Context Reference
+- docs/sprint-artifacts/3-1-integrate-ai-puzzle-generation-service.context.xml
 
 ### Agent Model Used
 
@@ -95,3 +96,4 @@ So that we can dynamically create interactive challenges for the game.
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-04**: Story context regenerated.
