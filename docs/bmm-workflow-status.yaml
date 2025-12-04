@@ -55,6 +55,6 @@ workflow_status:
   validate-epic-tech-context: completed
   create-story: completed
   validate-create-story: completed
-  create-story-context: completed
-  validate-story-context: completed
+  create-story-context: required
+  validate-story-context: required
   story-ready-for-dev: completed
