@@ -1,0 +1,93 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>5</epicId>
+    <storyId>2</storyId>
+    <title>Create a Help/Information System</title>
+    <status>in_progress</status>
+    <generatedAt>2025-12-04</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/epics.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>player</asA>
+    <iWant>to access help or information about the game</iWant>
+    <soThat>I can understand the rules and objectives</soThat>
+    <tasks>
+      <!-- Tasks to be derived from Acceptance Criteria and Technical Notes during task breakdown -->
+      <!-- AC 1: Implement "Help" option to display game information -->
+      <task>Design UI element for "Help" option. (AC: 1)</task>
+      <task>Implement modal or dialog to display help content. (AC: 1)</task>
+      <task>Develop content for game rules, objectives, and other relevant help text. (AC: 1)</task>
+      <task>Ensure help system is accessible from anywhere in the game. (AC: 1)</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion>Given I am in the game, when I select the "Help" option, then a screen or dialog appears with information about how to play, the current objective, and any other relevant help text.</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>ibe160 - Epic Breakdown</title>
+        <section>Story 5.2: Create a Help/Information System</section>
+        <snippet>Story 5.2 focuses on providing players with a help/information system to understand game rules and objectives.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>AI Escape - UX Design Specification</title>
+        <section>Modal Pattern</section>
+        <snippet>The help system will be implemented using a Modal Pattern from the UX Design Specification.</snippet>
+      </doc>
+    </docs>
+    <code>
+        <!-- Placeholder for code artifacts -->
+    </code>
+    <dependencies>
+      <!-- No specific external dependencies mentioned beyond core application -->
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>
+      <type>UX/UI Standard</type>
+      <description>Help system accessible from anywhere in the game using a Modal Pattern.</description>
+      <source>docs/epics.md#Story-5.2, docs/ux-design-specification.md#Modal-Pattern</source>
+    </constraint>
+    <constraint>
+      <type>Content Management</type>
+      <description>Content for help system needs to be developed and managed (static text files or CMS).</description>
+      <source>docs/sprint-artifacts/5-2-create-a-help-information-system.context.md#Contextual-Information</source>
+    </constraint>
+  </constraints>
+  <interfaces></interfaces>
+  <tests>
+    <standards>
+      <standard>
+        <framework>Pytest</framework>
+        <type>Unit, Integration</type>
+        <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+      </standard>
+    </standards>
+    <locations>
+      <location>tests/unit/help_system.py</location>
+      <location>tests/integration/help_system_ui.py</location>
+    </locations>
+    <ideas>
+      <idea ac="1">
+        <description>Verify "Help" option displays correctly in UI.</description>
+      </idea>
+      <idea ac="1">
+        <description>Test opening and closing of help modal/dialog.</description>
+      </idea>
+      <idea ac="1">
+        <description>Verify help content is displayed correctly within the modal.</description>
+      </idea>
+      <idea ac="1">
+        <description>Test accessibility of help system from various game states.</description>
+      </idea>
+    </ideas>
+  </tests>
+</story-context>

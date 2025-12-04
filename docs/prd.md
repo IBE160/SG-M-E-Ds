@@ -41,12 +41,13 @@ The primary user is **'Chloe, the Curious Problem-Solver.'**
 *   **FR-008: Game Setup Flow**: A basic menu allowing players to choose theme, location, room count, and difficulty.
 *   **FR-009: Small Puzzle Set**: 2-3 distinct puzzle types (e.g., Observation, Riddle) that the AI can adapt.
 *   **FR-010: Basic Visuals**: A pre-selected, free-to-use image library organized by theme to provide atmospheric background images for rooms.
+*   **FR-011: Load/Save Game Functionality**: Core ability to save and load game progress, ensuring player continuity.
 
 ### 5.2 Out of Scope (MVP / Future Vision)
 *   Hint system or button.
 *   Dynamic difficulty adjustment during gameplay.
 *   Background music and sound effects.
-*   Load/Save game functionality.
+
 *   "Zoom-in" visual effects for interacting with specific objects.
 *   An extensive library of puzzles and images.
 

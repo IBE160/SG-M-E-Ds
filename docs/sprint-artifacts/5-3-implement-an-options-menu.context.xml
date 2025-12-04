@@ -1,0 +1,101 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>5</epicId>
+    <storyId>3</storyId>
+    <title>Implement an Options Menu</title>
+    <status>in_progress</status>
+    <generatedAt>2025-12-04</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/epics.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>player</asA>
+    <iWant>to adjust game options like sound effects</iWant>
+    <soThat>I can customize my experience</soThat>
+    <tasks>
+      <!-- Tasks to be derived from Acceptance Criteria and Technical Notes during task breakdown -->
+      <!-- AC 1: Implement "Options" menu to adjust settings -->
+      <task>Design UI element for "Options" menu. (AC: 1)</task>
+      <task>Implement modal or dialog for options menu. (AC: 1)</task>
+      <task>Develop UI controls for various settings (e.g., sound volume slider, toggle for sound effects). (AC: 1)</task>
+      <task>Implement logic to apply changes made in the options menu to the game. (AC: 1)</task>
+      <task>Ensure options menu is accessible from anywhere in the game. (AC: 1)</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion>Given I am in the game, when I select the "Options" menu, then a screen or dialog appears with options to adjust settings (e.g., sound volume).</criterion>
+    <criterion>And changing these settings affects the game accordingly.</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>ibe160 - Epic Breakdown</title>
+        <section>Story 5.3: Implement an Options Menu</section>
+        <snippet>Story 5.3 focuses on implementing an options menu to allow players to customize their game experience.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>AI Escape - UX Design Specification</title>
+        <section>Modal Pattern</section>
+        <snippet>The options menu will be implemented using a Modal Pattern from the UX Design Specification.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>AI Escape - UX Design Specification</title>
+        <section>Form Patterns</section>
+        <snippet>Options will be presented using Form Patterns: Toggle Switch (`.toggle-btn`), Select Menu (`<select>`), and Range Slider (`<input type="range">`).</snippet>
+      </doc>
+    </docs>
+    <code>
+        <!-- Placeholder for code artifacts -->
+    </code>
+    <dependencies>
+      <!-- No specific external dependencies mentioned beyond core application -->
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>
+      <type>UX/UI Standard</type>
+      <description>Options menu accessible from anywhere in the game using a Modal Pattern.</description>
+      <source>docs/epics.md#Story-5.3, docs/ux-design-specification.md#Modal-Pattern</source>
+    </constraint>
+    <constraint>
+      <type>UX/UI Standard</type>
+      <description>Options presented using specific Form Patterns: Toggle Switch, Select Menu, Range Slider.</description>
+      <source>docs/ux-design-specification.md#Form-Patterns</source>
+    </constraint>
+  </constraints>
+  <interfaces></interfaces>
+  <tests>
+    <standards>
+      <standard>
+        <framework>Pytest</framework>
+        <type>Unit, Integration</type>
+        <source>docs/architecture.md#Comprehensive-Testing-Strategy</source>
+      </standard>
+    </standards>
+    <locations>
+      <location>tests/unit/options_menu.py</location>
+      <location>tests/integration/options_menu_ui.py</location>
+    </locations>
+    <ideas>
+      <idea ac="1">
+        <description>Verify "Options" menu displays correctly in UI.</description>
+      </idea>
+      <idea ac="1">
+        <description>Test opening and closing of options modal/dialog.</description>
+      </idea>
+      <idea ac="1">
+        <description>Verify functionality of sound volume slider.</description>
+      </idea>
+      <idea ac="2">
+        <description>Test if changing settings (e.g., sound volume) affects the game.</description>
+      </idea>
+    </ideas>
+  </tests>
+</story-context>
