@@ -1,0 +1,150 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>1</storyId>
+    <title>Integrate AI Narrative Generation Service</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-06T10:00:00Z</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/2-1-integrate-ai-narrative-generation-service.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a developer</asA>
+    <iWant>to integrate an AI service capable of generating narrative text</iWant>
+    <soThat>we can dynamically create story elements for the game</soThat>
+    <tasks>
+- [ ] AC 1: Set up Gemini API access.
+  - [ ] Subtask: Obtain Gemini API key.
+  - [ ] Subtask: Securely store API key as an environment variable (e.g., in `.env` for local development).
+- [ ] AC 1: Install `google-generativeai` Python client library.
+  - [ ] Subtask: Add `google-generativeai` to `requirements.txt`.
+  - [ ] Subtask: Install dependencies.
+- [ ] AC 1, 2: Create `services/ai_service.py` for API interaction.
+  - [ ] Subtask: Implement a function to send a prompt to the Gemini API.
+  - [ ] Subtask: Implement logic to receive and parse the AI-generated narrative text.
+  - [ ] Subtask: Implement basic error handling for API calls.
+- [ ] AC 1, 2: Create Flask API routes for narrative generation.
+  - [ ] Subtask: Define a `POST /generate_narrative` endpoint in `routes.py`.
+  - [ ] Subtask: This endpoint will receive a prompt from the frontend, call `services/ai_service.py`, and return the generated narrative.
+  - [ ] Subtask: Secure API keys by ensuring they are only accessed server-side.
+- [ ] AC 1, 2: Implement unit and integration tests.
+  - [ ] Subtask: Write unit tests for `services/ai_service.py`, mocking the Gemini API to verify prompt construction, API calls, and response parsing.
+  - [ ] Subtask: Write integration tests for the `POST /generate_narrative` Flask route, verifying interaction with `services/ai_service.py` and correct narrative return.
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1.  Given an AI narrative generation service (e.g., Gemini API), when a prompt is sent to the service (e.g., "Generate a mysterious story for an escape room set in an ancient tomb"), then the service returns a coherent narrative text.
+2.  And the application can successfully receive and parse this narrative.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Story 2.1: Integrate AI Narrative Generation Service</section>
+        <snippet>Goal: Replace the static story and room descriptions from Epic 1 with AI-generated content... Technical Notes: This will involve setting up API keys, handling API requests and responses, and basic error handling... We will use Gemini Pro / Gemini 1.5 Pro via the `google-generativeai` Python client library. Flask API Routes will be used to secure AI API keys.</snippet>
+      </doc>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document: AI Escape</title>
+        <section>FR-007: AI-Generated Narrative</section>
+        <snippet>The core ability for the AI to create a unique story.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>AI Service Integration</section>
+        <snippet>Decision: Gemini Pro / Gemini 1.5 Pro. Rationale: Gemini API offers powerful, flexible narrative and puzzle generation. Client Library: google-generativeai.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>API Pattern for AI interactions</section>
+        <snippet>Decision: Flask API Routes to secure AI API keys and provide simple RESTful endpoints for frontend interaction.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>ai-escape-app/routes.py</path>
+        <kind>controller</kind>
+        <symbol>bp</symbol>
+        <reason>A new route `/generate_narrative` will be added to this blueprint to handle narrative generation requests from the frontend.</reason>
+      </artifact>
+      <artifact>
+        <path>ai-escape-app/services/ai_service.py</path>
+        <kind>service</kind>
+        <symbol>generate_narrative</symbol>
+        <reason>This new file will contain the core logic for interacting with the Gemini API. A `generate_narrative` function will be implemented here.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <dependency>
+        <ecosystem>python</ecosystem>
+        <package>google-generativeai</package>
+        <reason>The official client library for interacting with the Gemini API, as specified in the architecture.</reason>
+      </dependency>
+      <dependency>
+        <ecosystem>python</ecosystem>
+        <package>Flask</package>
+        <reason>The core web framework used for the application and for creating API endpoints.</reason>
+      </dependency>
+      <dependency>
+        <ecosystem>python</ecosystem>
+        <package>SQLAlchemy</package>
+        <reason>The ORM used for database interactions, including managing game state.</reason>
+      </dependency>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>API keys for the Gemini service MUST be loaded from environment variables and MUST NOT be hard-coded.</constraint>
+    <constraint>All new business logic for AI interaction MUST be placed in `ai-escape-app/services/ai_service.py`.</constraint>
+    <constraint>The new API endpoint MUST be defined in `ai-escape-app/routes.py`.</constraint>
+    <constraint>Error responses from the new endpoint MUST follow the existing pattern: `jsonify({"error": "message"}), status_code`.</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>/generate_narrative</name>
+      <kind>REST Endpoint</kind>
+      <signature>POST /generate_narrative</signature>
+      <path>ai-escape-app/routes.py</path>
+      <request>
+        <body>
+          <param name="prompt" type="string" required="true">The text prompt to send to the AI.</param>
+        </body>
+      </request>
+      <response>
+        <status code="200">
+          <body>
+            <param name="narrative" type="string">The AI-generated narrative text.</param>
+          </body>
+        </status>
+        <status code="400">
+          <body>
+            <param name="error" type="string">Error message for invalid request.</param>
+          </body>
+        </status>
+        <status code="500">
+          <body>
+            <param name="error" type="string">Error message for internal server or API error.</param>
+          </body>
+        </status>
+      </response>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      The project uses a multi-layered testing strategy. Unit and integration tests are written using Pytest. E2E tests are written using Playwright. Mocking is used to isolate services during unit testing.
+    </standards>
+    <locations>
+      All tests reside in the `ai-escape-app/tests/` directory. Unit tests are in `tests/unit/` and integration tests are in `tests/integration/`, mirroring the application structure.
+    </locations>
+    <ideas>
+      <idea for="AC1">Unit test the `generate_narrative` function in `services/ai_service.py`. The Gemini API client should be mocked to verify that the correct prompt is constructed and sent, and that the service correctly parses the mocked response.</idea>
+      <idea for="AC2">Integration test the `POST /generate_narrative` endpoint in `routes.py`. This test should verify that the endpoint correctly calls the (mocked) `ai_service`, handles success and error responses properly, and returns the expected JSON structure.</idea>
+    </ideas>
+  </tests>
+</story-context>

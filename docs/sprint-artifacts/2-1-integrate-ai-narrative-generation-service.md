@@ -1,6 +1,6 @@
 # Story 2.1: Integrate AI Narrative Generation Service
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
