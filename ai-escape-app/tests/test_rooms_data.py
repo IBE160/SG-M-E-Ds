@@ -42,3 +42,15 @@ def test_puzzle_solutions_mapping():
     assert isinstance(PUZZLE_SOLUTIONS, dict)
     assert PUZZLE_SOLUTIONS["observation_puzzle"] == "3"
     assert PUZZLE_SOLUTIONS["riddle_puzzle"] == "map"
+
+
+def test_room_images_exist():
+    for room_id, room_info in ROOM_DATA.items():
+        assert "image" in room_info
+        assert isinstance(room_info["image"], str)
+        assert room_info["image"].endswith(".jpg") or room_info["image"].endswith(".png")
+
+def test_specific_room_images():
+    assert ROOM_DATA["ancient_library"]["image"] == "ancient_library.jpg"
+    assert ROOM_DATA["mysterious_observatory"]["image"] == "mysterious_observatory.jpg"
+    assert ROOM_DATA["escape_chamber"]["image"] == "escape_chamber.jpg"

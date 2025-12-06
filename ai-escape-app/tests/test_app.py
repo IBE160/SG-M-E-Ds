@@ -55,12 +55,18 @@ def test_get_game_session(client):
     # First create a session
     start_response = client.post("/start_game", json={"player_id": "test_player_get"})
     session_id = json.loads(start_response.data)["id"]
+    initial_room_id = next(iter(ROOM_DATA))
+    initial_room_info = ROOM_DATA[initial_room_id]
 
     response = client.get(f"/game_session/{session_id}")
     assert response.status_code == 200
     data = json.loads(response.data)
     assert data["id"] == session_id
     assert data["player_id"] == "test_player_get"
+    assert data["current_room"] == initial_room_id
+    assert data["current_room_name"] == initial_room_info["name"]
+    assert data["current_room_description"] == initial_room_info["description"]
+    assert data["current_room_image"] == f"/static/images/{initial_room_info['image']}"
     assert "contextual_options" in data
     assert isinstance(data["contextual_options"], list)
     assert len(data["contextual_options"]) > 0

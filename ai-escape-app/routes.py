@@ -52,11 +52,19 @@ def get_session(session_id):
     
     contextual_options = get_contextual_options(game_session) # New line
 
+    current_room_info = ROOM_DATA.get(game_session.current_room)
+    room_image = None
+    if current_room_info and "image" in current_room_info:
+        room_image = f"/static/images/{current_room_info['image']}"
+
     return jsonify(
         {
             "id": game_session.id,
             "player_id": game_session.player_id,
             "current_room": game_session.current_room,
+            "current_room_name": current_room_info.get("name") if current_room_info else game_session.current_room, # Added room name
+            "current_room_description": current_room_info.get("description") if current_room_info else "", # Added room description
+            "current_room_image": room_image, # New field
             "inventory": game_session.inventory,
             "game_history": game_session.game_history,
             "narrative_state": game_session.narrative_state,
@@ -66,7 +74,7 @@ def get_session(session_id):
             "difficulty": game_session.difficulty,
             "start_time": game_session.start_time.isoformat(),
             "last_updated": game_session.last_updated.isoformat(),
-            "contextual_options": contextual_options, # New line
+            "contextual_options": contextual_options,
         }
     )
 
