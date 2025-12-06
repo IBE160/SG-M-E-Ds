@@ -5,19 +5,24 @@ from models import Base
 import os
 from routes import bp
 
+
 class Config:
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///default.db'
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "sqlite:///default.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 
 class TestConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:' # Use an in-memory SQLite for testing
+    SQLALCHEMY_DATABASE_URI = (
+        "sqlite:///:memory:"  # Use an in-memory SQLite for testing
+    )
+
 
 def create_app(config_object=Config):
     app = Flask(__name__)
     app.config.from_object(config_object)
 
-    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+    engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
     Session = sessionmaker(bind=engine)
     session = Session()
 
@@ -27,10 +32,15 @@ def create_app(config_object=Config):
     # Attach session to app context for easy access
     app.session = session
 
+    @app.route("/")
+    def hello_world():
+        return "Hello, World!"
+
     app.register_blueprint(bp)
 
     return app
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app = create_app()
     app.run(debug=True)

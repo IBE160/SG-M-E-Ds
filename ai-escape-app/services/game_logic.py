@@ -2,7 +2,14 @@ from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from models import GameSession
 
-def create_game_session(db_session: Session, player_id: str, theme: str = "mystery", location: str = "mansion", difficulty: str = "medium") -> GameSession:
+
+def create_game_session(
+    db_session: Session,
+    player_id: str,
+    theme: str = "mystery",
+    location: str = "mansion",
+    difficulty: str = "medium",
+) -> GameSession:
     """
     Initializes and stores a new GameSession in the database.
     """
@@ -12,12 +19,13 @@ def create_game_session(db_session: Session, player_id: str, theme: str = "myste
         location=location,
         difficulty=difficulty,
         start_time=datetime.now(timezone.utc),
-        last_updated=datetime.now(timezone.utc)
+        last_updated=datetime.now(timezone.utc),
     )
     db_session.add(new_session)
     db_session.commit()
     db_session.refresh(new_session)
     return new_session
+
 
 def get_game_session(db_session: Session, session_id: int) -> GameSession | None:
     """
@@ -25,7 +33,10 @@ def get_game_session(db_session: Session, session_id: int) -> GameSession | None
     """
     return db_session.query(GameSession).filter(GameSession.id == session_id).first()
 
-def update_game_session(db_session: Session, session_id: int, **kwargs) -> GameSession | None:
+
+def update_game_session(
+    db_session: Session, session_id: int, **kwargs
+) -> GameSession | None:
     """
     Updates an existing GameSession with the given keyword arguments.
     """
@@ -39,6 +50,7 @@ def update_game_session(db_session: Session, session_id: int, **kwargs) -> GameS
         db_session.refresh(game_session)
     return game_session
 
+
 def delete_game_session(db_session: Session, session_id: int) -> bool:
     """
     Deletes a GameSession by its ID.
@@ -50,7 +62,10 @@ def delete_game_session(db_session: Session, session_id: int) -> bool:
         return True
     return False
 
-def update_player_inventory(db_session: Session, session_id: int, item: str, action: str) -> GameSession | None:
+
+def update_player_inventory(
+    db_session: Session, session_id: int, item: str, action: str
+) -> GameSession | None:
     """
     Adds or removes an item from the player's inventory.
     Action can be 'add' or 'remove'.
@@ -59,19 +74,19 @@ def update_player_inventory(db_session: Session, session_id: int, item: str, act
     if not game_session:
         return None
 
-    inventory = list(game_session.inventory) # Create a mutable copy
-    
-    if action == 'add':
+    inventory = list(game_session.inventory)  # Create a mutable copy
+
+    if action == "add":
         if item not in inventory:
             inventory.append(item)
-    elif action == 'remove':
+    elif action == "remove":
         if item in inventory:
             inventory.remove(item)
     else:
         # Invalid action, return the session without updating
         return game_session
-    
-    game_session.inventory = inventory # Reassign the modified list
+
+    game_session.inventory = inventory  # Reassign the modified list
     game_session.last_updated = datetime.now(timezone.utc)
     db_session.commit()
     db_session.refresh(game_session)

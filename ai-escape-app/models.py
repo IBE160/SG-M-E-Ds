@@ -1,11 +1,12 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, JSON, func
-from sqlalchemy.orm import sessionmaker, declarative_base
-from datetime import datetime, timezone
+from sqlalchemy import Column, Integer, String, DateTime, JSON, func
+from sqlalchemy.orm import declarative_base
+
 
 Base = declarative_base()
 
+
 class GameSession(Base):
-    __tablename__ = 'game_sessions'
+    __tablename__ = "game_sessions"
 
     id = Column(Integer, primary_key=True)
     player_id = Column(String, nullable=False)
@@ -15,7 +16,9 @@ class GameSession(Base):
     narrative_state = Column(JSON, default={})
     puzzle_state = Column(JSON, default={})
     start_time = Column(DateTime(timezone=True), default=func.now())
-    last_updated = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
+    last_updated = Column(
+        DateTime(timezone=True), default=func.now(), onupdate=func.now()
+    )
     theme = Column(String, default="mystery")
     location = Column(String, default="mansion")
     difficulty = Column(String, default="medium")

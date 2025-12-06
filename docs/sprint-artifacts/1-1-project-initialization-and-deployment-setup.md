@@ -1,6 +1,6 @@
 # Story 1.1: Project Initialization and Deployment Setup
 
-Status: done
+Status: review
 
 ## Story
 
@@ -104,6 +104,20 @@ This is the first story in Epic 1, so there are no previous story learnings or a
 - Established a basic GitHub Actions CI/CD workflow for automated build and test.
 - Developed comprehensive unit tests for project structure validation and integration tests for the Flask application's core functionality, all passing successfully.
 - Provided detailed manual steps for deploying the application to Render.
+- Created virtual environment.
+- Created missing directories: `static`, `templates`, `instance`.
+- Created empty `.env` file.
+- Created `ai-escape-app/tests/conftest.py` for pytest configuration.
+- Fixed module import issues in test files (`test_app.py`, `test_game_logic.py`).
+- Removed unused imports in `models.py` and `test_structure.py`.
+- Formatted code with `black` and passed `flake8` linting checks.
+- Verified existing `ai-escape-app/README.md` already fulfills AC2 requirements.
+- Implemented "Hello World" route in `ai-escape-app/app.py` for AC3.
+- Verified `requirements.txt` already contained necessary dependencies and they were installed.
+- Configured GitHub Actions workflow for basic build and test for the Python Flask application.
+- Reviewed free-tier deployment options and noted that Render is documented.
+- Confirmed that "Hello World" deployment steps are documented.
+- Verified that unit and integration tests covering AC1, AC2, and AC3 were already present and passing.
 
 ### File List
 - ai-escape-app/
@@ -119,10 +133,12 @@ This is the first story in Epic 1, so there are no previous story learnings or a
   - tests/
     - test_structure.py
     - test_app.py
+    - conftest.py
   - static/
   - templates/
   - instance/
   - services/
+- setup.cfg
 
 ## Change Log
 

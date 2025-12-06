@@ -1,5 +1,5 @@
 import pytest
-from datetime import datetime, timezone
+from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models import Base, GameSession
@@ -8,18 +8,20 @@ from services.game_logic import (
     get_game_session,
     update_game_session,
     delete_game_session,
-    update_player_inventory
+    update_player_inventory,
 )
 
-@pytest.fixture(scope='function')
+
+@pytest.fixture(scope="function")
 def db_session():
-    engine = create_engine('sqlite:///:memory:')
+    engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
     yield session
     session.close()
     Base.metadata.drop_all(engine)
+
 
 def test_game_session_model():
     session = GameSession(
@@ -31,7 +33,7 @@ def test_game_session_model():
         puzzle_state={"puzzle1": "incomplete"},
         theme="fantasy",
         location="forest",
-        difficulty="hard"
+        difficulty="hard",
     )
     assert session.player_id == "test_player_id"
     assert session.current_room == "test_room"
@@ -62,29 +64,37 @@ def test_create_game_session(db_session):
     retrieved_session = get_game_session(db_session, new_session.id)
     assert retrieved_session == new_session
 
+
 def test_get_game_session(db_session):
     new_session = create_game_session(db_session, "player2")
     retrieved_session = get_game_session(db_session, new_session.id)
     assert retrieved_session.player_id == "player2"
     assert retrieved_session.current_room == "start_room"
 
-    assert get_game_session(db_session, 999) is None # Test non-existent session
+    assert get_game_session(db_session, 999) is None  # Test non-existent session
+
 
 def test_update_game_session(db_session):
     new_session = create_game_session(db_session, "player3")
-    updated_session = update_game_session(db_session, new_session.id, current_room="middle_room", inventory=["map"])
+    updated_session = update_game_session(
+        db_session, new_session.id, current_room="middle_room", inventory=["map"]
+    )
     assert updated_session.current_room == "middle_room"
     assert updated_session.inventory == ["map"]
     assert updated_session.last_updated > new_session.start_time
 
-    assert update_game_session(db_session, 999, current_room="fake_room") is None # Test non-existent session
+    assert (
+        update_game_session(db_session, 999, current_room="fake_room") is None
+    )  # Test non-existent session
+
 
 def test_delete_game_session(db_session):
     new_session = create_game_session(db_session, "player4")
     assert delete_game_session(db_session, new_session.id) is True
     assert get_game_session(db_session, new_session.id) is None
 
-    assert delete_game_session(db_session, 999) is False # Test non-existent session
+    assert delete_game_session(db_session, 999) is False  # Test non-existent session
+
 
 def test_update_player_inventory_add(db_session):
     new_session = create_game_session(db_session, "player5")
@@ -97,20 +107,30 @@ def test_update_player_inventory_add(db_session):
     assert "key" in updated_session.inventory
     assert len(updated_session.inventory) == 1
 
+
 def test_update_player_inventory_remove(db_session):
     new_session = create_game_session(db_session, "player6")
     update_player_inventory(db_session, new_session.id, "key", "add")
-    updated_session = update_player_inventory(db_session, new_session.id, "key", "remove")
+    updated_session = update_player_inventory(
+        db_session, new_session.id, "key", "remove"
+    )
     assert "key" not in updated_session.inventory
     assert len(updated_session.inventory) == 0
 
     # Remove non-existent item
-    updated_session = update_player_inventory(db_session, new_session.id, "non_existent_item", "remove")
+    updated_session = update_player_inventory(
+        db_session, new_session.id, "non_existent_item", "remove"
+    )
     assert len(updated_session.inventory) == 0
+
 
 def test_update_player_inventory_invalid_action(db_session):
     new_session = create_game_session(db_session, "player7")
-    updated_session = update_player_inventory(db_session, new_session.id, "key", "invalid")
+    updated_session = update_player_inventory(
+        db_session, new_session.id, "key", "invalid"
+    )
     # Should return the session unchanged if action is invalid
     assert updated_session.id == new_session.id
-    assert updated_session.inventory == new_session.inventory # inventory should be unchanged
+    assert (
+        updated_session.inventory == new_session.inventory
+    )  # inventory should be unchanged

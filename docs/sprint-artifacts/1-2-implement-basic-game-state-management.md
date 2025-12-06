@@ -1,6 +1,6 @@
 # Story 1.2: Implement Basic Game State Management
 
-Status: done
+Status: ready-for-dev
 
 ## Story
 

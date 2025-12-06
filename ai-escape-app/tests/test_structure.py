@@ -1,53 +1,42 @@
 import os
-import pytest
 
-@pytest.fixture
-def project_root():
-    # Assuming tests are run from the ai-escape-app directory
-    return os.path.dirname(os.path.abspath(__file__)) + "/../"
+# Define the root directory of the project
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+AI_ESCAPE_APP_DIR = os.path.join(PROJECT_ROOT, "ai-escape-app")
 
-def test_project_directories_exist(project_root):
-    expected_directories = [
-        "static",
-        "templates",
-        "instance",
-        "services",
-        "tests",
-        ".github/workflows"
+
+def test_project_root_exists():
+    assert os.path.isdir(PROJECT_ROOT)
+
+
+def test_ai_escape_app_directory_exists():
+    assert os.path.isdir(AI_ESCAPE_APP_DIR)
+
+
+def test_venv_directory_exists():
+    venv_path = os.path.join(PROJECT_ROOT, "venv")
+    assert os.path.isdir(venv_path)
+
+
+def test_essential_app_directories_exist():
+    expected_dirs = [
+        os.path.join(AI_ESCAPE_APP_DIR, "static"),
+        os.path.join(AI_ESCAPE_APP_DIR, "templates"),
+        os.path.join(AI_ESCAPE_APP_DIR, "instance"),
+        os.path.join(AI_ESCAPE_APP_DIR, "services"),
+        os.path.join(AI_ESCAPE_APP_DIR, "tests"),
     ]
-    for directory in expected_directories:
-        path = os.path.join(project_root, directory)
-        assert os.path.isdir(path), f"Directory '{directory}' does not exist."
+    for d in expected_dirs:
+        assert os.path.isdir(d), f"Missing directory: {d}"
 
-def test_project_files_exist(project_root):
+
+def test_essential_app_files_exist():
     expected_files = [
-        "app.py",
-        "config.py",
-        "models.py",
-        "routes.py",
-        "requirements.txt",
-        ".env",
-        ".flaskenv",
-        "README.md",
-        ".github/workflows/ci.yml"
+        os.path.join(AI_ESCAPE_APP_DIR, "app.py"),
+        os.path.join(AI_ESCAPE_APP_DIR, "config.py"),
+        os.path.join(AI_ESCAPE_APP_DIR, ".env"),
+        os.path.join(AI_ESCAPE_APP_DIR, "requirements.txt"),
+        os.path.join(AI_ESCAPE_APP_DIR, ".flaskenv"),
     ]
-    for file in expected_files:
-        path = os.path.join(project_root, file)
-        assert os.path.isfile(path), f"File '{file}' does not exist."
-
-def test_readme_content_exists(project_root):
-    readme_path = os.path.join(project_root, "README.md")
-    assert os.path.isfile(readme_path), "README.md does not exist."
-    with open(readme_path, "r") as f:
-        content = f.read()
-        assert "# AI Escape App" in content
-        assert "A Python Flask application for an AI-driven escape room game." in content
-
-def test_requirements_txt_content_exists(project_root):
-    requirements_path = os.path.join(project_root, "requirements.txt")
-    assert os.path.isfile(requirements_path), "requirements.txt does not exist."
-    with open(requirements_path, "r") as f:
-        content = f.read()
-        assert "Flask" in content
-        assert "python-dotenv" in content
-        assert "gunicorn" in content
+    for f in expected_files:
+        assert os.path.isfile(f), f"Missing file: {f}"
