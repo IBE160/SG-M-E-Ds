@@ -11,6 +11,7 @@ from services.game_logic import (
     delete_game_session,
     update_player_inventory,
     solve_puzzle,
+    get_contextual_options,
 )
 
 
@@ -216,3 +217,51 @@ def test_solve_puzzle_session_not_found(db_session):
     assert is_solved is False
     assert message == "Game session not found."
     assert updated_session is None
+
+
+def test_get_contextual_options_initial_room(db_session):
+    game_session = create_game_session(db_session, "player_options_1")
+    options = get_contextual_options(game_session)
+
+    assert "Look around the room" in options
+    assert "Go north to Mysterious Observatory" in options
+    assert "Solve observation_puzzle" in options
+    assert "Go back" in options
+    assert len(options) == 4 # Look around, 1 exit, 1 puzzle, Go back
+
+
+def test_get_contextual_options_after_move(db_session):
+    game_session = create_game_session(db_session, "player_options_2")
+    update_game_session(db_session, game_session.id, current_room="mysterious_observatory")
+    options = get_contextual_options(game_session)
+
+    assert "Look around the room" in options
+    assert "Go south to Ancient Library" in options
+    assert "Go east to Escape Chamber" in options
+    assert "Solve riddle_puzzle" in options
+    assert "Go back" in options
+    assert len(options) == 5 # Look around, 2 exits, 1 puzzle, Go back
+
+
+def test_get_contextual_options_after_puzzle_solved(db_session):
+    game_session = create_game_session(db_session, "player_options_3")
+    # Solve the puzzle in ancient_library
+    solve_puzzle(db_session, game_session.id, "observation_puzzle", "3")
+    options = get_contextual_options(game_session)
+
+    assert "Look around the room" in options
+    assert "Go north to Mysterious Observatory" in options
+    assert "Solve observation_puzzle" not in options # Puzzle should not be an option after being solved
+    assert "Go back" in options
+    assert len(options) == 3 # Look around, 1 exit, Go back
+
+
+def test_get_contextual_options_escape_chamber(db_session):
+    game_session = create_game_session(db_session, "player_options_4")
+    update_game_session(db_session, game_session.id, current_room="escape_chamber")
+    options = get_contextual_options(game_session)
+
+    assert "Look around the room" in options
+    assert "Go west to Mysterious Observatory" in options
+    assert "Go back" in options
+    assert len(options) == 3 # Look around, 1 exit, Go back

@@ -142,3 +142,35 @@ def solve_puzzle(
         return True, "Puzzle solved!", game_session
     else:
         return False, "Incorrect solution.", game_session
+
+
+def get_contextual_options(game_session: GameSession) -> list[str]:
+    """
+    Dynamically generates a list of possible interactions based on the current room and game state.
+    """
+    options = []
+    current_room_id = game_session.current_room
+    room_info = ROOM_DATA.get(current_room_id)
+
+    if not room_info:
+        return ["Error: Room data not found."]
+
+    # Default option
+    options.append("Look around the room")
+
+    # Exits
+    for direction, next_room_id in room_info["exits"].items():
+        next_room_name = ROOM_DATA.get(next_room_id, {}).get("name", next_room_id)
+        options.append(f"Go {direction} to {next_room_name}")
+
+    # Puzzles
+    for puzzle_id, puzzle_details in room_info["puzzles"].items():
+        if not game_session.puzzle_state.get(puzzle_id, False):
+            options.append(f"Solve {puzzle_id}") # Using puzzle_id for now, can be changed to a more descriptive name
+
+    # Add a generic "Go back" option, assuming this maps to moving to a previous room.
+    # For now, it's just a placeholder as the navigation is linear.
+    options.append("Go back")
+
+    return options
+

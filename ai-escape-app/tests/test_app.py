@@ -61,6 +61,9 @@ def test_get_game_session(client):
     data = json.loads(response.data)
     assert data["id"] == session_id
     assert data["player_id"] == "test_player_get"
+    assert "contextual_options" in data
+    assert isinstance(data["contextual_options"], list)
+    assert len(data["contextual_options"]) > 0
 
     # Test non-existent session
     response = client.get("/game_session/9999")
@@ -266,4 +269,164 @@ def test_game_escape(client):
     # The get_session route itself doesn't return game_over,
     # it's only returned by the move_player route if the game ends.
     # So we don't assert game_over here.
+
+
+def test_interact_look_around(client):
+    start_response = client.post("/start_game", json={"player_id": "test_player_interact_look"})
+    session_id = json.loads(start_response.data)["id"]
+
+    # Get options for the current room
+    get_response = client.get(f"/game_session/{session_id}")
+    options = json.loads(get_response.data)["contextual_options"]
+    
+    # Find "Look around the room" option index
+    look_around_index = None
+    for i, option in enumerate(options):
+        if option == "Look around the room":
+            look_around_index = i
+            break
+    assert look_around_index is not None
+
+    # Interact with "Look around the room"
+    response = client.post(
+        f"/game_session/{session_id}/interact", json={"option_index": look_around_index}
+    )
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert data["message"] == ROOM_DATA[next(iter(ROOM_DATA))]["description"]
+    assert "contextual_options" in data
+
+
+def test_interact_valid_move(client):
+    start_response = client.post("/start_game", json={"player_id": "test_player_interact_move"})
+    session_id = json.loads(start_response.data)["id"]
+
+    # Get options for the current room
+    get_response = client.get(f"/game_session/{session_id}")
+    options = json.loads(get_response.data)["contextual_options"]
+    
+    # Find "Go north to Mysterious Observatory" option index
+    go_north_index = None
+    for i, option in enumerate(options):
+        if "Go north" in option:
+            go_north_index = i
+            break
+    assert go_north_index is not None
+
+    # Interact with "Go north"
+    response = client.post(
+        f"/game_session/{session_id}/interact", json={"option_index": go_north_index}
+    )
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert data["current_room"] == "mysterious_observatory"
+    assert "contextual_options" in data
+    assert "Go south to Ancient Library" in data["contextual_options"]
+
+
+def test_interact_invalid_move(client):
+    start_response = client.post("/start_game", json={"player_id": "test_player_interact_invalid_move"})
+    session_id = json.loads(start_response.data)["id"]
+
+    # Get options for the current room (ancient_library)
+    get_response = client.get(f"/game_session/{session_id}")
+    options = json.loads(get_response.data)["contextual_options"]
+    
+    # Simulate choosing an invalid move (e.g., trying to go south from ancient_library)
+    # We need to construct an option index that leads to an invalid move
+    # For now, let's assume if there's no "Go south" it's invalid, or just pick a random index
+    # that would lead to an invalid direction. Since options are dynamically generated,
+    # an invalid direction would not be in the list of options.
+
+    # Let's directly post an invalid option index and check for error
+    response = client.post(
+        f"/game_session/{session_id}/interact", json={"option_index": 999}
+    )
+    assert response.status_code == 400
+    assert b"Invalid option index" in response.data
+
+
+def test_interact_solve_puzzle_correct(client):
+    start_response = client.post("/start_game", json={"player_id": "test_player_interact_solve_correct"})
+    session_id = json.loads(start_response.data)["id"]
+
+    # Get options for the current room (ancient_library)
+    get_response = client.get(f"/game_session/{session_id}")
+    options = json.loads(get_response.data)["contextual_options"]
+    
+    # Find "Solve observation_puzzle" option index
+    solve_puzzle_index = None
+    for i, option in enumerate(options):
+        if "Solve observation_puzzle" in option:
+            solve_puzzle_index = i
+            break
+    assert solve_puzzle_index is not None
+
+    # Interact with "Solve observation_puzzle"
+    response = client.post(
+        f"/game_session/{session_id}/interact", json={"option_index": solve_puzzle_index}
+    )
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert data["is_solved"] is True
+    assert data["message"] == "Puzzle solved!"
+    assert "contextual_options" in data
+    assert "Solve observation_puzzle" not in data["contextual_options"] # Should be gone after solving
+
+    # Verify puzzle state updated
+    get_response = client.get(f"/game_session/{session_id}")
+    get_data = json.loads(get_response.data)
+    assert get_data["puzzle_state"].get("observation_puzzle") is True
+
+
+def test_interact_game_escape(client):
+    start_response = client.post("/start_game", json={"player_id": "test_player_interact_escape"})
+    session_id = json.loads(start_response.data)["id"]
+
+    # --- Solve first puzzle ---
+    get_response = client.get(f"/game_session/{session_id}")
+    options = json.loads(get_response.data)["contextual_options"]
+    solve_puzzle_index = None
+    for i, option in enumerate(options):
+        if "Solve observation_puzzle" in option:
+            solve_puzzle_index = i
+            break
+    client.post(f"/game_session/{session_id}/interact", json={"option_index": solve_puzzle_index})
+
+    # --- Move to second room ---
+    get_response = client.get(f"/game_session/{session_id}")
+    options = json.loads(get_response.data)["contextual_options"]
+    go_north_index = None
+    for i, option in enumerate(options):
+        if "Go north" in option:
+            go_north_index = i
+            break
+    response = client.post(f"/game_session/{session_id}/interact", json={"option_index": go_north_index})
+    data = json.loads(response.data)
+    assert data["current_room"] == "mysterious_observatory"
+
+    # --- Solve second puzzle ---
+    get_response = client.get(f"/game_session/{session_id}")
+    options = json.loads(get_response.data)["contextual_options"]
+    solve_riddle_index = None
+    for i, option in enumerate(options):
+        if "Solve riddle_puzzle" in option:
+            solve_riddle_index = i
+            break
+    client.post(f"/game_session/{session_id}/interact", json={"option_index": solve_riddle_index})
+
+    # --- Move to escape_chamber (trigger escape) ---
+    get_response = client.get(f"/game_session/{session_id}")
+    options = json.loads(get_response.data)["contextual_options"]
+    go_east_index = None
+    for i, option in enumerate(options):
+        if "Go east" in option:
+            go_east_index = i
+            break
+    response = client.post(f"/game_session/{session_id}/interact", json={"option_index": go_east_index})
+    data = json.loads(response.data)
+    assert data["current_room"] == "escape_chamber"
+    assert data["game_over"] is True
+    assert data["message"] == "You escaped!"
+
 
