@@ -1,6 +1,6 @@
 # Story 1.3: Create a Static, Hard-coded Escape Room
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -18,18 +18,18 @@ So that we have a complete, playable experience to test the core mechanics.
 - [x] AC 1: Design and define the 3-room sequence and puzzles.
   - [x] Subtask: Identify names and descriptions for Room 1, Room 2, Room 3.
   - [x] Subtask: Define at least two distinct puzzle types and their solutions for Room 1 and Room 2.
-- [ ] AC 1: Implement the hard-coded room data.
-  - [ ] Subtask: Create a data structure (e.g., Python dictionary in a new module like `data/rooms.py`) to hold room descriptions, connected rooms, and puzzle details.
-- [ ] AC 1: Implement the hard-coded puzzle logic.
-  - [ ] Subtask: Create functions in `services/game_logic.py` to evaluate puzzle solutions for the defined puzzles.
-- [ ] AC 1: Integrate room navigation logic with Flask routes.
-  - [ ] Subtask: Modify existing `move_player` route or create new routes to handle transitions between the 3 hard-coded rooms.
-- [ ] AC 2: Implement "You escaped!" message display.
-  - [ ] Subtask: Add logic to `routes.py` to detect completion of the final puzzle and render an escape message (e.g., via a new template or a message in the existing UI).
-- [ ] AC 1, 2: Implement unit and integration tests.
-  - [ ] Subtask: Write unit tests for the hard-coded room data structure.
-  - [ ] Subtask: Write unit tests for puzzle logic functions.
-  - [ ] Subtask: Write integration tests for Flask routes handling room navigation and puzzle interaction, verifying correct state changes and "You escaped!" trigger.
+- [x] AC 1: Implement the hard-coded room data.
+  - [x] Subtask: Create a data structure (e.g., Python dictionary in a new module like `data/rooms.py`) to hold room descriptions, connected rooms, and puzzle details.
+- [x] AC 1: Implement the hard-coded puzzle logic.
+  - [x] Subtask: Create functions in `services/game_logic.py` to evaluate puzzle solutions for the defined puzzles.
+- [x] AC 1: Integrate room navigation logic with Flask routes.
+  - [x] Subtask: Modify existing `move_player` route or create new routes to handle transitions between the 3 hard-coded rooms.
+- [x] AC 2: Implement "You escaped!" message display.
+  - [x] Subtask: Add logic to `routes.py` to detect completion of the final puzzle and render an escape message (e.g., via a new template or a message in the existing UI).
+- [x] AC 1, 2: Implement unit and integration tests.
+  - [x] Subtask: Write unit tests for the hard-coded room data structure.
+  - [x] Subtask: Write unit tests for puzzle logic functions.
+  - [x] Subtask: Write integration tests for Flask routes handling room navigation and puzzle interaction, verifying correct state changes and "You escaped!" trigger.
 
 ## Dev Notes
 
@@ -101,9 +101,27 @@ So that we have a complete, playable experience to test the core mechanics.
 - **2025-12-04**: Planned and implemented AC 1: Designed 3-room sequence (`ancient_library`, `mysterious_observatory`, `escape_chamber`) and two distinct puzzles (`observation_puzzle`, `riddle_puzzle`). Created `ai-escape-app/data/rooms.py` to hold hard-coded room and puzzle data.
 
 ### Completion Notes List
+- Added `solve_puzzle` function to `ai-escape-app/services/game_logic.py` to evaluate puzzle solutions.
+- Added comprehensive unit tests for `solve_puzzle` function in `ai-escape-app/tests/test_game_logic.py`, ensuring correct logic for solving puzzles, handling incorrect solutions, already solved puzzles, and invalid inputs. All tests passed.
+- Modified `ai-escape-app/routes.py` `move_player` route to use `ROOM_DATA` for valid room transitions and added `solve_puzzle_route` for puzzle interaction.
+- Updated `ai-escape-app/tests/test_app.py` to include integration tests for valid/invalid room movements and correct/incorrect/already-solved puzzle attempts. All tests passed.
+- Modified `ai-escape-app/routes.py` `move_player` function to include game completion logic, triggering "You escaped!" message upon entering `escape_chamber` if all prior puzzles are solved.
+- Added new integration test `test_game_escape` in `ai-escape-app/tests/test_app.py` to verify the game escape logic, ensuring all puzzles are solved and the "You escaped!" message is triggered correctly. All tests passed.
+- Verified `ai-escape-app/tests/test_rooms_data.py` covers unit tests for the room data structure.
+- Verified `ai-escape-app/tests/test_game_logic.py` covers unit tests for puzzle logic functions.
+- Verified `ai-escape-app/tests/test_app.py` covers integration tests for Flask routes handling room navigation and puzzle interaction, including the `test_game_escape` to verify the "You escaped!" trigger. All tests passed.
 
 ### File List
-- ai-escape-app/data/rooms.py
+- ai-escape-app/
+  - data/
+    - rooms.py
+  - services/
+    - game_logic.py (modified)
+  - routes.py (modified)
+  - tests/
+    - test_game_logic.py (modified)
+    - test_app.py (modified)
+    - test_rooms_data.py (new)
 
 ## Change Log
 

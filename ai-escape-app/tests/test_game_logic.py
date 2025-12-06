@@ -3,12 +3,14 @@ from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models import Base, GameSession
+from data.rooms import ROOM_DATA
 from services.game_logic import (
     create_game_session,
     get_game_session,
     update_game_session,
     delete_game_session,
     update_player_inventory,
+    solve_puzzle,
 )
 
 
@@ -53,7 +55,7 @@ def test_create_game_session(db_session):
     new_session = create_game_session(db_session, "player1")
     assert new_session.id is not None
     assert new_session.player_id == "player1"
-    assert new_session.current_room == "start_room"
+    assert new_session.current_room == next(iter(ROOM_DATA)) # Assert the first room from ROOM_DATA
     assert new_session.inventory == []
     assert isinstance(new_session.start_time, datetime)
     assert isinstance(new_session.last_updated, datetime)
@@ -66,12 +68,24 @@ def test_create_game_session(db_session):
 
 
 def test_get_game_session(db_session):
-    new_session = create_game_session(db_session, "player2")
-    retrieved_session = get_game_session(db_session, new_session.id)
-    assert retrieved_session.player_id == "player2"
-    assert retrieved_session.current_room == "start_room"
 
-    assert get_game_session(db_session, 999) is None  # Test non-existent session
+
+    new_session = create_game_session(db_session, "player2")
+
+
+    retrieved_session = get_game_session(db_session, new_session.id)
+
+
+    assert retrieved_session.player_id == "player2"
+
+
+    assert retrieved_session.current_room == next(iter(ROOM_DATA)) # Assert the first room from ROOM_DATA
+
+
+
+
+
+    assert get_game_session(db_session, 999) is None # Test non-existent session
 
 
 def test_update_game_session(db_session):
@@ -134,3 +148,71 @@ def test_update_player_inventory_invalid_action(db_session):
     assert (
         updated_session.inventory == new_session.inventory
     )  # inventory should be unchanged
+
+
+def test_solve_puzzle_correct_solution(db_session):
+    # Create a game session and set the current room to 'ancient_library'
+    game_session = create_game_session(db_session, "player8")
+    update_game_session(db_session, game_session.id, current_room="ancient_library")
+
+    # Attempt to solve the 'observation_puzzle' with the correct solution
+    is_solved, message, updated_session = solve_puzzle(
+        db_session, game_session.id, "observation_puzzle", "3"
+    )
+
+    assert is_solved is True
+    assert message == "Puzzle solved!"
+    assert updated_session.puzzle_state.get("observation_puzzle") is True
+    # Check if puzzle_info is updated in narrative_state for persistence (workaround)
+    assert updated_session.narrative_state.get("ancient_library", {}).get("puzzles", {}).get("observation_puzzle", {}).get("solved") is True
+
+
+def test_solve_puzzle_incorrect_solution(db_session):
+    game_session = create_game_session(db_session, "player9")
+    update_game_session(db_session, game_session.id, current_room="mysterious_observatory")
+
+    is_solved, message, updated_session = solve_puzzle(
+        db_session, game_session.id, "riddle_puzzle", "wrong_answer"
+    )
+
+    assert is_solved is False
+    assert message == "Incorrect solution."
+    assert updated_session.puzzle_state.get("riddle_puzzle") is not True
+
+
+def test_solve_puzzle_already_solved(db_session):
+    game_session = create_game_session(db_session, "player10")
+    update_game_session(db_session, game_session.id, current_room="ancient_library")
+
+    # Solve it once
+    solve_puzzle(db_session, game_session.id, "observation_puzzle", "3")
+
+    # Try to solve it again
+    is_solved, message, updated_session = solve_puzzle(
+        db_session, game_session.id, "observation_puzzle", "3"
+    )
+
+    assert is_solved is False
+    assert message == "This puzzle is already solved."
+
+
+def test_solve_puzzle_puzzle_not_found(db_session):
+    game_session = create_game_session(db_session, "player11")
+    update_game_session(db_session, game_session.id, current_room="ancient_library")
+
+    is_solved, message, updated_session = solve_puzzle(
+        db_session, game_session.id, "non_existent_puzzle", "any_solution"
+    )
+
+    assert is_solved is False
+    assert message == "Puzzle not found in current room."
+
+
+def test_solve_puzzle_session_not_found(db_session):
+    is_solved, message, updated_session = solve_puzzle(
+        db_session, 999, "observation_puzzle", "3"
+    )
+
+    assert is_solved is False
+    assert message == "Game session not found."
+    assert updated_session is None

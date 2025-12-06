@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from models import GameSession
+from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
 
 
 def create_game_session(
@@ -13,8 +14,10 @@ def create_game_session(
     """
     Initializes and stores a new GameSession in the database.
     """
+    first_room_id = next(iter(ROOM_DATA))  # Get the first room ID from ROOM_DATA
     new_session = GameSession(
         player_id=player_id,
+        current_room=first_room_id, # Set default to the first room in ROOM_DATA
         theme=theme,
         location=location,
         difficulty=difficulty,
@@ -91,3 +94,51 @@ def update_player_inventory(
     db_session.commit()
     db_session.refresh(game_session)
     return game_session
+
+
+def solve_puzzle(
+    db_session: Session, session_id: int, puzzle_id: str, solution_attempt: str
+) -> tuple[bool, str, GameSession | None]:
+    """
+    Evaluates a puzzle solution attempt.
+    Returns a tuple: (is_solved: bool, message: str, updated_game_session: GameSession | None)
+    """
+    game_session = get_game_session(db_session, session_id)
+    if not game_session:
+        return False, "Game session not found.", None
+
+    current_room_id = game_session.current_room
+    room_info = ROOM_DATA.get(current_room_id)
+
+    if not room_info or puzzle_id not in room_info["puzzles"]:
+        return False, "Puzzle not found in current room.", game_session
+
+    puzzle_info = room_info["puzzles"][puzzle_id]
+    correct_solution = PUZZLE_SOLUTIONS.get(puzzle_id)
+
+    if game_session.puzzle_state.get(puzzle_id, False): # Check if puzzle is solved in game_session.puzzle_state
+        return False, "This puzzle is already solved.", game_session
+
+    if solution_attempt.lower() == correct_solution.lower():
+        game_session.puzzle_state = {**game_session.puzzle_state, puzzle_id: True} # Mark puzzle as solved in game state
+        
+        # Directly update the narrative_state
+        current_narrative_state = game_session.narrative_state.copy() # Work on a copy
+        
+        if current_room_id not in current_narrative_state:
+            current_narrative_state[current_room_id] = {"puzzles": {}}
+        
+        if "puzzles" not in current_narrative_state[current_room_id]:
+            current_narrative_state[current_room_id]["puzzles"] = {}
+            
+        current_narrative_state[current_room_id]["puzzles"][puzzle_id] = {"solved": True} # Only store the solved status
+        
+        game_session.narrative_state = current_narrative_state # Reassign to trigger SQLAlchemy change detection
+        
+        # Important: Mark the JSON column as modified
+        db_session.add(game_session)
+        db_session.commit()
+        db_session.refresh(game_session)
+        return True, "Puzzle solved!", game_session
+    else:
+        return False, "Incorrect solution.", game_session

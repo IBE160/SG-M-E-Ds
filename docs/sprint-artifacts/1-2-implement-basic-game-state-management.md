@@ -1,6 +1,6 @@
 # Story 1.2: Implement Basic Game State Management
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -108,6 +108,14 @@ Story 1.1 established the initial Python Flask project structure. This story sho
 - Implemented basic CRUD operations for GameSession in `services/game_logic.py`, ensuring correct tracking of inventory updates.
 - Integrated GameSession updates with Flask routes by modifying `app.py` and creating `routes.py` with dedicated API endpoints for game session management.
 - Implemented comprehensive unit tests for the GameSession model and CRUD operations, and integration tests for all new Flask API routes, with all tests passing successfully.
+- Verified `ai-escape-app/models.py` already defines the `GameSession` model with all required fields.
+- Verified `ai-escape-app/app.py` already uses `DATABASE_URL` environment variable for SQLAlchemy connection, fulfilling database configuration.
+- Verified `ai-escape-app/services/game_logic.py` already contains functions for creating, retrieving, and updating `GameSession` objects, thus fulfilling basic CRUD requirements.
+- Verified `ai-escape-app/routes.py` already contains Flask routes for updating `GameSession` (e.g., player movement), thus fulfilling AC1 integration requirements.
+- Verified `ai-escape-app/services/game_logic.py` already contains `update_player_inventory` function which implements logic to add and remove items from inventory, fulfilling AC2 requirements.
+- Verified `ai-escape-app/routes.py` already contains Flask routes for updating inventory, fulfilling AC2 integration requirements.
+- Verified `ai-escape-app/tests/test_game_logic.py` already contains unit tests for `GameSession` model definition and CRUD operations, thus fulfilling AC1,2 unit test requirements.
+- Verified `ai-escape-app/tests/test_app.py` already contains integration tests for Flask routes that update `GameSession` fields (`currentRoom`, `inventory`), thus fulfilling AC1,2 integration test requirements.
 
 ### File List
 - ai-escape-app/
