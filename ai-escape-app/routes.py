@@ -7,7 +7,7 @@ from services.game_logic import (
     solve_puzzle,
     get_contextual_options,
 )
-from services.ai_service import generate_narrative, generate_room_description, generate_puzzle, evaluate_and_adapt_puzzle
+from services.ai_service import generate_narrative, generate_room_description, generate_puzzle, evaluate_and_adapt_puzzle, adjust_difficulty_based_on_performance
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
 
 bp = Blueprint("main", __name__)
@@ -312,8 +312,74 @@ def evaluate_puzzle_solution_route():
 
     return jsonify(evaluation), 200
 
+@bp.route("/adjust_difficulty", methods=["POST"])
+def adjust_difficulty_route():
+    data = request.get_json()
+    session_id = data.get("session_id")
+    player_performance_metrics = data.get("player_performance_metrics") # This will likely be the puzzle_state
 
+    if not session_id or not player_performance_metrics:
+        return jsonify({"error": "Session ID and player performance metrics are required"}), 400
 
+    game_session = get_game_session(current_app.session, session_id)
+    if not game_session:
+        return jsonify({"error": "Game session not found"}), 404
+
+    # Call AI service to get difficulty adjustment recommendation
+    adjustment_recommendation = adjust_difficulty_based_on_performance(
+        puzzle_state=player_performance_metrics, # Passing performance metrics as puzzle_state
+        theme=game_session.theme,
+        location=game_session.location,
+        overall_difficulty=game_session.difficulty,
+        narrative_archetype=game_session.narrative_archetype,
+    )
+
+    if "error" in adjustment_recommendation:
+        return jsonify({"error": adjustment_recommendation["error"]}), 500
+    
+    # Update game session with new difficulty or puzzle parameters if suggested by AI
+    # For now, we'll just store the recommendation in the puzzle_state for simplicity,
+    # or create a new field for difficulty adjustment.
+    # The actual application of these parameters for future puzzle generation
+    # will be handled by the generate_puzzle function later.
+
+    # Example of storing recommendation in narrative_state for now
+    # This might need a dedicated field in GameSession for 'difficulty_adjustment_parameters'
+    # or a more sophisticated way to apply it.
+    
+    # For now, let's update the difficulty in the GameSession if AI recommends it
+    new_difficulty = adjustment_recommendation.get("difficulty_adjustment")
+    if new_difficulty and new_difficulty != "no_change":
+        # In a real scenario, this would involve a mapping from "easier"/"harder" to actual difficulty levels.
+        # For simplicity, we'll just update if the AI returns a valid difficulty string.
+        # This will need to be carefully handled to avoid arbitrary string assignments.
+        # For now, assuming direct mapping.
+        updated_session = update_game_session(
+            current_app.session,
+            session_id,
+            difficulty=new_difficulty # Update the session's difficulty
+        )
+        if not updated_session:
+            return jsonify({"error": "Failed to update game session difficulty"}), 500
+    else:
+        updated_session = game_session # No difficulty change, use original session
+    
+    # Also store the suggested puzzle parameters for future use by generate_puzzle
+    # This would ideally be in a dedicated field or handled more explicitly.
+    # For now, we will add it to puzzle_state for the session to hold.
+    new_puzzle_parameters = adjustment_recommendation.get("suggested_puzzle_parameters", {})
+    if new_puzzle_parameters:
+        updated_puzzle_state = updated_session.puzzle_state.copy()
+        updated_puzzle_state["difficulty_adjustment_parameters"] = new_puzzle_parameters
+        updated_session = update_game_session(
+            current_app.session,
+            session_id,
+            puzzle_state=updated_puzzle_state
+        )
+        if not updated_session:
+            return jsonify({"error": "Failed to update puzzle state with AI parameters"}), 500
+
+    return jsonify(adjustment_recommendation), 200
 
 @bp.route("/game_session/<int:session_id>/interact", methods=["POST"])
 def interact(session_id):
@@ -424,4 +490,3 @@ def interact(session_id):
             result["ai_evaluation"] = ai_evaluation
 
     return jsonify(result), status_code
-

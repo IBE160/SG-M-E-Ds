@@ -396,7 +396,7 @@ def test_interact_invalid_move(client):
     options = json.loads(get_response.data)["contextual_options"]
     
     # Simulate choosing an invalid move (e.g., trying to go south from ancient_library)
-    # We need to construct an option index that leads to an invalid move
+    # We need to construct an option index that leads to an an invalid move
     # For now, let's assume if there's no "Go south" it's invalid, or just pick a random index
     # that would lead to an invalid direction. Since options are dynamically generated,
     # an invalid direction would not be in the list of options.
@@ -506,191 +506,116 @@ def test_interact_game_escape(mock_evaluate_and_adapt_puzzle, client):
         "hint": None,
         "difficulty_adjustment_suggestion": "none",
     }
-
-
     start_response = client.post("/start_game", json={"player_id": "test_player_interact_escape"})
-
-
     session_id = json.loads(start_response.data)["id"]
 
-
-
-
-
     # --- Solve first puzzle ---
-
-
     get_response = client.get(f"/game_session/{session_id}")
-
-
     options = json.loads(get_response.data)["contextual_options"]
-
-
     solve_puzzle_index = None
-
-
     for i, option in enumerate(options):
-
-
         if "Solve observation_puzzle" in option:
-
-
             solve_puzzle_index = i
-
-
             break
-
-
     response = client.post(f"/game_session/{session_id}/interact", json={"option_index": solve_puzzle_index, "player_attempt": "3"})
-
-
     assert response.status_code == 200
-
-
     data = json.loads(response.data)
-
-
     assert data["is_solved"] is True
-
-
     assert data["message"] == "Puzzle solved!"
-
-
     assert "ai_evaluation" in data
-
-
     assert data["ai_evaluation"]["is_correct"] is True
-
-
-
-
-
-
-
 
     # --- Move to second room ---
-
-
     get_response = client.get(f"/game_session/{session_id}")
-
-
     options = json.loads(get_response.data)["contextual_options"]
-
-
     go_north_index = None
-
-
     for i, option in enumerate(options):
-
-
         if "Go north" in option:
-
-
             go_north_index = i
-
-
             break
-
-
     response = client.post(f"/game_session/{session_id}/interact", json={"option_index": go_north_index})
-
-
     data = json.loads(response.data)
-
-
     assert data["current_room"] == "mysterious_observatory"
 
-
-
-
-
     # --- Solve second puzzle ---
-
-
     get_response = client.get(f"/game_session/{session_id}")
-
-
     options = json.loads(get_response.data)["contextual_options"]
-
-
     solve_riddle_index = None
-
-
     for i, option in enumerate(options):
-
-
         if "Solve riddle_puzzle" in option:
-
-
             solve_riddle_index = i
-
-
             break
-
-
     response = client.post(f"/game_session/{session_id}/interact", json={"option_index": solve_riddle_index, "player_attempt": "map"})
-
-
     assert response.status_code == 200
-
-
     data = json.loads(response.data)
-
-
     assert data["is_solved"] is True
-
-
     assert data["message"] == "Puzzle solved!"
-
-
     assert "ai_evaluation" in data
-
-
     assert data["ai_evaluation"]["is_correct"] is True
 
-
-
-
-
-
-
-
     # --- Move to escape_chamber (trigger escape) ---
-
-
     get_response = client.get(f"/game_session/{session_id}")
-
-
     options = json.loads(get_response.data)["contextual_options"]
-
-
     go_east_index = None
-
-
     for i, option in enumerate(options):
-
-
         if "Go east" in option:
-
-
             go_east_index = i
-
-
             break
-
-
     response = client.post(f"/game_session/{session_id}/interact", json={"option_index": go_east_index})
-
-
     data = json.loads(response.data)
-
-
     assert data["current_room"] == "escape_chamber"
-
-
     assert data["game_over"] is True
-
-
     assert data["message"] == "You escaped!"
 
+    # Verify that the game session is marked as completed
+    get_response = client.get(f"/game_session/{session_id}")
+    get_data = json.loads(get_response.data)
+    assert get_data["current_room"] == "escape_chamber"
+    # The get_session route itself doesn't return game_over,
+    # it's only returned by the move_player route if the game ends.
+    # So we don't assert game_over here.
 
+@patch('routes.adjust_difficulty_based_on_performance')
+def test_adjust_difficulty_route(mock_adjust_difficulty_based_on_performance, client):
+    # Mock AI service response
+    mock_adjust_difficulty_based_on_performance.return_value = {
+        "difficulty_adjustment": "easier",
+        "reasoning": "Player struggled.",
+        "suggested_puzzle_parameters": {"complexity": "low"}
+    }
+
+    # Create a game session
+    start_response = client.post("/start_game", json={"player_id": "test_player_difficulty", "difficulty": "medium"})
+    session_id = json.loads(start_response.data)["id"]
+
+    # Sample player performance metrics
+    player_metrics = {"puzzle_id_1": {"attempts": 5, "hints_used": 2}}
+
+    # Send request to adjust difficulty
+    response = client.post(
+        "/adjust_difficulty",
+        json={
+            "session_id": session_id,
+            "player_performance_metrics": player_metrics
+        }
+    )
+
+    assert response.status_code == 200
+    response_data = json.loads(response.data)
+    assert response_data["difficulty_adjustment"] == "easier"
+    assert response_data["suggested_puzzle_parameters"] == {"complexity": "low"}
+
+    # Verify AI service was called with correct parameters
+    mock_adjust_difficulty_based_on_performance.assert_called_once_with(
+        puzzle_state=player_metrics,
+        theme="mystery", # Default theme from create_game_session
+        location="mansion", # Default location from create_game_session
+        overall_difficulty="medium",
+        narrative_archetype=None, # Default narrative_archetype
+    )
+
+    # Verify GameSession was updated in the database
+    get_response = client.get(f"/game_session/{session_id}")
+    get_data = json.loads(get_response.data)
+    assert get_data["difficulty"] == "easier" # Updated difficulty
+    assert get_data["puzzle_state"]["difficulty_adjustment_parameters"] == {"complexity": "low"}

@@ -2,6 +2,7 @@ import os
 import google.generativeai as genai
 from dotenv import load_dotenv
 from data.narrative_archetypes import NARRATIVE_ARCHETYPES
+import json # New import
 
 load_dotenv() # Load environment variables from .env file
 
@@ -208,8 +209,74 @@ def evaluate_and_adapt_puzzle(
     try:
         model = genai.GenerativeModel('gemini-pro')
         response = model.generate_content(prompt)
-        import json
+        # import json
         return json.loads(response.text)
     except Exception as e:
         print(f"Error evaluating and adapting puzzle: {e}")
         return {"error": f"Could not evaluate and adapt puzzle. {e}"}
+
+def adjust_difficulty_based_on_performance(
+    puzzle_state: dict,
+    theme: str,
+    location: str,
+    overall_difficulty: str,
+    narrative_archetype: str = None,
+) -> dict:
+    """
+    Formulates a prompt for the Gemini API to recommend difficulty adjustments
+    based on player performance metrics.
+
+    Args:
+        puzzle_state: A dictionary containing metrics for each puzzle (e.g., attempts, hints_used).
+        theme: The overall theme of the escape room.
+        location: The current location in the game.
+        overall_difficulty: The current overall difficulty setting of the game.
+        narrative_archetype: The selected narrative archetype, if any.
+
+    Returns:
+        A dictionary containing AI's suggestion for difficulty adjustment and new puzzle parameters.
+        Example: {
+            "difficulty_adjustment": "easier",
+            "reasoning": "Player struggled with previous puzzle, suggest simpler mechanics.",
+            "suggested_puzzle_parameters": {"complexity": "low", "hint_frequency": "high"}
+        }
+    """
+    archetype_info = ""
+    if narrative_archetype and narrative_archetype in NARRATIVE_ARCHETYPES:
+        archetype_info = f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}"
+
+    prompt = f"""
+    A player is progressing through an escape room game. Based on their performance
+    in past puzzles, recommend a subtle adjustment to the difficulty for future puzzles.
+
+    Player Performance Metrics (puzzle_state):
+    {json.dumps(puzzle_state, indent=2)} # Changed here
+
+    Game Context:
+    Theme: {theme}
+    Location: {location}
+    Overall Difficulty: {overall_difficulty}
+    {archetype_info}
+
+    Provide your recommendation in JSON format, including:
+    - "difficulty_adjustment": string (e.g., "easier", "harder", "no_change")
+    - "reasoning": string (brief explanation for the recommendation)
+    - "suggested_puzzle_parameters": dict (e.g., {{"complexity": "low", "hint_frequency": "high"}})
+
+    Example JSON response:
+    {{
+        "difficulty_adjustment": "easier",
+        "reasoning": "Player struggled with previous puzzle, suggest simpler mechanics.",
+        "suggested_puzzle_parameters": {{"complexity": "low", "hint_frequency": "high"}}
+    }}
+
+    Recommendation:
+    """
+    try:
+        model = genai.GenerativeModel('gemini-pro')
+        response = model.generate_content(prompt)
+        # import json
+        return json.loads(response.text)
+    except Exception as e:
+        print(f"Error adjusting difficulty: {e}")
+        return {"error": f"Could not adjust difficulty. {e}"}

@@ -312,3 +312,26 @@ def test_get_contextual_options_escape_chamber(db_session):
     assert "Go west to Mysterious Observatory" in options
     assert "Go back" in options
     assert len(options) == 3 # Look around, 1 exit, Go back
+
+@patch('services.game_logic.evaluate_and_adapt_puzzle')
+def test_solve_puzzle_tracks_hints_used(mock_evaluate_and_adapt_puzzle, db_session):
+    mock_evaluate_and_adapt_puzzle.return_value = {
+        "is_correct": False,
+        "feedback": "That's not quite right. Think about...",
+        "hint": "Consider the shadows.",
+        "difficulty_adjustment_suggestion": "none",
+    }
+    game_session = create_game_session(db_session, "player_hints_used")
+    update_game_session(db_session, game_session.id, current_room="ancient_library")
+
+    solve_puzzle(db_session, game_session.id, "observation_puzzle", "wrong_attempt")
+    
+    updated_session = get_game_session(db_session, game_session.id)
+    puzzle_state = updated_session.puzzle_state.get("observation_puzzle", {})
+    
+    assert "hints_used" in puzzle_state
+    assert puzzle_state["hints_used"] == 0 # Should be 0 initially when an attempt is made, not incremented here
+
+    # Simulate requesting a hint (this logic would be elsewhere, but ensures the field exists)
+    # If the AI returns a hint, a separate function would increment hints_used.
+    # For now, this test just verifies the field is initialized.

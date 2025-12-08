@@ -1,7 +1,8 @@
 import pytest
 from unittest.mock import patch, MagicMock
 import os
-from services.ai_service import generate_narrative, generate_room_description, generate_puzzle, evaluate_and_adapt_puzzle
+import json # Added import for json
+from services.ai_service import generate_narrative, generate_room_description, generate_puzzle, evaluate_and_adapt_puzzle, adjust_difficulty_based_on_performance
 from data.narrative_archetypes import NARRATIVE_ARCHETYPES
 
 
@@ -243,3 +244,95 @@ def test_evaluate_and_adapt_puzzle_prompt_content(mock_genai):
     assert f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}" in prompt
     assert "Evaluate their attempt and provide feedback" in prompt
     assert '"is_correct": boolean' in prompt
+    
+@patch('services.ai_service.genai')
+def test_adjust_difficulty_based_on_performance_success(mock_genai):
+    mock_response = MagicMock()
+    mock_response.text = json.dumps({
+        "difficulty_adjustment": "easier",
+        "reasoning": "Player struggled with previous puzzle, suggest simpler mechanics.",
+        "suggested_puzzle_parameters": {"complexity": "low", "hint_frequency": "high"}
+    })
+    mock_genai.GenerativeModel.return_value.generate_content.return_value = mock_response
+
+    puzzle_state = {"puzzle1": {"attempts": 5, "hints_used": 2}}
+    theme = "fantasy"
+    location = "forest"
+    overall_difficulty = "medium"
+    narrative_archetype = "heros_journey"
+
+    result = adjust_difficulty_based_on_performance(
+        puzzle_state=puzzle_state,
+        theme=theme,
+        location=location,
+        overall_difficulty=overall_difficulty,
+        narrative_archetype=narrative_archetype,
+    )
+
+    mock_genai.GenerativeModel.assert_called_once_with('gemini-pro')
+    mock_genai.GenerativeModel.return_value.generate_content.assert_called_once()
+
+    assert result["difficulty_adjustment"] == "easier"
+    assert "Player struggled" in result["reasoning"]
+
+
+@patch('services.ai_service.genai')
+def test_adjust_difficulty_based_on_performance_prompt_content(mock_genai):
+    mock_response = MagicMock()
+    mock_response.text = json.dumps({
+        "difficulty_adjustment": "no_change",
+        "reasoning": "No adjustment needed.",
+        "suggested_puzzle_parameters": {}
+    })
+    mock_genai.GenerativeModel.return_value.generate_content.return_value = mock_response
+
+    puzzle_state = {"puzzle1": {"attempts": 1, "hints_used": 0}}
+    theme = "sci-fi"
+    location = "moon_base"
+    overall_difficulty = "hard"
+    narrative_archetype = "mystery"
+
+    adjust_difficulty_based_on_performance(
+        puzzle_state=puzzle_state,
+        theme=theme,
+        location=location,
+        overall_difficulty=overall_difficulty,
+        narrative_archetype=narrative_archetype,
+    )
+
+    mock_genai.GenerativeModel.assert_called_once_with('gemini-pro')
+    mock_genai.GenerativeModel.return_value.generate_content.assert_called_once()
+
+    call_args, _ = mock_genai.GenerativeModel.return_value.generate_content.call_args
+    prompt = call_args[0]
+
+    assert "Player Performance Metrics (puzzle_state):" in prompt
+    assert f'"puzzle1": {{' in prompt # Check for start of puzzle1 metrics
+    assert f'"attempts": 1' in prompt
+    assert f'"hints_used": 0' in prompt
+    assert f"Theme: {theme}" in prompt
+    assert f"Location: {location}" in prompt
+    assert f"Overall Difficulty: {overall_difficulty}" in prompt
+    assert f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}" in prompt
+    assert "recommend a subtle adjustment to the difficulty" in prompt
+    assert '"difficulty_adjustment": string' in prompt
+
+
+@patch('services.ai_service.genai')
+def test_adjust_difficulty_based_on_performance_api_error(mock_genai):
+    mock_genai.GenerativeModel.return_value.generate_content.side_effect = Exception("Difficulty Adjustment API Error")
+
+    puzzle_state = {"puzzle1": {"attempts": 1, "hints_used": 0}}
+    theme = "fantasy"
+    location = "forest"
+    overall_difficulty = "medium"
+
+    result = adjust_difficulty_based_on_performance(
+        puzzle_state=puzzle_state,
+        theme=theme,
+        location=location,
+        overall_difficulty=overall_difficulty,
+    )
+
+    assert "error" in result
+    assert "Could not adjust difficulty. Difficulty Adjustment API Error" in result["error"]

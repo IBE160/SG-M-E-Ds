@@ -1,6 +1,6 @@
 # Story 4.1: Implement Dynamic Difficulty Adjustment
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -14,20 +14,20 @@ So that the challenge remains engaging and fair.
 
 ## Tasks / Subtasks
 
-- [ ] AC 1: Extend `GameSession` to track player performance metrics.
-  - [ ] Subtask: Identify relevant player performance metrics (e.g., time taken per puzzle, hints used, number of attempts).
-  - [ ] Subtask: Add or update fields in `GameSession.puzzle_state` or `GameSession.game_history` (in `models.py`) to store these metrics.
-- [ ] AC 1: Extend `services/game_logic.py` to collect and evaluate performance metrics.
-  - [ ] Subtask: Implement functions to collect and process player performance data after puzzle interactions.
-- [ ] AC 1: Extend `services/ai_service.py` for dynamic difficulty adjustment.
-  - [ ] Subtask: Implement a function to formulate prompts for the Gemini API that include player performance metrics.
-  - [ ] Subtask: Guide the AI to subtly adjust puzzle generation parameters (e.g., complexity, number of steps) based on these metrics.
-- [ ] AC 1: Create or update Flask API routes for difficulty adjustment.
-  - [ ] Subtask: Define a `POST /adjust_difficulty` endpoint in `routes.py` to receive player performance data and trigger AI adjustment.
-- [ ] AC 1: Implement unit and integration tests.
-  - [ ] Subtask: Write unit tests for the performance metric tracking and evaluation logic in `services/game_logic.py`.
-  - [ ] Subtask: Write unit tests for `services/ai_service.py` functions, mocking the Gemini API to verify prompt construction and difficulty adjustment logic.
-  - [ ] Subtask: Write integration tests for the `POST /adjust_difficulty` Flask route, verifying API interaction and `GameSession` updates.
+- [x] AC 1: Extend `GameSession` to track player performance metrics.
+  - [x] Subtask: Identify relevant player performance metrics (e.g., time taken per puzzle, hints used, number of attempts).
+  - [x] Subtask: Add or update fields in `GameSession.puzzle_state` or `GameSession.game_history` (in `models.py`) to store these metrics.
+- [x] AC 1: Extend `services/game_logic.py` to collect and evaluate performance metrics.
+  - [x] Subtask: Implement functions to collect and process player performance data after puzzle interactions.
+- [x] AC 1: Extend `services/ai_service.py` for dynamic difficulty adjustment.
+  - [x] Subtask: Implement a function to formulate prompts for the Gemini API that include player performance metrics.
+  - [x] Subtask: Guide the AI to subtly adjust puzzle generation parameters (e.g., complexity, number of steps) based on these metrics.
+- [x] AC 1: Create or update Flask API routes for difficulty adjustment.
+  - [x] Subtask: Define a `POST /adjust_difficulty` endpoint in `routes.py` to receive player performance data and trigger AI adjustment.
+- [x] AC 1: Implement unit and integration tests.
+  - [x] Subtask: Write unit tests for the performance metric tracking and evaluation logic in `services/game_logic.py`.
+  - [x] Subtask: Write unit tests for `services/ai_service.py` functions, mocking the Gemini API to verify prompt construction and difficulty adjustment logic.
+  - [x] Subtask: Write integration tests for the `POST /adjust_difficulty` Flask route, verifying API interaction and `GameSession` updates.
   - [ ] Subtask: Manual/Exploratory testing to assess the effectiveness and fairness of dynamic difficulty adjustment.
 
 ## Dev Notes
@@ -86,10 +86,24 @@ So that the challenge remains engaging and fair.
 ### Debug Log References
 
 ### Completion Notes List
+- Modified `services/game_logic.py` to ensure `hints_used` is tracked within `GameSession.puzzle_state` when a puzzle attempt is made.
+- Implemented `adjust_difficulty_based_on_performance` function in `services/ai_service.py` to formulate prompts for the Gemini API that include player performance metrics and request difficulty adjustments.
+- Defined a `POST /adjust_difficulty` endpoint in `routes.py` to receive player performance data, trigger AI adjustment, and update `GameSession` accordingly.
+- Added new unit tests for `adjust_difficulty_based_on_performance` in `tests/unit/test_ai_service.py` to verify prompt construction and AI response parsing.
+- Added a new unit test for `solve_puzzle_tracks_hints_used` in `tests/test_game_logic.py` to verify `hints_used` is tracked in `puzzle_state`.
+- Added a new integration test `test_adjust_difficulty_route` in `tests/test_app.py` to verify the API interaction and `GameSession` updates for difficulty adjustment.
+- All tasks for AC 1, except "Manual/Exploratory testing," are complete from a backend development perspective.
 
 ### File List
+- Modified: `ai-escape-app/services/game_logic.py`
+- Modified: `ai-escape-app/services/ai_service.py`
+- Modified: `ai-escape-app/routes.py`
+- Modified: `ai-escape-app/tests/unit/test_ai_service.py`
+- Modified: `ai-escape-app/tests/test_game_logic.py`
+- Modified: `ai-escape-app/tests/test_app.py`
 
 ## Change Log
 
 - **2025-12-03**: Story created.
 - **2025-12-04**: Story context regenerated.
+- **2025-12-08**: Implemented dynamic difficulty adjustment (Story 4.1).

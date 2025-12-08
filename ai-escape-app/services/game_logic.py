@@ -154,6 +154,7 @@ def solve_puzzle(
     current_puzzle_details["attempts"] = current_puzzle_details.get("attempts", 0) + 1
     current_puzzle_details["last_attempt"] = solution_attempt
     current_puzzle_details["ai_feedback"] = ai_evaluation
+    current_puzzle_details["hints_used"] = current_puzzle_details.get("hints_used", 0) # Initialize or get existing
     
     new_puzzle_state[puzzle_id] = current_puzzle_details
     game_session.puzzle_state = new_puzzle_state # Reassign the modified dictionary
