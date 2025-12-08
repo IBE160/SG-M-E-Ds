@@ -12,7 +12,7 @@ if not GEMINI_API_KEY:
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-def generate_narrative(prompt: str, narrative_archetype: str = None) -> str:
+def generate_narrative(prompt: str, narrative_archetype: str = None, theme: str = None, location: str = None) -> str:
     """
     Sends a prompt to the Gemini API and returns the generated narrative text.
     If a narrative_archetype is provided, it will be used to structure the story.
@@ -24,6 +24,15 @@ def generate_narrative(prompt: str, narrative_archetype: str = None) -> str:
 
         Please structure the story according to the following narrative beats:
         {archetype_beats}
+        """
+    
+    if theme and location:
+        prompt = f"""
+        {prompt}
+
+        The story should be consistent with the following theme and location:
+        Theme: {theme}
+        Location: {location}
         """
 
     try:

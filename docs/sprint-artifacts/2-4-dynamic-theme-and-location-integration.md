@@ -1,6 +1,6 @@
 # Story 2.4: Dynamic Theme and Location Integration
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -14,16 +14,16 @@ So that my customization choices feel impactful.
 
 ## Tasks / Subtasks
 
-- [ ] AC 1: Update `GameSession` model to store theme and location.
-  - [ ] Subtask: Ensure `GameSession` in `models.py` has fields for `theme` and `location` (already present with defaults).
-- [ ] AC 1: Modify AI prompt generation in `services/ai_service.py`.
-  - [ ] Subtask: Ensure prompts sent to the Gemini API for narrative and room description generation include the `theme` and `location` from the `GameSession`.
-  - [ ] Subtask: Implement prompt engineering techniques to emphasize consistency with chosen theme/location.
-- [ ] AC 1: Integrate theme/location selection into `start_game` API.
-  - [ ] Subtask: Update the `POST /start_game` route in `routes.py` to receive `theme` and `location` parameters and pass them to `create_game_session`.
-- [ ] AC 1: Implement unit and integration tests.
-  - [ ] Subtask: Write unit tests for `services/ai_service.py` to verify that `theme` and `location` are correctly embedded in prompts.
-  - [ ] Subtask: Write integration tests for the `POST /start_game` route to confirm `GameSession` is initialized with chosen `theme` and `location`.
+- [x] AC 1: Update `GameSession` model to store theme and location.
+  - [x] Subtask: Ensure `GameSession` in `models.py` has fields for `theme` and `location` (already present with defaults).
+- [x] AC 1: Modify AI prompt generation in `services/ai_service.py`.
+  - [x] Subtask: Ensure prompts sent to the Gemini API for narrative and room description generation include the `theme` and `location` from the `GameSession`.
+  - [x] Subtask: Implement prompt engineering techniques to emphasize consistency with chosen theme/location.
+- [x] AC 1: Integrate theme/location selection into `start_game` API.
+  - [x] Subtask: Update the `POST /start_game` route in `routes.py` to receive `theme` and `location` parameters and pass them to `create_game_session`.
+- [x] AC 1: Implement unit and integration tests.
+  - [x] Subtask: Write unit tests for `services/ai_service.py` to verify that `theme` and `location` are correctly embedded in prompts.
+  - [x] Subtask: Write integration tests for the `POST /start_game` route to confirm `GameSession` is initialized with chosen `theme` and `location`.
   - [ ] Subtask: Manual/Exploratory testing to visually confirm that AI-generated content (narrative, room descriptions) is consistent with the selected theme and location.
 
 ## Dev Notes
@@ -82,10 +82,15 @@ So that my customization choices feel impactful.
 ### Debug Log References
 
 ### Completion Notes List
+- Ensured `GameSession` model correctly stores `theme` and `location`. Modified `ai_service.py` to embed `theme` and `location` into prompts for narrative generation. Confirmed `start_game` API correctly receives and passes `theme` and `location` to game session creation. Added and updated unit and integration tests to verify these changes.
 
 ### File List
+- Modified: `ai-escape-app/services/ai_service.py`
+- Modified: `ai-escape-app/tests/unit/test_ai_service.py`
+- Modified: `ai-escape-app/tests/test_app.py`
 
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-08**: Implemented dynamic theme and location integration (Story 2.4).
 - **2025-12-04**: Story context regenerated.

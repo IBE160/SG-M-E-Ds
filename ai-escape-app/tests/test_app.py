@@ -50,6 +50,29 @@ def test_start_game(client):
     assert data["inventory"] == []
     assert "id" in data
 
+def test_start_game_with_theme_and_location(client):
+    chosen_theme = "space"
+    chosen_location = "mars colony"
+    response = client.post(
+        "/start_game",
+        json={
+            "player_id": "test_player_themed",
+            "theme": chosen_theme,
+            "location": chosen_location,
+        }
+    )
+    assert response.status_code == 201
+    data = json.loads(response.data)
+    assert data["player_id"] == "test_player_themed"
+    assert data["id"] is not None
+
+    # Retrieve the game session to verify theme and location
+    session_id = data["id"]
+    get_response = client.get(f"/game_session/{session_id}")
+    get_data = json.loads(get_response.data)
+    assert get_data["theme"] == chosen_theme
+    assert get_data["location"] == chosen_location
+
 
 def test_get_game_session(client):
     # First create a session

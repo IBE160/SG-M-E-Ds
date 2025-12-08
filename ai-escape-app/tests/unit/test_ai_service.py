@@ -79,6 +79,18 @@ def test_generate_room_description_with_archetype(mock_genai):
     prompt = mock_genai.GenerativeModel.return_value.generate_content.call_args[0][0]
     assert "Narrative Archetype: Classic Mystery" in prompt
 
+@patch('services.ai_service.genai')
+def test_generate_narrative_with_theme_and_location(mock_genai):
+    mock_genai.GenerativeModel.return_value.generate_content.return_value.text = "A themed narrative."
+
+    generate_narrative("A prompt for the story.", theme="space", location="mars colony")
+
+    mock_genai.GenerativeModel.return_value.generate_content.assert_called_once()
+    prompt = mock_genai.GenerativeModel.return_value.generate_content.call_args[0][0]
+    assert "A prompt for the story." in prompt
+    assert "Theme: space" in prompt
+    assert "Location: mars colony" in prompt
+
 # Test case for missing API key (should be handled by the initial check in ai_service.py)
 # This test will likely not pass if run as part of a suite where os.getenv is mocked globally
 # Instead, ensure that the ValueError is raised when GEMINI_API_KEY is truly not set.
