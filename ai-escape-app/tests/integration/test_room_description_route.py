@@ -54,3 +54,24 @@ def test_generate_room_description_ai_service_error(mock_generate_room_descripti
     assert response.status_code == 500
     assert response.json == {'error': 'Error: AI service is down.'}
     mock_generate_room_description.assert_called_once()
+
+@patch('routes.generate_room_description')
+def test_generate_room_description_with_archetype(mock_generate_room_description, client):
+    mock_generate_room_description.return_value = "A mysterious room description."
+
+    response = client.post(
+        '/generate_room_description',
+        json={
+            "theme": "mystery",
+            "location": "old library",
+            "narrative_state": "A book is missing.",
+            "room_context": {"name": "Main Hall"},
+            "narrative_archetype": "mystery"
+        }
+    )
+
+    assert response.status_code == 200
+    assert response.json == {'description': 'A mysterious room description.'}
+    mock_generate_room_description.assert_called_once_with(
+        "mystery", "old library", "A book is missing.", {"name": "Main Hall"}, narrative_archetype="mystery"
+    )

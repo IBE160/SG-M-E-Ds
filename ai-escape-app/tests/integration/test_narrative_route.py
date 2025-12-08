@@ -21,7 +21,7 @@ def test_generate_narrative_success(mock_generate_narrative, client):
 
     assert response.status_code == 200
     assert response.json == {'narrative': 'A tale of mystery and intrigue.'}
-    mock_generate_narrative.assert_called_once_with('Generate a mysterious story.')
+    mock_generate_narrative.assert_called_once_with('Generate a mysterious story.', narrative_archetype=None)
 
 @patch('routes.generate_narrative')
 def test_generate_narrative_missing_prompt(mock_generate_narrative, client):
@@ -46,5 +46,18 @@ def test_generate_narrative_ai_service_error(mock_generate_narrative, client):
 
     assert response.status_code == 500
     assert response.json == {'error': 'Error: Something went wrong with the AI.'}
-    mock_generate_narrative.assert_called_once_with('Generate a story that fails.')
+    mock_generate_narrative.assert_called_once_with('Generate a story that fails.', narrative_archetype=None)
+
+@patch('routes.generate_narrative')
+def test_generate_narrative_with_archetype(mock_generate_narrative, client):
+    mock_generate_narrative.return_value = "A story following the hero's journey."
+
+    response = client.post(
+        '/generate_narrative',
+        json={"prompt": "A hero's tale.", "narrative_archetype": "heros_journey"}
+    )
+
+    assert response.status_code == 200
+    assert response.json == {'narrative': "A story following the hero's journey."}
+    mock_generate_narrative.assert_called_once_with("A hero's tale.", narrative_archetype='heros_journey')
 

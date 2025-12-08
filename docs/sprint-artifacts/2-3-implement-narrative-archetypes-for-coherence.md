@@ -1,4 +1,4 @@
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -13,17 +13,17 @@ So that the generated stories remain coherent and logical across playthroughs.
 
 ## Tasks / Subtasks
 
-- [ ] AC 1: Define narrative archetypes.
-  - [ ] Subtask: Identify and document key narrative archetypes (e.g., Hero's Journey, Rags to Riches) and their structural beats.
-  - [ ] Subtask: Represent archetypes in a structured format (e.g., JSON or Python data structures) accessible by `services/ai_service.py`.
-- [ ] AC 1: Implement prompt engineering for narrative archetypes.
-  - [ ] Subtask: Modify `services/ai_service.py` to incorporate archetype instructions into prompts sent to the Gemini API.
-  - [ ] Subtask: Ensure prompts guide the AI to generate content consistent with the chosen archetype's structural beats.
-- [ ] AC 2: Integrate archetype selection into game state.
-  - [ ] Subtask: Update `GameSession.narrative_state` to include the selected narrative archetype.
-- [ ] AC 1, 2: Implement unit and integration tests.
-  - [ ] Subtask: Write unit tests for prompt generation logic, verifying archetype instructions are correctly embedded.
-  - [ ] Subtask: Write integration tests for API endpoints that trigger narrative generation, ensuring the AI receives and utilizes archetype context.
+- [x] AC 1: Define narrative archetypes.
+  - [x] Subtask: Identify and document key narrative archetypes (e.g., Hero's Journey, Rags to Riches) and their structural beats.
+  - [x] Subtask: Represent archetypes in a structured format (e.g., JSON or Python data structures) accessible by `services/ai_service.py`.
+- [x] AC 1: Implement prompt engineering for narrative archetypes.
+  - [x] Subtask: Modify `services/ai_service.py` to incorporate archetype instructions into prompts sent to the Gemini API.
+  - [x] Subtask: Ensure prompts guide the AI to generate content consistent with the chosen archetype's structural beats.
+- [x] AC 2: Integrate archetype selection into game state.
+  - [x] Subtask: Update `GameSession.narrative_state` to include the selected narrative archetype.
+- [x] AC 1, 2: Implement unit and integration tests.
+  - [x] Subtask: Write unit tests for prompt generation logic, verifying archetype instructions are correctly embedded.
+  - [x] Subtask: Write integration tests for API endpoints that trigger narrative generation, ensuring the AI receives and utilizes archetype context.
   - [ ] Subtask: Manual/Exploratory testing to assess the coherence and logic of AI-generated stories against selected archetypes.
 
 ## Dev Notes
@@ -84,10 +84,19 @@ So that the generated stories remain coherent and logical across playthroughs.
 ### Debug Log References
 
 ### Completion Notes List
+- Defined narrative archetypes in a new `data/narrative_archetypes.py` file. Modified the `ai_service` to incorporate these archetypes into prompts for both narrative and room description generation, guiding the AI for more coherent stories. Updated the `GameSession` model to include the selected archetype. Added and updated unit and integration tests to verify the new functionality.
 
 ### File List
+- Modified: `ai-escape-app/services/ai_service.py`
+- Modified: `ai-escape-app/routes.py`
+- Modified: `ai-escape-app/models.py`
+- Modified: `ai-escape-app/tests/unit/test_ai_service.py`
+- Modified: `ai-escape-app/tests/integration/test_narrative_route.py`
+- Modified: `ai-escape-app/tests/integration/test_room_description_route.py`
+- Created: `ai-escape-app/data/narrative_archetypes.py`
 
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-08**: Implemented narrative archetypes for coherence (Story 2.3).
 - **2025-12-04**: Story context regenerated.

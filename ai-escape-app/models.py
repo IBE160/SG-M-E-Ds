@@ -16,6 +16,8 @@ class GameSession(Base):
     inventory = Column(JSON, default=[])
     game_history = Column(JSON, default=[])
     narrative_state = Column(JSON, default={})
+    narrative_archetype = Column(String)
+
     puzzle_state = Column(JSON, default={})
     start_time = Column(DateTime(timezone=True), default=func.now())
     last_updated = Column(

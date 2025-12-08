@@ -219,11 +219,12 @@ def solve_puzzle_route(session_id):
 def generate_narrative_route():
     data = request.get_json()
     prompt = data.get("prompt")
+    narrative_archetype = data.get("narrative_archetype")
 
     if not prompt:
         return jsonify({"error": "Prompt is required"}), 400
 
-    narrative = generate_narrative(prompt)
+    narrative = generate_narrative(prompt, narrative_archetype=narrative_archetype)
 
     if narrative.startswith("Error:"):
         return jsonify({"error": narrative}), 500
@@ -237,11 +238,14 @@ def generate_room_description_route():
     location = data.get("location")
     narrative_state = data.get("narrative_state")
     room_context = data.get("room_context")
+    narrative_archetype = data.get("narrative_archetype")
 
     if not all([theme, location, narrative_state, room_context]):
         return jsonify({"error": "Theme, location, narrative_state, and room_context are required"}), 400
 
-    description = generate_room_description(theme, location, narrative_state, room_context)
+    description = generate_room_description(
+        theme, location, narrative_state, room_context, narrative_archetype=narrative_archetype
+    )
 
     if description.startswith("Error:"):
         return jsonify({"error": description}), 500

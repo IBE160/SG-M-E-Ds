@@ -1,6 +1,7 @@
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
+from data.narrative_archetypes import NARRATIVE_ARCHETYPES
 
 load_dotenv() # Load environment variables from .env file
 
@@ -11,10 +12,20 @@ if not GEMINI_API_KEY:
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-def generate_narrative(prompt: str) -> str:
+def generate_narrative(prompt: str, narrative_archetype: str = None) -> str:
     """
     Sends a prompt to the Gemini API and returns the generated narrative text.
+    If a narrative_archetype is provided, it will be used to structure the story.
     """
+    if narrative_archetype and narrative_archetype in NARRATIVE_ARCHETYPES:
+        archetype_beats = NARRATIVE_ARCHETYPES[narrative_archetype]["beats"]
+        prompt = f"""
+        {prompt}
+
+        Please structure the story according to the following narrative beats:
+        {archetype_beats}
+        """
+
     try:
         model = genai.GenerativeModel('gemini-pro')
         response = model.generate_content(prompt)
@@ -25,24 +36,18 @@ def generate_narrative(prompt: str) -> str:
         print(f"Error generating narrative: {e}")
         return f"Error: Could not generate narrative. {e}"
 
-def generate_room_description(theme: str, location: str, narrative_state: str, room_context: dict) -> str:
+def generate_room_description(theme: str, location: str, narrative_state: str, room_context: dict, narrative_archetype: str = None) -> str:
     """
     Generates a unique room description based on the game's context.
-
-    Args:
-        theme: The overall theme of the escape room (e.g., "haunted mansion").
-        location: The specific location of the escape room (e.g., "abandoned asylum").
-        narrative_state: A summary of the story so far.
-        room_context: A dictionary containing details about the current room, 
-                      such as its name, exits, puzzles, and items.
-                      Example: {'name': 'Room Name', 'exits': ['north', 'south'], 'puzzles': ['puzzle_1'], 'items': ['key']}
-
-    Returns:
-        A unique, AI-generated description for the room.
     """
+    archetype_info = ""
+    if narrative_archetype and narrative_archetype in NARRATIVE_ARCHETYPES:
+        archetype_info = f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}"
+
     prompt = f"""
     Generate a unique and descriptive room description for an escape room game.
     The description should be consistent with the provided theme, location, narrative, and room context.
+    {archetype_info}
 
     Theme: {theme}
     Location: {location}

@@ -58,6 +58,27 @@ def test_generate_room_description_success(mock_genai):
     assert result == "A dusty room with a single flickering candle."
     # You could also add more specific assertions about the prompt content here if needed
 
+@patch('services.ai_service.genai')
+def test_generate_narrative_with_archetype(mock_genai):
+    mock_genai.GenerativeModel.return_value.generate_content.return_value.text = "A story."
+
+    generate_narrative("A hero's tale", narrative_archetype="heros_journey")
+
+    mock_genai.GenerativeModel.return_value.generate_content.assert_called_once()
+    prompt = mock_genai.GenerativeModel.return_value.generate_content.call_args[0][0]
+    assert "A hero's tale" in prompt
+    assert "The Call to Adventure" in prompt
+
+@patch('services.ai_service.genai')
+def test_generate_room_description_with_archetype(mock_genai):
+    mock_genai.GenerativeModel.return_value.generate_content.return_value.text = "A room."
+
+    generate_room_description("theme", "location", "state", {}, narrative_archetype="mystery")
+
+    mock_genai.GenerativeModel.return_value.generate_content.assert_called_once()
+    prompt = mock_genai.GenerativeModel.return_value.generate_content.call_args[0][0]
+    assert "Narrative Archetype: Classic Mystery" in prompt
+
 # Test case for missing API key (should be handled by the initial check in ai_service.py)
 # This test will likely not pass if run as part of a suite where os.getenv is mocked globally
 # Instead, ensure that the ValueError is raised when GEMINI_API_KEY is truly not set.
