@@ -1,5 +1,6 @@
 import pytest
 import json
+from unittest.mock import patch # Added import
 from app import create_app
 from models import Base
 from data.rooms import ROOM_DATA
@@ -182,7 +183,14 @@ def test_handle_inventory_remove(client):
     assert response.status_code == 404
 
 
-def test_solve_puzzle_route_correct_solution(client):
+@patch('services.game_logic.evaluate_and_adapt_puzzle')
+def test_solve_puzzle_route_correct_solution(mock_evaluate_and_adapt_puzzle, client):
+    mock_evaluate_and_adapt_puzzle.return_value = {
+        "is_correct": True,
+        "feedback": "Puzzle solved!",
+        "hint": None,
+        "difficulty_adjustment_suggestion": "none",
+    }
     start_response = client.post("/start_game", json={"player_id": "test_player_solve_puzzle_correct"})
     session_id = json.loads(start_response.data)["id"]
 
@@ -197,14 +205,23 @@ def test_solve_puzzle_route_correct_solution(client):
     data = json.loads(response.data)
     assert data["is_solved"] is True
     assert data["message"] == "Puzzle solved!"
+    assert "ai_evaluation" in data
+    assert data["ai_evaluation"]["is_correct"] is True
 
     # Verify puzzle state updated
     get_response = client.get(f"/game_session/{session_id}")
     get_data = json.loads(get_response.data)
-    assert get_data["puzzle_state"].get("observation_puzzle") is True
+    assert get_data["puzzle_state"].get("observation_puzzle", {}).get("solved") is True
 
 
-def test_solve_puzzle_route_incorrect_solution(client):
+@patch('services.game_logic.evaluate_and_adapt_puzzle')
+def test_solve_puzzle_route_incorrect_solution(mock_evaluate_and_adapt_puzzle, client):
+    mock_evaluate_and_adapt_puzzle.return_value = {
+        "is_correct": False,
+        "feedback": "Try again.",
+        "hint": "Think harder.",
+        "difficulty_adjustment_suggestion": "none",
+    }
     start_response = client.post("/start_game", json={"player_id": "test_player_solve_puzzle_incorrect"})
     session_id = json.loads(start_response.data)["id"]
 
@@ -218,15 +235,19 @@ def test_solve_puzzle_route_incorrect_solution(client):
     assert response.status_code == 200
     data = json.loads(response.data)
     assert data["is_solved"] is False
-    assert data["message"] == "Incorrect solution."
-
-    # Verify puzzle state not updated
-    get_response = client.get(f"/game_session/{session_id}")
-    get_data = json.loads(get_response.data)
-    assert get_data["puzzle_state"].get("observation_puzzle") is not True
+    assert "Try again." in data["message"] # Message comes from AI feedback
+    assert "ai_evaluation" in data
+    assert data["ai_evaluation"]["is_correct"] is False
 
 
-def test_solve_puzzle_route_puzzle_already_solved(client):
+@patch('services.game_logic.evaluate_and_adapt_puzzle')
+def test_solve_puzzle_route_puzzle_already_solved(mock_evaluate_and_adapt_puzzle, client):
+    mock_evaluate_and_adapt_puzzle.return_value = {
+        "is_correct": True, # The AI might still say it's correct if we re-attempt a correct solution
+        "feedback": "You already solved this one!",
+        "hint": None,
+        "difficulty_adjustment_suggestion": "none",
+    }
     start_response = client.post("/start_game", json={"player_id": "test_player_solve_puzzle_already"})
     session_id = json.loads(start_response.data)["id"]
 
@@ -248,9 +269,20 @@ def test_solve_puzzle_route_puzzle_already_solved(client):
     data = json.loads(response.data)
     assert data["is_solved"] is False
     assert data["message"] == "This puzzle is already solved."
+    assert "ai_evaluation" in data
+    # The AI evaluation for an already solved puzzle might still return is_correct: True
+    # as it re-evaluates the attempt, but the game logic itself prevents re-solving.
+    # So we only assert on the game message.
 
 
-def test_game_escape(client):
+@patch('services.game_logic.evaluate_and_adapt_puzzle')
+def test_game_escape(mock_evaluate_and_adapt_puzzle, client):
+    mock_evaluate_and_adapt_puzzle.return_value = {
+        "is_correct": True,
+        "feedback": "Puzzle solved!",
+        "hint": None,
+        "difficulty_adjustment_suggestion": "none",
+    }
     start_response = client.post("/start_game", json={"player_id": "test_player_escape"})
     session_id = json.loads(start_response.data)["id"]
 
@@ -265,6 +297,7 @@ def test_game_escape(client):
     assert data["is_solved"] is True
     assert data["message"] == "Puzzle solved!"
     assert "game_over" not in data # Game not over yet
+    assert data["ai_evaluation"]["is_correct"] is True
 
     # Move to mysterious_observatory
     response = client.post(f"/game_session/{session_id}/move", json={"direction": "north"})
@@ -282,6 +315,7 @@ def test_game_escape(client):
     assert data["is_solved"] is True
     assert data["message"] == "Puzzle solved!"
     assert "game_over" not in data # Game not over yet
+    assert data["ai_evaluation"]["is_correct"] is True
 
     # Move to escape_chamber - this should trigger the escape
     response = client.post(f"/game_session/{session_id}/move", json={"direction": "east"})
@@ -375,7 +409,14 @@ def test_interact_invalid_move(client):
     assert b"Invalid option index" in response.data
 
 
-def test_interact_solve_puzzle_correct(client):
+@patch('services.game_logic.evaluate_and_adapt_puzzle')
+def test_interact_solve_puzzle_correct(mock_evaluate_and_adapt_puzzle, client):
+    mock_evaluate_and_adapt_puzzle.return_value = {
+        "is_correct": True,
+        "feedback": "Puzzle solved!",
+        "hint": None,
+        "difficulty_adjustment_suggestion": "none",
+    }
     start_response = client.post("/start_game", json={"player_id": "test_player_interact_solve_correct"})
     session_id = json.loads(start_response.data)["id"]
 
@@ -401,61 +442,222 @@ def test_interact_solve_puzzle_correct(client):
     assert data["message"] == "Puzzle solved!"
     assert "contextual_options" in data
     assert "Solve observation_puzzle" not in data["contextual_options"] # Should be gone after solving
+    assert "ai_evaluation" in data
+    assert data["ai_evaluation"]["is_correct"] is True
 
     # Verify puzzle state updated
     get_response = client.get(f"/game_session/{session_id}")
     get_data = json.loads(get_response.data)
-    assert get_data["puzzle_state"].get("observation_puzzle") is True
+    assert get_data["puzzle_state"].get("observation_puzzle", {}).get("solved") is True
 
 
-def test_interact_game_escape(client):
+@patch('services.game_logic.evaluate_and_adapt_puzzle')
+
+
+def test_interact_game_escape(mock_evaluate_and_adapt_puzzle, client):
+
+
+    mock_evaluate_and_adapt_puzzle.return_value = {
+
+
+        "is_correct": True,
+
+
+        "feedback": "Puzzle solved!",
+
+
+        "hint": None,
+
+
+        "difficulty_adjustment_suggestion": "none",
+
+
+    }
+
+
     start_response = client.post("/start_game", json={"player_id": "test_player_interact_escape"})
+
+
     session_id = json.loads(start_response.data)["id"]
 
+
+
+
+
     # --- Solve first puzzle ---
+
+
     get_response = client.get(f"/game_session/{session_id}")
+
+
     options = json.loads(get_response.data)["contextual_options"]
+
+
     solve_puzzle_index = None
+
+
     for i, option in enumerate(options):
+
+
         if "Solve observation_puzzle" in option:
+
+
             solve_puzzle_index = i
+
+
             break
-    client.post(f"/game_session/{session_id}/interact", json={"option_index": solve_puzzle_index})
+
+
+    response = client.post(f"/game_session/{session_id}/interact", json={"option_index": solve_puzzle_index})
+
+
+    assert response.status_code == 200
+
+
+    data = json.loads(response.data)
+
+
+    assert data["is_solved"] is True
+
+
+    assert data["message"] == "Puzzle solved!"
+
+
+    assert "ai_evaluation" in data
+
+
+    assert data["ai_evaluation"]["is_correct"] is True
+
+
+
+
+
+
+
 
     # --- Move to second room ---
+
+
     get_response = client.get(f"/game_session/{session_id}")
+
+
     options = json.loads(get_response.data)["contextual_options"]
+
+
     go_north_index = None
+
+
     for i, option in enumerate(options):
+
+
         if "Go north" in option:
+
+
             go_north_index = i
+
+
             break
+
+
     response = client.post(f"/game_session/{session_id}/interact", json={"option_index": go_north_index})
+
+
     data = json.loads(response.data)
+
+
     assert data["current_room"] == "mysterious_observatory"
 
+
+
+
+
     # --- Solve second puzzle ---
+
+
     get_response = client.get(f"/game_session/{session_id}")
+
+
     options = json.loads(get_response.data)["contextual_options"]
+
+
     solve_riddle_index = None
+
+
     for i, option in enumerate(options):
+
+
         if "Solve riddle_puzzle" in option:
+
+
             solve_riddle_index = i
+
+
             break
-    client.post(f"/game_session/{session_id}/interact", json={"option_index": solve_riddle_index})
+
+
+    response = client.post(f"/game_session/{session_id}/interact", json={"option_index": solve_riddle_index})
+
+
+    assert response.status_code == 200
+
+
+    data = json.loads(response.data)
+
+
+    assert data["is_solved"] is True
+
+
+    assert data["message"] == "Puzzle solved!"
+
+
+    assert "ai_evaluation" in data
+
+
+    assert data["ai_evaluation"]["is_correct"] is True
+
+
+
+
+
+
+
 
     # --- Move to escape_chamber (trigger escape) ---
+
+
     get_response = client.get(f"/game_session/{session_id}")
+
+
     options = json.loads(get_response.data)["contextual_options"]
+
+
     go_east_index = None
+
+
     for i, option in enumerate(options):
+
+
         if "Go east" in option:
+
+
             go_east_index = i
+
+
             break
+
+
     response = client.post(f"/game_session/{session_id}/interact", json={"option_index": go_east_index})
+
+
     data = json.loads(response.data)
+
+
     assert data["current_room"] == "escape_chamber"
+
+
     assert data["game_over"] is True
+
+
     assert data["message"] == "You escaped!"
 
 

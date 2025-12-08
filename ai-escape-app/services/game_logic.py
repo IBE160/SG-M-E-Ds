@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from models import GameSession
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
+from services.ai_service import evaluate_and_adapt_puzzle
 
 
 def create_game_session(
@@ -98,50 +99,64 @@ def update_player_inventory(
 
 def solve_puzzle(
     db_session: Session, session_id: int, puzzle_id: str, solution_attempt: str
-) -> tuple[bool, str, GameSession | None]:
+) -> tuple[bool, str, GameSession | None, dict]: # Added dict for AI evaluation
     """
-    Evaluates a puzzle solution attempt.
-    Returns a tuple: (is_solved: bool, message: str, updated_game_session: GameSession | None)
+    Evaluates a puzzle solution attempt using AI and adapts the puzzle.
+    Returns a tuple: (is_solved: bool, message: str, updated_game_session: GameSession | None, ai_evaluation: dict)
     """
     game_session = get_game_session(db_session, session_id)
     if not game_session:
-        return False, "Game session not found.", None
+        return False, "Game session not found.", None, {"error": "Game session not found."}
 
     current_room_id = game_session.current_room
     room_info = ROOM_DATA.get(current_room_id)
 
     if not room_info or puzzle_id not in room_info["puzzles"]:
-        return False, "Puzzle not found in current room.", game_session
+        return False, "Puzzle not found in current room.", game_session, {"error": "Puzzle not found."}
 
     puzzle_info = room_info["puzzles"][puzzle_id]
     correct_solution = PUZZLE_SOLUTIONS.get(puzzle_id)
 
-    if game_session.puzzle_state.get(puzzle_id, False): # Check if puzzle is solved in game_session.puzzle_state
-        return False, "This puzzle is already solved.", game_session
+    if game_session.puzzle_state.get(puzzle_id, {}).get("solved", False): # Check if puzzle is solved
+        return False, "This puzzle is already solved.", game_session, {"error": "Puzzle already solved."}
 
-    if solution_attempt.lower() == correct_solution.lower():
-        game_session.puzzle_state = {**game_session.puzzle_state, puzzle_id: True} # Mark puzzle as solved in game state
-        
-        # Directly update the narrative_state
-        current_narrative_state = game_session.narrative_state.copy() # Work on a copy
-        
-        if current_room_id not in current_narrative_state:
-            current_narrative_state[current_room_id] = {"puzzles": {}}
-        
-        if "puzzles" not in current_narrative_state[current_room_id]:
-            current_narrative_state[current_room_id]["puzzles"] = {}
-            
-        current_narrative_state[current_room_id]["puzzles"][puzzle_id] = {"solved": True} # Only store the solved status
-        
-        game_session.narrative_state = current_narrative_state # Reassign to trigger SQLAlchemy change detection
-        
-        # Important: Mark the JSON column as modified
-        db_session.add(game_session)
-        db_session.commit()
-        db_session.refresh(game_session)
-        return True, "Puzzle solved!", game_session
+    # Use AI to evaluate the attempt and get adaptation suggestions
+    ai_evaluation = evaluate_and_adapt_puzzle(
+        puzzle_id=puzzle_id,
+        player_attempt=solution_attempt,
+        puzzle_solution=correct_solution,
+        current_puzzle_state=game_session.puzzle_state.get(puzzle_id, {}),
+        theme=game_session.theme,
+        location=game_session.location,
+        difficulty=game_session.difficulty,
+        narrative_archetype=game_session.narrative_archetype,
+    )
+
+    if "error" in ai_evaluation:
+        return False, f"AI evaluation failed: {ai_evaluation['error']}", game_session, ai_evaluation
+
+    is_correct = ai_evaluation.get("is_correct", False)
+    feedback_message = ai_evaluation.get("feedback", "No feedback provided by AI.")
+    
+    # Update puzzle_state with AI evaluation details
+    current_puzzle_details = game_session.puzzle_state.get(puzzle_id, {})
+    current_puzzle_details["solved"] = is_correct
+    current_puzzle_details["attempts"] = current_puzzle_details.get("attempts", 0) + 1
+    current_puzzle_details["last_attempt"] = solution_attempt
+    current_puzzle_details["ai_feedback"] = ai_evaluation
+    
+    game_session.puzzle_state = {**game_session.puzzle_state, puzzle_id: current_puzzle_details}
+
+    # Ensure SQLAlchemy detects JSON column modification
+    db_session.add(game_session)
+    db_session.commit()
+    db_session.refresh(game_session)
+
+    if is_correct:
+        return True, "Puzzle solved!", game_session, ai_evaluation
     else:
-        return False, "Incorrect solution.", game_session
+        return False, feedback_message, game_session, ai_evaluation
+
 
 
 def get_contextual_options(game_session: GameSession) -> list[str]:
@@ -165,7 +180,7 @@ def get_contextual_options(game_session: GameSession) -> list[str]:
 
     # Puzzles
     for puzzle_id, puzzle_details in room_info["puzzles"].items():
-        if not game_session.puzzle_state.get(puzzle_id, False):
+        if not game_session.puzzle_state.get(puzzle_id, {}).get("solved", False):
             options.append(f"Solve {puzzle_id}") # Using puzzle_id for now, can be changed to a more descriptive name
 
     # Add a generic "Go back" option, assuming this maps to moving to a previous room.

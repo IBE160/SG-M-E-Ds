@@ -7,7 +7,7 @@ from services.game_logic import (
     solve_puzzle,
     get_contextual_options,
 )
-from services.ai_service import generate_narrative, generate_room_description, generate_puzzle
+from services.ai_service import generate_narrative, generate_room_description, generate_puzzle, evaluate_and_adapt_puzzle
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
 
 bp = Blueprint("main", __name__)
@@ -206,14 +206,14 @@ def solve_puzzle_route(session_id):
     if not puzzle_id or not solution_attempt:
         return jsonify({"error": "Puzzle ID and solution attempt are required"}), 400
 
-    is_solved, message, updated_session = solve_puzzle(
+    is_solved, message, updated_session, ai_evaluation = solve_puzzle(
         current_app.session, session_id, puzzle_id, solution_attempt
     )
 
     if not updated_session:
         return jsonify({"error": message}), 404 # Session not found case
 
-    return jsonify({"is_solved": is_solved, "message": message, "session_id": updated_session.id})
+    return jsonify({"is_solved": is_solved, "message": message, "session_id": updated_session.id, "ai_evaluation": ai_evaluation})
 
 @bp.route("/generate_narrative", methods=["POST"])
 def generate_narrative_route():
@@ -278,6 +278,38 @@ def generate_puzzle_route():
         return jsonify({"error": puzzle["error"]}), 500
 
     return jsonify(puzzle), 200
+
+@bp.route("/evaluate_puzzle_solution", methods=["POST"])
+def evaluate_puzzle_solution_route():
+    data = request.get_json()
+    puzzle_id = data.get("puzzle_id")
+    player_attempt = data.get("player_attempt")
+    puzzle_solution = data.get("puzzle_solution")
+    current_puzzle_state = data.get("current_puzzle_state")
+    theme = data.get("theme")
+    location = data.get("location")
+    difficulty = data.get("difficulty")
+    narrative_archetype = data.get("narrative_archetype") # Extract optional parameter here
+
+    required_params = [puzzle_id, player_attempt, puzzle_solution, current_puzzle_state, theme, location, difficulty]
+    if not all(param is not None for param in required_params):
+        return jsonify({"error": "Missing required parameters for puzzle evaluation"}), 400
+
+    evaluation = evaluate_and_adapt_puzzle(
+        puzzle_id=puzzle_id,
+        player_attempt=player_attempt,
+        puzzle_solution=puzzle_solution,
+        current_puzzle_state=current_puzzle_state,
+        theme=theme,
+        location=location,
+        difficulty=difficulty,
+        narrative_archetype=narrative_archetype, # Pass optional parameter
+    )
+
+    if "error" in evaluation:
+        return jsonify({"error": evaluation["error"]}), 500
+
+    return jsonify(evaluation), 200
 
 
 
@@ -375,7 +407,7 @@ def interact(session_id):
             result["error"] = f"Solution for puzzle {puzzle_id} not found."
             status_code = 500
         else:
-            is_solved, message, updated_session = solve_puzzle(
+            is_solved, message, updated_session, ai_evaluation = solve_puzzle(
                 current_app.session, session_id, puzzle_id, solution_attempt
             )
             if not updated_session:
@@ -385,5 +417,6 @@ def interact(session_id):
                 result["is_solved"] = is_solved
                 result["message"] = message
                 result["contextual_options"] = get_contextual_options(updated_session) # Update options after solving
+                result["ai_evaluation"] = ai_evaluation
 
     return jsonify(result), status_code

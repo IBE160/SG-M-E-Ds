@@ -1,6 +1,4 @@
-# Story 3.2: Implement Dynamic Puzzle Adaptation
-
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -15,18 +13,18 @@ So that the challenges feel responsive and personalized.
 
 ## Tasks / Subtasks
 
-- [ ] AC 1: Extend `services/ai_service.py` for puzzle adaptation.
-  - [ ] Subtask: Implement a function to evaluate player attempts against puzzle solutions.
-  - [ ] Subtask: Formulate prompts for the Gemini API to request adaptations (e.g., hints, difficulty adjustments) based on player performance and `GameSession.puzzle_state`.
-  - [ ] Subtask: Implement logic to parse AI-generated adaptations.
-- [ ] AC 1: Create or update Flask API route for player puzzle interaction/adaptation.
-  - [ ] Subtask: Define a `POST /evaluate_puzzle_solution` endpoint in `routes.py`.
-  - [ ] Subtask: This endpoint will receive player attempts, call `services/ai_service.py` for evaluation and adaptation, and return feedback/adapted puzzle details.
-- [ ] AC 2: Integrate puzzle adaptation with game state.
-  - [ ] Subtask: Update `GameSession.puzzle_state` to reflect puzzle progression, AI adaptations, or hints provided.
-- [ ] AC 1, 2: Implement unit and integration tests.
-  - [ ] Subtask: Write unit tests for `services/ai_service.py` functions, mocking the Gemini API to verify evaluation and adaptation logic.
-  - [ ] Subtask: Write integration tests for `POST /evaluate_puzzle_solution` Flask route, verifying API interaction and `GameSession.puzzle_state` updates.
+- [x] AC 1: Extend `services/ai_service.py` for puzzle adaptation.
+  - [x] Subtask: Implement a function to evaluate player attempts against puzzle solutions.
+  - [x] Subtask: Formulate prompts for the Gemini API to request adaptations (e.g., hints, difficulty adjustments) based on player performance and `GameSession.puzzle_state`.
+  - [x] Subtask: Implement logic to parse AI-generated adaptations.
+- [x] AC 1: Create or update Flask API route for player puzzle interaction/adaptation.
+  - [x] Subtask: Define a `POST /evaluate_puzzle_solution` endpoint in `routes.py`.
+  - [x] Subtask: This endpoint will receive player attempts, call `services/ai_service.py` for evaluation and adaptation, and return feedback/adapted puzzle details.
+- [x] AC 2: Integrate puzzle adaptation with game state.
+  - [x] Subtask: Update `GameSession.puzzle_state` to reflect puzzle progression, AI adaptations, or hints provided.
+- [x] AC 1, 2: Implement unit and integration tests.
+  - [x] Subtask: Write unit tests for `services/ai_service.py` functions, mocking the Gemini API to verify evaluation and adaptation logic.
+  - [x] Subtask: Write integration tests for `POST /evaluate_puzzle_solution` Flask route, verifying API interaction and `GameSession.puzzle_state` updates.
   - [ ] Subtask: Manual/Exploratory testing to assess the responsiveness and personalization of AI puzzle adaptations.
 
 ## Dev Notes
@@ -86,10 +84,20 @@ So that the challenges feel responsive and personalized.
 ### Debug Log References
 
 ### Completion Notes List
+- Extended `ai_service.py` with `evaluate_and_adapt_puzzle` for AI-powered puzzle adaptation. Added a new `POST /evaluate_puzzle_solution` API endpoint in `routes.py`. Updated `game_logic.py`'s `solve_puzzle` to integrate AI evaluation and update `GameSession.puzzle_state`. Implemented comprehensive unit and integration tests for the new functionality, ensuring correct API interaction and state updates.
 
 ### File List
+- Modified: `ai-escape-app/services/ai_service.py`
+- Modified: `ai-escape-app/services/game_logic.py`
+- Modified: `ai-escape-app/routes.py`
+- Modified: `ai-escape-app/tests/unit/test_ai_service.py`
+- Modified: `ai-escape-app/tests/test_app.py`
+- Modified: `ai-escape-app/tests/test_game_logic.py`
+- Modified: `ai-escape-app/tests/integration/test_evaluate_puzzle_solution_route.py`
+- Created: `ai-escape-app/tests/integration/test_evaluate_puzzle_solution_route.py`
 
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-08**: Implemented dynamic puzzle adaptation (Story 3.2).
 - **2025-12-04**: Story context regenerated.

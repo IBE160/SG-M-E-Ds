@@ -2,6 +2,7 @@ import pytest
 from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from unittest.mock import patch # Added import
 from models import Base, GameSession
 from data.rooms import ROOM_DATA
 from services.game_logic import (
@@ -151,72 +152,111 @@ def test_update_player_inventory_invalid_action(db_session):
     )  # inventory should be unchanged
 
 
-def test_solve_puzzle_correct_solution(db_session):
+@patch('services.game_logic.evaluate_and_adapt_puzzle')
+def test_solve_puzzle_correct_solution(mock_evaluate_and_adapt_puzzle, db_session):
+    mock_evaluate_and_adapt_puzzle.return_value = {
+        "is_correct": True,
+        "feedback": "Puzzle solved!",
+        "hint": None,
+        "difficulty_adjustment_suggestion": "none",
+    }
     # Create a game session and set the current room to 'ancient_library'
     game_session = create_game_session(db_session, "player8")
     update_game_session(db_session, game_session.id, current_room="ancient_library")
 
     # Attempt to solve the 'observation_puzzle' with the correct solution
-    is_solved, message, updated_session = solve_puzzle(
+    is_solved, message, updated_session, ai_evaluation = solve_puzzle(
         db_session, game_session.id, "observation_puzzle", "3"
     )
 
+    mock_evaluate_and_adapt_puzzle.assert_called_once()
     assert is_solved is True
     assert message == "Puzzle solved!"
-    assert updated_session.puzzle_state.get("observation_puzzle") is True
-    # Check if puzzle_info is updated in narrative_state for persistence (workaround)
-    assert updated_session.narrative_state.get("ancient_library", {}).get("puzzles", {}).get("observation_puzzle", {}).get("solved") is True
+    assert updated_session.puzzle_state.get("observation_puzzle", {}).get("solved") is True
+    assert ai_evaluation["is_correct"] is True
+    assert updated_session.puzzle_state.get("observation_puzzle", {}).get("ai_feedback") is not None
 
 
-def test_solve_puzzle_incorrect_solution(db_session):
+@patch('services.game_logic.evaluate_and_adapt_puzzle')
+def test_solve_puzzle_incorrect_solution(mock_evaluate_and_adapt_puzzle, db_session):
+    mock_evaluate_and_adapt_puzzle.return_value = {
+        "is_correct": False,
+        "feedback": "Try again.",
+        "hint": "Look closely.",
+        "difficulty_adjustment_suggestion": "none",
+    }
     game_session = create_game_session(db_session, "player9")
     update_game_session(db_session, game_session.id, current_room="mysterious_observatory")
 
-    is_solved, message, updated_session = solve_puzzle(
+    is_solved, message, updated_session, ai_evaluation = solve_puzzle(
         db_session, game_session.id, "riddle_puzzle", "wrong_answer"
     )
 
+    mock_evaluate_and_adapt_puzzle.assert_called_once()
     assert is_solved is False
-    assert message == "Incorrect solution."
-    assert updated_session.puzzle_state.get("riddle_puzzle") is not True
+    assert "Try again." in message # Message comes from AI feedback
+    assert updated_session.puzzle_state.get("riddle_puzzle", {}).get("solved") is False
+    assert ai_evaluation["is_correct"] is False
+    assert updated_session.puzzle_state.get("riddle_puzzle", {}).get("ai_feedback") is not None
 
 
-def test_solve_puzzle_already_solved(db_session):
+@patch('services.game_logic.evaluate_and_adapt_puzzle')
+def test_solve_puzzle_already_solved(mock_evaluate_and_adapt_puzzle, db_session):
+    mock_evaluate_and_adapt_puzzle.return_value = {
+        "is_correct": True,
+        "feedback": "Puzzle solved!",
+        "hint": None,
+        "difficulty_adjustment_suggestion": "none",
+    }
     game_session = create_game_session(db_session, "player10")
     update_game_session(db_session, game_session.id, current_room="ancient_library")
 
     # Solve it once
-    solve_puzzle(db_session, game_session.id, "observation_puzzle", "3")
+    is_solved_first, message_first, updated_session_first, ai_evaluation_first = solve_puzzle(db_session, game_session.id, "observation_puzzle", "3")
+    assert is_solved_first is True
 
     # Try to solve it again
-    is_solved, message, updated_session = solve_puzzle(
+    is_solved, message, updated_session, ai_evaluation = solve_puzzle(
         db_session, game_session.id, "observation_puzzle", "3"
     )
 
     assert is_solved is False
     assert message == "This puzzle is already solved."
+    assert updated_session.puzzle_state.get("observation_puzzle", {}).get("ai_feedback") is not None # Still get AI feedback for the attempt
 
 
-def test_solve_puzzle_puzzle_not_found(db_session):
+@patch('services.game_logic.evaluate_and_adapt_puzzle')
+def test_solve_puzzle_puzzle_not_found(mock_evaluate_and_adapt_puzzle, db_session):
+    # Mock return value, though it shouldn't be called
+    mock_evaluate_and_adapt_puzzle.return_value = {"error": "Should not be called"}
+
     game_session = create_game_session(db_session, "player11")
     update_game_session(db_session, game_session.id, current_room="ancient_library")
 
-    is_solved, message, updated_session = solve_puzzle(
+    is_solved, message, updated_session, ai_evaluation = solve_puzzle(
         db_session, game_session.id, "non_existent_puzzle", "any_solution"
     )
 
+    mock_evaluate_and_adapt_puzzle.assert_not_called()
     assert is_solved is False
     assert message == "Puzzle not found in current room."
+    assert "error" in ai_evaluation # Expect an error message from AI evaluation
 
 
-def test_solve_puzzle_session_not_found(db_session):
-    is_solved, message, updated_session = solve_puzzle(
+@patch('services.game_logic.evaluate_and_adapt_puzzle')
+def test_solve_puzzle_session_not_found(mock_evaluate_and_adapt_puzzle, db_session):
+    # Mock return value, though it shouldn't be called
+    mock_evaluate_and_adapt_puzzle.return_value = {"error": "Should not be called"}
+
+    is_solved, message, updated_session, ai_evaluation = solve_puzzle(
         db_session, 999, "observation_puzzle", "3"
     )
 
+    mock_evaluate_and_adapt_puzzle.assert_not_called()
     assert is_solved is False
     assert message == "Game session not found."
     assert updated_session is None
+    assert "error" in ai_evaluation # Expect an error message from AI evaluation
 
 
 def test_get_contextual_options_initial_room(db_session):
@@ -243,7 +283,14 @@ def test_get_contextual_options_after_move(db_session):
     assert len(options) == 5 # Look around, 2 exits, 1 puzzle, Go back
 
 
-def test_get_contextual_options_after_puzzle_solved(db_session):
+@patch('services.game_logic.evaluate_and_adapt_puzzle')
+def test_get_contextual_options_after_puzzle_solved(mock_evaluate_and_adapt_puzzle, db_session):
+    mock_evaluate_and_adapt_puzzle.return_value = {
+        "is_correct": True,
+        "feedback": "Puzzle solved!",
+        "hint": None,
+        "difficulty_adjustment_suggestion": "none",
+    }
     game_session = create_game_session(db_session, "player_options_3")
     # Solve the puzzle in ancient_library
     solve_puzzle(db_session, game_session.id, "observation_puzzle", "3")

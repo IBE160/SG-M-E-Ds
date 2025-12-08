@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 import os
-from services.ai_service import generate_narrative, generate_room_description, generate_puzzle
+from services.ai_service import generate_narrative, generate_room_description, generate_puzzle, evaluate_and_adapt_puzzle
 from data.narrative_archetypes import NARRATIVE_ARCHETYPES
 
 
@@ -138,3 +138,64 @@ def test_generate_puzzle_api_error(mock_genai):
 
     assert "error" in result
     assert "Could not generate puzzle. Puzzle API Error" in result["error"]
+
+
+@patch('services.ai_service.genai')
+def test_evaluate_and_adapt_puzzle_correct_solution(mock_genai):
+    mock_response = MagicMock()
+    mock_response.text = '{"is_correct": true, "feedback": "Excellent!", "hint": null, "difficulty_adjustment_suggestion": "none"}'
+    mock_genai.GenerativeModel.return_value.generate_content.return_value = mock_response
+
+    result = evaluate_and_adapt_puzzle(
+        puzzle_id="test_puzzle",
+        player_attempt="correct answer",
+        puzzle_solution="correct answer",
+        current_puzzle_state={},
+        theme="fantasy",
+        location="forest",
+        difficulty="medium",
+    )
+
+    mock_genai.GenerativeModel.assert_called_once_with('gemini-pro')
+    mock_genai.GenerativeModel.return_value.generate_content.assert_called_once()
+    assert result["is_correct"] is True
+    assert result["feedback"] == "Excellent!"
+
+@patch('services.ai_service.genai')
+def test_evaluate_and_adapt_puzzle_incorrect_solution(mock_genai):
+    mock_response = MagicMock()
+    mock_response.text = '{"is_correct": false, "feedback": "Try again.", "hint": "Look for patterns.", "difficulty_adjustment_suggestion": "none"}'
+    mock_genai.GenerativeModel.return_value.generate_content.return_value = mock_response
+
+    result = evaluate_and_adapt_puzzle(
+        puzzle_id="test_puzzle",
+        player_attempt="wrong answer",
+        puzzle_solution="correct answer",
+        current_puzzle_state={},
+        theme="fantasy",
+        location="forest",
+        difficulty="medium",
+    )
+
+    mock_genai.GenerativeModel.assert_called_once_with('gemini-pro')
+    mock_genai.GenerativeModel.return_value.generate_content.assert_called_once()
+    assert result["is_correct"] is False
+    assert result["feedback"] == "Try again."
+    assert result["hint"] == "Look for patterns."
+
+@patch('services.ai_service.genai')
+def test_evaluate_and_adapt_puzzle_api_error(mock_genai):
+    mock_genai.GenerativeModel.return_value.generate_content.side_effect = Exception("Adaptation API Error")
+
+    result = evaluate_and_adapt_puzzle(
+        puzzle_id="test_puzzle",
+        player_attempt="some attempt",
+        puzzle_solution="solution",
+        current_puzzle_state={},
+        theme="fantasy",
+        location="forest",
+        difficulty="medium",
+    )
+
+    assert "error" in result
+    assert "Could not evaluate and adapt puzzle. Adaptation API Error" in result["error"]

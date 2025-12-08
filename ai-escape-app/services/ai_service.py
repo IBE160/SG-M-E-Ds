@@ -125,3 +125,76 @@ def generate_puzzle(puzzle_type: str, difficulty: str, theme: str, location: str
     except Exception as e:
         print(f"Error generating puzzle: {e}")
         return {"error": f"Could not generate puzzle. {e}"}
+
+
+def evaluate_and_adapt_puzzle(
+    puzzle_id: str,
+    player_attempt: str,
+    puzzle_solution: str,
+    current_puzzle_state: dict,
+    theme: str,
+    location: str,
+    difficulty: str,
+    narrative_archetype: str = None,
+) -> dict:
+    """
+    Evaluates a player's puzzle attempt and requests adaptation (hint/difficulty adjustment) from Gemini API.
+
+    Args:
+        puzzle_id: Identifier for the puzzle.
+        player_attempt: The player's submitted solution.
+        puzzle_solution: The correct solution to the puzzle.
+        current_puzzle_state: The current state of the puzzle within GameSession.puzzle_state.
+        theme: The overall theme of the game.
+        location: The current location in the game.
+        difficulty: The current difficulty of the game.
+        narrative_archetype: The selected narrative archetype, if any.
+
+    Returns:
+        A dictionary containing evaluation feedback, hints, or difficulty adjustments from the AI.
+        Example: {'is_correct': False, 'feedback': 'That's not quite right. Think about...', 'hint': 'Consider the shadows.'}
+    """
+    archetype_info = ""
+    if narrative_archetype and narrative_archetype in NARRATIVE_ARCHETYPES:
+        archetype_info = f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}"
+
+    prompt = f"""
+    A player attempted to solve a puzzle in an escape room. Evaluate their attempt and provide feedback,
+    and optionally a hint or suggestion for adapting the puzzle's difficulty.
+
+    Game Context:
+    Theme: {theme}
+    Location: {location}
+    Difficulty: {difficulty}
+    {archetype_info}
+
+    Puzzle Details:
+    Puzzle ID: {puzzle_id}
+    Correct Solution: {puzzle_solution}
+    Player's Attempt: {player_attempt}
+    Current Puzzle State: {current_puzzle_state}
+
+    Based on the player's attempt and the correct solution, provide the following in JSON format:
+    - "is_correct": boolean (True if attempt matches solution, False otherwise)
+    - "feedback": string (Concise feedback to the player)
+    - "hint": string (Optional, a subtle hint if is_correct is False)
+    - "difficulty_adjustment_suggestion": string (Optional, e.g., "increase", "decrease", "none")
+
+    Example JSON response:
+    {{
+        "is_correct": false,
+        "feedback": "Your answer is close, but not quite there.",
+        "hint": "Think about the common use of the object in the riddle.",
+        "difficulty_adjustment_suggestion": "none"
+    }}
+
+    Evaluation:
+    """
+    try:
+        model = genai.GenerativeModel('gemini-pro')
+        response = model.generate_content(prompt)
+        import json
+        return json.loads(response.text)
+    except Exception as e:
+        print(f"Error evaluating and adapting puzzle: {e}")
+        return {"error": f"Could not evaluate and adapt puzzle. {e}"}
