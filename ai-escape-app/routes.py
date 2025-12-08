@@ -7,6 +7,7 @@ from services.game_logic import (
     solve_puzzle,
     get_contextual_options,
 )
+from services.ai_service import generate_narrative
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
 
 bp = Blueprint("main", __name__)
@@ -153,57 +154,39 @@ def handle_inventory(session_id):
 
 
 @bp.route("/game_session/<int:session_id>/solve_puzzle", methods=["POST"])
-
-
 def solve_puzzle_route(session_id):
-
-
     data = request.get_json()
-
-
     puzzle_id = data.get("puzzle_id")
-
-
     solution_attempt = data.get("solution_attempt")
 
-
-
-
-
     if not puzzle_id or not solution_attempt:
-
-
         return jsonify({"error": "Puzzle ID and solution attempt are required"}), 400
 
-
-
-
-
     is_solved, message, updated_session = solve_puzzle(
-
-
         current_app.session, session_id, puzzle_id, solution_attempt
-
-
     )
 
-
-
-
-
     if not updated_session:
-
-
         return jsonify({"error": message}), 404 # Session not found case
 
-
-
-
-
-
-
-
     return jsonify({"is_solved": is_solved, "message": message, "session_id": updated_session.id})
+
+@bp.route("/generate_narrative", methods=["POST"])
+def generate_narrative_route():
+    data = request.get_json()
+    prompt = data.get("prompt")
+
+    if not prompt:
+        return jsonify({"error": "Prompt is required"}), 400
+
+    narrative = generate_narrative(prompt)
+
+    if narrative.startswith("Error:"):
+        return jsonify({"error": narrative}), 500
+    
+    return jsonify({"narrative": narrative}), 200
+
+
 
 
 @bp.route("/game_session/<int:session_id>/interact", methods=["POST"])

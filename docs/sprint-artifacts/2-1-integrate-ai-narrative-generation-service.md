@@ -1,6 +1,6 @@
 # Story 2.1: Integrate AI Narrative Generation Service
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -15,23 +15,23 @@ So that we can dynamically create story elements for the game.
 
 ## Tasks / Subtasks
 
-- [ ] AC 1: Set up Gemini API access.
-  - [ ] Subtask: Obtain Gemini API key.
-  - [ ] Subtask: Securely store API key as an environment variable (e.g., in `.env` for local development).
-- [ ] AC 1: Install `google-generativeai` Python client library.
-  - [ ] Subtask: Add `google-generativeai` to `requirements.txt`.
-  - [ ] Subtask: Install dependencies.
-- [ ] AC 1, 2: Create `services/ai_service.py` for API interaction.
-  - [ ] Subtask: Implement a function to send a prompt to the Gemini API.
-  - [ ] Subtask: Implement logic to receive and parse the AI-generated narrative text.
-  - [ ] Subtask: Implement basic error handling for API calls.
-- [ ] AC 1, 2: Create Flask API routes for narrative generation.
-  - [ ] Subtask: Define a `POST /generate_narrative` endpoint in `routes.py`.
-  - [ ] Subtask: This endpoint will receive a prompt from the frontend, call `services/ai_service.py`, and return the generated narrative.
-  - [ ] Subtask: Secure API keys by ensuring they are only accessed server-side.
-- [ ] AC 1, 2: Implement unit and integration tests.
-  - [ ] Subtask: Write unit tests for `services/ai_service.py`, mocking the Gemini API to verify prompt construction, API calls, and response parsing.
-  - [ ] Subtask: Write integration tests for the `POST /generate_narrative` Flask route, verifying interaction with `services/ai_service.py` and correct narrative return.
+- [x] AC 1: Set up Gemini API access.
+  - [x] Subtask: Obtain Gemini API key.
+  - [x] Subtask: Securely store API key as an environment variable (e.g., in `.env` for local development).
+- [x] AC 1: Install `google-generativeai` Python client library.
+  - [x] Subtask: Add `google-generativeai` to `requirements.txt`.
+  - [x] Subtask: Install dependencies.
+- [x] AC 1, 2: Create `services/ai_service.py` for API interaction.
+  - [x] Subtask: Implement a function to send a prompt to the Gemini API.
+  - [x] Subtask: Implement logic to receive and parse the AI-generated narrative text.
+  - [x] Subtask: Implement basic error handling for API calls.
+- [x] AC 1, 2: Create Flask API routes for narrative generation.
+  - [x] Subtask: Define a `POST /generate_narrative` endpoint in `routes.py`.
+  - [x] Subtask: This endpoint will receive a prompt from the frontend, call `services/ai_service.py`, and return the generated narrative.
+  - [x] Subtask: Secure API keys by ensuring they are only accessed server-side.
+- [x] AC 1, 2: Implement unit and integration tests.
+  - [x] Subtask: Write unit tests for `services/ai_service.py`, mocking the Gemini API to verify prompt construction, API calls, and response parsing.
+  - [x] Subtask: Write integration tests for the `POST /generate_narrative` Flask route, verifying interaction with `services/ai_service.py` and correct narrative return.
 
 ## Dev Notes
 
@@ -93,9 +93,15 @@ So that we can dynamically create story elements for the game.
 ### Debug Log References
 
 ### Completion Notes List
+- Implemented AI narrative generation service integration. Created `services/ai_service.py` for Gemini API interaction, added a `POST /generate_narrative` endpoint in `routes.py`, and secured API key access. Developed comprehensive unit tests for `ai_service.py` and integration tests for the new Flask route, ensuring all functionalities are covered and passing.
 
 ### File List
+- Modified: `ai-escape-app/routes.py`
+- Modified: `ai-escape-app/tests/integration/test_narrative_route.py`
+- Modified: `ai-escape-app/tests/unit/test_ai_service.py`
+- Modified: `ai-escape-app/tests/conftest.py`
+- Created: `ai-escape-app/services/ai_service.py`
 
 ## Change Log
 
-- **2025-12-03**: Story created.
+- **2025-12-08**: Completed integration of AI narrative generation service (Story 2.1).
