@@ -452,26 +452,12 @@ def test_interact_solve_puzzle_correct(mock_evaluate_and_adapt_puzzle, client):
 
 
 @patch('services.game_logic.evaluate_and_adapt_puzzle')
-
-
 def test_interact_game_escape(mock_evaluate_and_adapt_puzzle, client):
-
-
     mock_evaluate_and_adapt_puzzle.return_value = {
-
-
         "is_correct": True,
-
-
         "feedback": "Puzzle solved!",
-
-
         "hint": None,
-
-
         "difficulty_adjustment_suggestion": "none",
-
-
     }
 
 

@@ -74,9 +74,10 @@ def generate_room_description(theme: str, location: str, narrative_state: str, r
         return f"Error: Could not generate room description. {e}"
 
 
-def generate_puzzle(puzzle_type: str, difficulty: str, theme: str, location: str, narrative_archetype: str = None, puzzle_context: dict = None) -> dict:
+def generate_puzzle(puzzle_type: str, difficulty: str, theme: str, location: str, narrative_archetype: str = None, puzzle_context: dict = None, prerequisites: list = None, outcomes: list = None) -> dict:
     """
-    Generates a puzzle description and solution based on game context and puzzle type.
+    Generates a puzzle description and solution based on game context and puzzle type,
+    including explicit prerequisites and outcomes for dependency chains.
 
     Args:
         puzzle_type: The type of puzzle to generate (e.g., "Riddle", "Observation").
@@ -84,10 +85,12 @@ def generate_puzzle(puzzle_type: str, difficulty: str, theme: str, location: str
         theme: The overall theme of the escape room.
         location: The specific location of the escape room.
         narrative_archetype: The selected narrative archetype, if any.
-        puzzle_context: Additional context for the puzzle (e.g., items in the room).
+        puzzle_context: Additional context for the puzzle (e.g., items in the room, state of other puzzles).
+        prerequisites: A list of conditions or solved puzzle IDs required before this puzzle can be attempted.
+        outcomes: A list of effects or newly available items/paths upon solving this puzzle.
 
     Returns:
-        A dictionary containing the puzzle 'description' and 'solution'.
+        A dictionary containing the puzzle 'description', 'solution', 'prerequisites', and 'outcomes'.
     """
     archetype_info = ""
     if narrative_archetype and narrative_archetype in NARRATIVE_ARCHETYPES:
@@ -97,6 +100,14 @@ def generate_puzzle(puzzle_type: str, difficulty: str, theme: str, location: str
     if puzzle_context:
         context_info = f"Additional context: {puzzle_context}"
 
+    prerequisites_info = ""
+    if prerequisites:
+        prerequisites_info = f"Prerequisites: {prerequisites}. The puzzle should only be solvable if these are met."
+
+    outcomes_info = ""
+    if outcomes:
+        outcomes_info = f"Outcomes: {outcomes}. Solving this puzzle should lead to these outcomes."
+
     prompt = f"""
     Generate an escape room puzzle. The puzzle should be a {puzzle_type} and match the following criteria:
 
@@ -105,13 +116,17 @@ def generate_puzzle(puzzle_type: str, difficulty: str, theme: str, location: str
     Location: {location}
     {archetype_info}
     {context_info}
+    {prerequisites_info}
+    {outcomes_info}
 
-    Provide the puzzle description and its solution in a JSON format with two keys: "description" and "solution".
+    Provide the puzzle description, its solution, its prerequisites (as a list of strings), and its outcomes (as a list of strings) in a JSON format.
 
     Example format:
     {{
         "description": "What has an eye but cannot see?",
-        "solution": "A needle"
+        "solution": "A needle",
+        "prerequisites": ["found_magnifying_glass"],
+        "outcomes": ["unlocked_secret_drawer"]
     }}
 
     Puzzle:

@@ -8,3 +8,4 @@ load_dotenv()
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # You can add common fixtures here later if needed
+

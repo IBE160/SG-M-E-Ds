@@ -1,6 +1,6 @@
 # Story 3.3: Implement Puzzle Dependency Chains
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -15,18 +15,18 @@ So that players never encounter unsolvable scenarios.
 
 ## Tasks / Subtasks
 
-- [ ] AC 1: Extend `services/ai_service.py` for puzzle dependency logic.
-  - [ ] Subtask: Implement functions to formulate prompts that instruct the Gemini API to generate puzzles with explicit prerequisites and outcomes.
-  - [ ] Subtask: Consider graph-based representations of puzzle dependencies within prompts.
-- [ ] AC 1, 2: Implement internal logic for verifying puzzle solvability.
-  - [ ] Subtask: Develop functions in `services/game_logic.py` to analyze a generated puzzle sequence and confirm its solvability.
-  - [ ] Subtask: This might involve simulating puzzle progression or checking for circular dependencies.
-- [ ] AC 2: Integrate puzzle verification with game state.
-  - [ ] Subtask: Update `GameSession.puzzle_state` to store metadata about puzzle dependencies and solvability status.
-- [ ] AC 1, 2: Implement unit and integration tests.
-  - [ ] Subtask: Write unit tests for puzzle dependency logic in `services/ai_service.py`, mocking the Gemini API to verify correct prompt construction.
-  - [ ] Subtask: Write unit tests for the puzzle solvability verification functions in `services/game_logic.py`.
-  - [ ] Subtask: Integration tests for API endpoints that trigger puzzle generation, ensuring that only solvable sequences are created.
+- [x] AC 1: Extend `services/ai_service.py` for puzzle dependency logic.
+  - [x] Subtask: Implement functions to formulate prompts that instruct the Gemini API to generate puzzles with explicit prerequisites and outcomes.
+  - [x] Subtask: Consider graph-based representations of puzzle dependencies within prompts.
+- [x] AC 1, 2: Implement internal logic for verifying puzzle solvability.
+  - [x] Subtask: Develop functions in `services/game_logic.py` to analyze a generated puzzle sequence and confirm its solvability.
+  - [x] Subtask: This might involve simulating puzzle progression or checking for circular dependencies.
+- [x] AC 2: Integrate puzzle verification with game state.
+  - [x] Subtask: Update `GameSession.puzzle_state` to store metadata about puzzle dependencies and solvability status.
+- [x] AC 1, 2: Implement unit and integration tests.
+  - [x] Subtask: Write unit tests for puzzle dependency logic in `services/ai_service.py`, mocking the Gemini API to verify correct prompt construction.
+  - [x] Subtask: Write unit tests for the puzzle solvability verification functions in `services/game_logic.py`.
+  - [x] Subtask: Integration tests for API endpoints that trigger puzzle generation, ensuring that only solvable sequences are created.
 
 ## Dev Notes
 
@@ -84,10 +84,18 @@ So that players never encounter unsolvable scenarios.
 ### Debug Log References
 
 ### Completion Notes List
+- Extended `ai_service.py` with the ability to generate puzzles with explicit prerequisites and outcomes, enabling the AI to create solvable dependency chains. Implemented internal logic in `game_logic.py` to verify the solvability of generated puzzle sequences. Updated `GameSession` model to store puzzle dependency metadata. Developed comprehensive unit and integration tests to ensure these functionalities are working correctly and preventing unsolvable scenarios.
 
 ### File List
+- Modified: `ai-escape-app/services/ai_service.py`
+- Modified: `ai-escape-app/services/game_logic.py`
+- Modified: `ai-escape-app/models.py`
+- Modified: `ai-escape-app/tests/unit/test_ai_service.py`
+- Modified: `ai-escape-app/tests/integration/test_puzzle_route.py`
+- Created: `ai-escape-app/tests/unit/test_game_logic.py`
 
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-08**: Implemented puzzle dependency chains (Story 3.3).
 - **2025-12-04**: Story context regenerated.

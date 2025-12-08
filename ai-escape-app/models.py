@@ -19,6 +19,7 @@ class GameSession(Base):
     narrative_archetype = Column(String)
 
     puzzle_state = Column(JSON, default={})
+    puzzle_dependencies = Column(JSON, default=[])
     start_time = Column(DateTime(timezone=True), default=func.now())
     last_updated = Column(
         DateTime(timezone=True), default=func.now(), onupdate=func.now()
