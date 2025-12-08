@@ -55,6 +55,6 @@ workflow_status:
   validate-epic-tech-context: completed
   create-story: completed
   validate-create-story: completed
-  create-story-context: docs/sprint-artifacts/5-3-implement-an-options-menu.context.xml
-  validate-story-context: docs/sprint-artifacts/validation-report-5-3-implement-an-options-menu-2025-12-04.md
+  create-story-context: docs/sprint-artifacts/3-4-integrate-player-puzzle-interaction.context.xml
+  validate-story-context: docs/sprint-artifacts/validation-report-3-4-integrate-player-puzzle-interaction.context-2025-12-04.md
   story-ready-for-dev: completed
