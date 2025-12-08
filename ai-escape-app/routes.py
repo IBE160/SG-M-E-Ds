@@ -201,19 +201,20 @@ def handle_inventory(session_id):
 def solve_puzzle_route(session_id):
     data = request.get_json()
     puzzle_id = data.get("puzzle_id")
-    solution_attempt = data.get("solution_attempt")
+    solution_attempt = data.get("solution_attempt") # This will now be passed directly
 
     if not puzzle_id or not solution_attempt:
         return jsonify({"error": "Puzzle ID and solution attempt are required"}), 400
 
     is_solved, message, updated_session, ai_evaluation = solve_puzzle(
-        current_app.session, session_id, puzzle_id, solution_attempt
+        current_app.session, session_id, puzzle_id, solution_attempt # Pass solution_attempt directly
     )
 
-    if not updated_session:
-        return jsonify({"error": message}), 404 # Session not found case
-
-    return jsonify({"is_solved": is_solved, "message": message, "session_id": updated_session.id, "ai_evaluation": ai_evaluation})
+    if updated_session is None: # Game session not found case
+        return jsonify({"error": message}), 404
+    
+    # The AI evaluation will now contain the actual "is_correct" and "feedback"
+    return jsonify({"is_solved": is_solved, "message": message, "session_id": updated_session.id, "ai_evaluation": ai_evaluation}), 200
 
 @bp.route("/generate_narrative", methods=["POST"])
 def generate_narrative_route():
@@ -318,6 +319,8 @@ def evaluate_puzzle_solution_route():
 def interact(session_id):
     data = request.get_json()
     selected_option_index = data.get("option_index")
+    # New: Get player_attempt if available in the data for puzzle interaction
+    player_attempt = data.get("player_attempt", "") # Default to empty string if not provided
 
     if selected_option_index is None:
         return jsonify({"error": "Option index is required"}), 400
@@ -333,7 +336,6 @@ def interact(session_id):
 
     chosen_option = options[selected_option_index]
     
-    # Placeholder for the result of the action
     result = {"id": game_session.id, "current_room": game_session.current_room, "contextual_options": options}
     status_code = 200
 
@@ -341,7 +343,7 @@ def interact(session_id):
     if chosen_option == "Look around the room":
         result["message"] = ROOM_DATA[game_session.current_room]["description"]
     elif chosen_option == "Go back":
-        game_history = list(game_session.game_history) # Get a mutable copy
+        game_history = list(game_session.game_history)
         if len(game_history) > 0:
             previous_room_id = game_history.pop()
             updated_session = update_game_session(
@@ -355,12 +357,10 @@ def interact(session_id):
                 result["contextual_options"] = get_contextual_options(updated_session)
         else:
             result["message"] = "You are in the first room and cannot go back."
-            status_code = 400 # Indicate that action was not successful
+            status_code = 400
     elif chosen_option.startswith("Go "):
         parts = chosen_option.split(" ")
         direction = parts[1].lower()
-        # Re-use move_player logic, but not by calling the route directly to avoid Flask context issues
-        # Extract the logic here.
         
         current_room_id = game_session.current_room
         room_info = ROOM_DATA.get(current_room_id)
@@ -370,8 +370,7 @@ def interact(session_id):
             result["error"] = f"Cannot move {direction} from {room_info['name']}."
             status_code = 400
         else:
-            # Push current room to game_history before moving
-            game_history = list(game_session.game_history) # Get a mutable copy
+            game_history = list(game_session.game_history)
             game_history.append(current_room_id)
 
             updated_session = update_game_session(
@@ -382,8 +381,7 @@ def interact(session_id):
                 status_code = 500
             else:
                 result["current_room"] = updated_session.current_room
-                result["contextual_options"] = get_contextual_options(updated_session) # Get options for new room
-                # Check for game completion after moving to escape_chamber
+                result["contextual_options"] = get_contextual_options(updated_session)
                 if updated_session.current_room == "escape_chamber":
                     all_puzzle_ids = []
                     for r_id, r_info in ROOM_DATA.items():
@@ -400,23 +398,30 @@ def interact(session_id):
     elif chosen_option.startswith("Solve "):
         puzzle_id = chosen_option.replace("Solve ", "")
         
-        # Get the correct solution directly from PUZZLE_SOLUTIONS
-        solution_attempt = PUZZLE_SOLUTIONS.get(puzzle_id)
+        # Use the player_attempt from the request body
+        # If player_attempt is empty, it means the frontend didn't provide it, 
+        # so we might assume a default or return an error.
+        # For now, we pass it as is.
+        if not player_attempt:
+            # If the UI doesn't provide a player_attempt, maybe default to the puzzle_id or an error
+            # For a proper UI, this would come from a text input
+            return jsonify({"error": "Player attempt is required for solving puzzles."}), 400
 
-        if not solution_attempt:
-            result["error"] = f"Solution for puzzle {puzzle_id} not found."
+        is_solved, message, updated_session, ai_evaluation = solve_puzzle(
+            current_app.session, session_id, puzzle_id, player_attempt # Pass player_attempt
+        )
+        if not updated_session:
+            result["error"] = message
+            status_code = 404
+        elif "error" in ai_evaluation:
+            result["error"] = message
+            result["ai_evaluation"] = ai_evaluation
             status_code = 500
         else:
-            is_solved, message, updated_session, ai_evaluation = solve_puzzle(
-                current_app.session, session_id, puzzle_id, solution_attempt
-            )
-            if not updated_session:
-                result["error"] = message
-                status_code = 404
-            else:
-                result["is_solved"] = is_solved
-                result["message"] = message
-                result["contextual_options"] = get_contextual_options(updated_session) # Update options after solving
-                result["ai_evaluation"] = ai_evaluation
+            result["is_solved"] = is_solved
+            result["message"] = message
+            result["contextual_options"] = get_contextual_options(updated_session)
+            result["ai_evaluation"] = ai_evaluation
 
     return jsonify(result), status_code
+

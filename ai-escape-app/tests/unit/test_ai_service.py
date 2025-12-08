@@ -199,3 +199,47 @@ def test_evaluate_and_adapt_puzzle_api_error(mock_genai):
 
     assert "error" in result
     assert "Could not evaluate and adapt puzzle. Adaptation API Error" in result["error"]
+
+@patch('services.ai_service.genai')
+def test_evaluate_and_adapt_puzzle_prompt_content(mock_genai):
+    mock_response = MagicMock()
+    mock_response.text = '{"is_correct": true, "feedback": "Prompt content tested."}'
+    mock_genai.GenerativeModel.return_value.generate_content.return_value = mock_response
+
+    puzzle_id = "test_puzzle_123"
+    player_attempt = "my attempt"
+    puzzle_solution = "the correct solution"
+    current_puzzle_state = {"attempts": 2, "hints_given": 1}
+    theme = "sci-fi"
+    location = "spaceship"
+    difficulty = "hard"
+    narrative_archetype = "mystery"
+
+    evaluate_and_adapt_puzzle(
+        puzzle_id=puzzle_id,
+        player_attempt=player_attempt,
+        puzzle_solution=puzzle_solution,
+        current_puzzle_state=current_puzzle_state,
+        theme=theme,
+        location=location,
+        difficulty=difficulty,
+        narrative_archetype=narrative_archetype,
+    )
+
+    mock_genai.GenerativeModel.assert_called_once_with('gemini-pro')
+    mock_genai.GenerativeModel.return_value.generate_content.assert_called_once()
+    
+    # Get the prompt argument passed to generate_content
+    call_args, _ = mock_genai.GenerativeModel.return_value.generate_content.call_args
+    prompt = call_args[0]
+
+    assert f"Puzzle ID: {puzzle_id}" in prompt
+    assert f"Correct Solution: {puzzle_solution}" in prompt
+    assert f"Player's Attempt: {player_attempt}" in prompt
+    assert f"Current Puzzle State: {current_puzzle_state}" in prompt
+    assert f"Theme: {theme}" in prompt
+    assert f"Location: {location}" in prompt
+    assert f"Difficulty: {difficulty}" in prompt
+    assert f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}" in prompt
+    assert "Evaluate their attempt and provide feedback" in prompt
+    assert '"is_correct": boolean' in prompt

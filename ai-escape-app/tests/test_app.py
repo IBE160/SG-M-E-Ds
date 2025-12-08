@@ -434,7 +434,7 @@ def test_interact_solve_puzzle_correct(mock_evaluate_and_adapt_puzzle, client):
 
     # Interact with "Solve observation_puzzle"
     response = client.post(
-        f"/game_session/{session_id}/interact", json={"option_index": solve_puzzle_index}
+        f"/game_session/{session_id}/interact", json={"option_index": solve_puzzle_index, "player_attempt": "3"}
     )
     assert response.status_code == 200
     data = json.loads(response.data)
@@ -449,6 +449,53 @@ def test_interact_solve_puzzle_correct(mock_evaluate_and_adapt_puzzle, client):
     get_response = client.get(f"/game_session/{session_id}")
     get_data = json.loads(get_response.data)
     assert get_data["puzzle_state"].get("observation_puzzle", {}).get("solved") is True
+
+
+@patch('services.game_logic.evaluate_and_adapt_puzzle')
+def test_interact_solve_puzzle_incorrect(mock_evaluate_and_adapt_puzzle, client):
+    mock_evaluate_and_adapt_puzzle.return_value = {
+        "is_correct": False,
+        "feedback": "That is not the correct answer. Try again!",
+        "hint": "Consider the number of sides on a triangle.",
+        "difficulty_adjustment_suggestion": "none",
+    }
+    start_response = client.post("/start_game", json={"player_id": "test_player_interact_solve_incorrect"})
+    session_id = json.loads(start_response.data)["id"]
+
+    # Get options for the current room (ancient_library)
+    get_response = client.get(f"/game_session/{session_id}")
+    options = json.loads(get_response.data)["contextual_options"]
+    
+    # Find "Solve observation_puzzle" option index
+    solve_puzzle_index = None
+    for i, option in enumerate(options):
+        if "Solve observation_puzzle" in option:
+            solve_puzzle_index = i
+            break
+    assert solve_puzzle_index is not None
+
+    # Interact with "Solve observation_puzzle" with an incorrect attempt
+    response = client.post(
+        f"/game_session/{session_id}/interact", json={"option_index": solve_puzzle_index, "player_attempt": "wrong_answer"}
+    )
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert data["is_solved"] is False
+    assert "That is not the correct answer. Try again!" in data["message"]
+    assert "contextual_options" in data
+    assert "Solve observation_puzzle" in data["contextual_options"] # Should still be there
+    assert "ai_evaluation" in data
+    assert data["ai_evaluation"]["is_correct"] is False
+    assert data["ai_evaluation"]["hint"] == "Consider the number of sides on a triangle."
+
+    # Verify puzzle state updated with attempt and feedback
+    get_response = client.get(f"/game_session/{session_id}")
+    get_data = json.loads(get_response.data)
+    puzzle_state = get_data["puzzle_state"].get("observation_puzzle", {})
+    assert puzzle_state.get("solved") is False
+    assert puzzle_state.get("attempts") == 1
+    assert puzzle_state.get("last_attempt") == "wrong_answer"
+    assert puzzle_state["ai_feedback"]["is_correct"] is False
 
 
 @patch('services.game_logic.evaluate_and_adapt_puzzle')
@@ -494,7 +541,7 @@ def test_interact_game_escape(mock_evaluate_and_adapt_puzzle, client):
             break
 
 
-    response = client.post(f"/game_session/{session_id}/interact", json={"option_index": solve_puzzle_index})
+    response = client.post(f"/game_session/{session_id}/interact", json={"option_index": solve_puzzle_index, "player_attempt": "3"})
 
 
     assert response.status_code == 200
@@ -581,7 +628,7 @@ def test_interact_game_escape(mock_evaluate_and_adapt_puzzle, client):
             break
 
 
-    response = client.post(f"/game_session/{session_id}/interact", json={"option_index": solve_riddle_index})
+    response = client.post(f"/game_session/{session_id}/interact", json={"option_index": solve_riddle_index, "player_attempt": "map"})
 
 
     assert response.status_code == 200
