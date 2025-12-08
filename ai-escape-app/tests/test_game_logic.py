@@ -266,13 +266,13 @@ def test_get_contextual_options_initial_room(db_session):
     assert "Look around the room" in options
     assert "Go north to Mysterious Observatory" in options
     assert "Solve observation_puzzle" in options
-    assert "Go back" in options
-    assert len(options) == 4 # Look around, 1 exit, 1 puzzle, Go back
+    assert "Go back" not in options # No history yet
+    assert len(options) == 3 # Look around, 1 exit, 1 puzzle
 
 
 def test_get_contextual_options_after_move(db_session):
     game_session = create_game_session(db_session, "player_options_2")
-    update_game_session(db_session, game_session.id, current_room="mysterious_observatory")
+    update_game_session(db_session, game_session.id, current_room="mysterious_observatory", game_history=["ancient_library"])
     options = get_contextual_options(game_session)
 
     assert "Look around the room" in options
@@ -299,13 +299,13 @@ def test_get_contextual_options_after_puzzle_solved(mock_evaluate_and_adapt_puzz
     assert "Look around the room" in options
     assert "Go north to Mysterious Observatory" in options
     assert "Solve observation_puzzle" not in options # Puzzle should not be an option after being solved
-    assert "Go back" in options
-    assert len(options) == 3 # Look around, 1 exit, Go back
+    assert "Go back" not in options # Still no history after create_game_session
+    assert len(options) == 2 # Look around, 1 exit
 
 
 def test_get_contextual_options_escape_chamber(db_session):
     game_session = create_game_session(db_session, "player_options_4")
-    update_game_session(db_session, game_session.id, current_room="escape_chamber")
+    update_game_session(db_session, game_session.id, current_room="escape_chamber", game_history=["ancient_library", "mysterious_observatory"])
     options = get_contextual_options(game_session)
 
     assert "Look around the room" in options
@@ -330,8 +330,22 @@ def test_solve_puzzle_tracks_hints_used(mock_evaluate_and_adapt_puzzle, db_sessi
     puzzle_state = updated_session.puzzle_state.get("observation_puzzle", {})
     
     assert "hints_used" in puzzle_state
-    assert puzzle_state["hints_used"] == 0 # Should be 0 initially when an attempt is made, not incremented here
+    assert puzzle_state["hints_used"] == 1 # hints_used should be 1 after AI provides a hint for an incorrect attempt
 
-    # Simulate requesting a hint (this logic would be elsewhere, but ensures the field exists)
-    # If the AI returns a hint, a separate function would increment hints_used.
-    # For now, this test just verifies the field is initialized.
+    # Test another incorrect attempt with a hint
+    solve_puzzle(db_session, game_session.id, "observation_puzzle", "another_wrong_attempt")
+    updated_session = get_game_session(db_session, game_session.id)
+    puzzle_state = updated_session.puzzle_state.get("observation_puzzle", {})
+    assert puzzle_state["hints_used"] == 2
+
+    # Test correct attempt, hints_used should not change
+    mock_evaluate_and_adapt_puzzle.return_value = {
+        "is_correct": True,
+        "feedback": "Puzzle solved!",
+        "hint": None,
+        "difficulty_adjustment_suggestion": "none",
+    }
+    solve_puzzle(db_session, game_session.id, "observation_puzzle", "3")
+    updated_session = get_game_session(db_session, game_session.id)
+    puzzle_state = updated_session.puzzle_state.get("observation_puzzle", {})
+    assert puzzle_state["hints_used"] == 2 # Should remain 2, not increment for correct solve

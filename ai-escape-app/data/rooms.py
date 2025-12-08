@@ -32,10 +32,38 @@ ROOM_DATA = {
         "puzzles": {}, # No puzzle here yet, it's the final room
         "exits": {"west": "mysterious_observatory"},
     },
+    "sci-fi_hangar": { # New room/theme
+        "name": "Sci-Fi Hangar",
+        "description": "The vast space hums with the dormant power of starships. Metallic walls gleam under the faint, blue emergency lights.",
+        "image": "scifi_hangar.jpg",
+        "puzzles": {
+            "console_puzzle": {
+                "description": "A deactivated console displays a series of cryptic symbols. Input the sequence to power up.",
+                "solution": "ALPHA7",
+                "solved": False
+            }
+        },
+        "exits": {"east": "underwater_lab"}
+    },
+    "underwater_lab": { # New room/theme
+        "name": "Underwater Laboratory",
+        "description": "The deep blue light filters through thick portholes, revealing strange marine life outside. Bubbles gently rise from complex machinery.",
+        "image": "underwater_lab.jpg",
+        "puzzles": {
+            "pressure_puzzle": {
+                "description": "A pressure gauge needs recalibration. Adjust the three dials to match the deep-sea pressure reading: 5-2-8.",
+                "solution": "528",
+                "solved": False
+            }
+        },
+        "exits": {"west": "sci-fi_hangar"}
+    }
 }
 
 # Define solution mapping for puzzles
 PUZZLE_SOLUTIONS = {
     "observation_puzzle": "3",
     "riddle_puzzle": "map",
+    "console_puzzle": "ALPHA7", # New puzzle solution
+    "pressure_puzzle": "528",    # New puzzle solution
 }

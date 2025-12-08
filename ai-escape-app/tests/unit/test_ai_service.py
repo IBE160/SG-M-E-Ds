@@ -152,6 +152,7 @@ def test_evaluate_and_adapt_puzzle_correct_solution(mock_genai):
         player_attempt="correct answer",
         puzzle_solution="correct answer",
         current_puzzle_state={},
+        current_puzzle_description="A test puzzle.", # New argument
         theme="fantasy",
         location="forest",
         difficulty="medium",
@@ -173,6 +174,7 @@ def test_evaluate_and_adapt_puzzle_incorrect_solution(mock_genai):
         player_attempt="wrong answer",
         puzzle_solution="correct answer",
         current_puzzle_state={},
+        current_puzzle_description="A test puzzle.", # New argument
         theme="fantasy",
         location="forest",
         difficulty="medium",
@@ -193,6 +195,7 @@ def test_evaluate_and_adapt_puzzle_api_error(mock_genai):
         player_attempt="some attempt",
         puzzle_solution="solution",
         current_puzzle_state={},
+        current_puzzle_description="A test puzzle.", # New argument
         theme="fantasy",
         location="forest",
         difficulty="medium",
@@ -211,6 +214,7 @@ def test_evaluate_and_adapt_puzzle_prompt_content(mock_genai):
     player_attempt = "my attempt"
     puzzle_solution = "the correct solution"
     current_puzzle_state = {"attempts": 2, "hints_given": 1}
+    current_puzzle_description = "A very descriptive puzzle here." # New argument
     theme = "sci-fi"
     location = "spaceship"
     difficulty = "hard"
@@ -221,6 +225,7 @@ def test_evaluate_and_adapt_puzzle_prompt_content(mock_genai):
         player_attempt=player_attempt,
         puzzle_solution=puzzle_solution,
         current_puzzle_state=current_puzzle_state,
+        current_puzzle_description=current_puzzle_description, # New argument
         theme=theme,
         location=location,
         difficulty=difficulty,
@@ -238,6 +243,7 @@ def test_evaluate_and_adapt_puzzle_prompt_content(mock_genai):
     assert f"Correct Solution: {puzzle_solution}" in prompt
     assert f"Player's Attempt: {player_attempt}" in prompt
     assert f"Current Puzzle State: {current_puzzle_state}" in prompt
+    assert f"Current Puzzle Description: {current_puzzle_description}" in prompt
     assert f"Theme: {theme}" in prompt
     assert f"Location: {location}" in prompt
     assert f"Difficulty: {difficulty}" in prompt

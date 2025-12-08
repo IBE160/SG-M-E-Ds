@@ -49,6 +49,7 @@ def generate_narrative(prompt: str, narrative_archetype: str = None, theme: str 
 def generate_room_description(theme: str, location: str, narrative_state: str, room_context: dict, narrative_archetype: str = None) -> str:
     """
     Generates a unique room description based on the game's context.
+    The AI is aware of expanded themes including 'classic mystery', 'sci-fi', and 'underwater'.
     """
     archetype_info = ""
     if narrative_archetype and narrative_archetype in NARRATIVE_ARCHETYPES:
@@ -57,6 +58,10 @@ def generate_room_description(theme: str, location: str, narrative_state: str, r
     prompt = f"""
     Generate a unique and descriptive room description for an escape room game.
     The description should be consistent with the provided theme, location, narrative, and room context.
+    The available themes include 'classic mystery' (e.g., ancient library, mysterious observatory),
+    'sci-fi' (e.g., sci-fi hangar, derelict spaceship), and 'underwater' (e.g., underwater laboratory).
+    Ensure the description's style matches the selected theme and images used for these themes.
+
     {archetype_info}
 
     Theme: {theme}
@@ -79,19 +84,7 @@ def generate_puzzle(puzzle_type: str, difficulty: str, theme: str, location: str
     """
     Generates a puzzle description and solution based on game context and puzzle type,
     including explicit prerequisites and outcomes for dependency chains.
-
-    Args:
-        puzzle_type: The type of puzzle to generate (e.g., "Riddle", "Observation").
-        difficulty: The difficulty level of the puzzle.
-        theme: The overall theme of the escape room.
-        location: The specific location of the escape room.
-        narrative_archetype: The selected narrative archetype, if any.
-        puzzle_context: Additional context for the puzzle (e.g., items in the room, state of other puzzles).
-        prerequisites: A list of conditions or solved puzzle IDs required before this puzzle can be attempted.
-        outcomes: A list of effects or newly available items/paths upon solving this puzzle.
-
-    Returns:
-        A dictionary containing the puzzle 'description', 'solution', 'prerequisites', and 'outcomes'.
+    The AI is aware of expanded themes including 'classic mystery', 'sci-fi', and 'underwater'.
     """
     archetype_info = ""
     if narrative_archetype and narrative_archetype in NARRATIVE_ARCHETYPES:
@@ -115,6 +108,10 @@ def generate_puzzle(puzzle_type: str, difficulty: str, theme: str, location: str
     Difficulty: {difficulty}
     Theme: {theme}
     Location: {location}
+    The available themes include 'classic mystery' (e.g., ancient library, mysterious observatory),
+    'sci-fi' (e.g., sci-fi hangar, derelict spaceship), and 'underwater' (e.g., underwater laboratory).
+    Ensure the puzzle's style and content matches the selected theme.
+
     {archetype_info}
     {context_info}
     {prerequisites_info}
@@ -148,6 +145,7 @@ def evaluate_and_adapt_puzzle(
     player_attempt: str,
     puzzle_solution: str,
     current_puzzle_state: dict,
+    current_puzzle_description: str, # New argument
     theme: str,
     location: str,
     difficulty: str,
@@ -161,6 +159,7 @@ def evaluate_and_adapt_puzzle(
         player_attempt: The player's submitted solution.
         puzzle_solution: The correct solution to the puzzle.
         current_puzzle_state: The current state of the puzzle within GameSession.puzzle_state.
+        current_puzzle_description: The description of the puzzle.
         theme: The overall theme of the game.
         location: The current location in the game.
         difficulty: The current difficulty of the game.
@@ -189,6 +188,7 @@ def evaluate_and_adapt_puzzle(
     Correct Solution: {puzzle_solution}
     Player's Attempt: {player_attempt}
     Current Puzzle State: {current_puzzle_state}
+    Current Puzzle Description: {current_puzzle_description} # New addition to prompt
 
     Based on the player's attempt and the correct solution, provide the following in JSON format:
     - "is_correct": boolean (True if attempt matches solution, False otherwise)
@@ -250,7 +250,7 @@ def adjust_difficulty_based_on_performance(
     in past puzzles, recommend a subtle adjustment to the difficulty for future puzzles.
 
     Player Performance Metrics (puzzle_state):
-    {json.dumps(puzzle_state, indent=2)} # Changed here
+    {json.dumps(puzzle_state, indent=2)}
 
     Game Context:
     Theme: {theme}

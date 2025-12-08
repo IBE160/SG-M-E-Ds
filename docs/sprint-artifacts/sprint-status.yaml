@@ -60,7 +60,7 @@ development_status:
 
   epic-4: contexted
   4-1-implement-dynamic-difficulty-adjustment: review
-  4-2-expand-library-of-visual-assets-and-themes: ready-for-dev
+  4-2-expand-library-of-visual-assets-and-themes: review
   4-3-implement-enhanced-game-setup-flow: ready-for-dev
   epic-4-retrospective: optional
 
