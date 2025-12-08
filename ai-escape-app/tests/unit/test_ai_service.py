@@ -1,7 +1,8 @@
 import pytest
 from unittest.mock import patch, MagicMock
 import os
-from services.ai_service import generate_narrative, generate_room_description
+from services.ai_service import generate_narrative, generate_room_description, generate_puzzle
+from data.narrative_archetypes import NARRATIVE_ARCHETYPES
 
 
 # Mock the os.getenv to control GEMINI_API_KEY for tests
@@ -91,10 +92,49 @@ def test_generate_narrative_with_theme_and_location(mock_genai):
     assert "Theme: space" in prompt
     assert "Location: mars colony" in prompt
 
-# Test case for missing API key (should be handled by the initial check in ai_service.py)
-# This test will likely not pass if run as part of a suite where os.getenv is mocked globally
-# Instead, ensure that the ValueError is raised when GEMINI_API_KEY is truly not set.
-# The current mock_env_vars fixture ensures it is set. To test the ValueError,
-# you would need to specifically unset it for a test, which might interfere with other tests.
-# For simplicity, we assume the environment variable setup is correct for the other tests.
+@patch('services.ai_service.genai')
+def test_generate_puzzle_success(mock_genai):
+    mock_response = MagicMock()
+    mock_response.text = '{"description": "What has an eye but cannot see?", "solution": "A needle"}'
+    mock_genai.GenerativeModel.return_value.generate_content.return_value = mock_response
 
+    puzzle_type = "Riddle"
+    difficulty = "easy"
+    theme = "fantasy"
+    location = "magical forest"
+    narrative_archetype = "mystery"
+    puzzle_context = {"item_present": "magical orb"}
+
+    result = generate_puzzle(
+        puzzle_type=puzzle_type,
+        difficulty=difficulty,
+        theme=theme,
+        location=location,
+        narrative_archetype=narrative_archetype,
+        puzzle_context=puzzle_context
+    )
+
+    mock_genai.GenerativeModel.assert_called_once_with('gemini-pro')
+    mock_genai.GenerativeModel.return_value.generate_content.assert_called_once()
+    
+    assert result == {"description": "What has an eye but cannot see?", "solution": "A needle"}
+    
+    # Assert that the prompt contains the relevant information
+    prompt = mock_genai.GenerativeModel.return_value.generate_content.call_args[0][0]
+    assert "Generate an escape room puzzle" in prompt
+    assert f"Difficulty: {difficulty}" in prompt
+    assert f"Theme: {theme}" in prompt
+    assert f"Location: {location}" in prompt
+    assert f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}" in prompt
+    assert f"Additional context: {puzzle_context}" in prompt
+
+@patch('services.ai_service.genai')
+def test_generate_puzzle_api_error(mock_genai):
+    mock_genai.GenerativeModel.return_value.generate_content.side_effect = Exception("Puzzle API Error")
+
+    result = generate_puzzle(
+        puzzle_type="Riddle", difficulty="easy", theme="fantasy", location="magical forest"
+    )
+
+    assert "error" in result
+    assert "Could not generate puzzle. Puzzle API Error" in result["error"]

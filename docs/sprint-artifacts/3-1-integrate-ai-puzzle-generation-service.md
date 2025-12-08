@@ -1,6 +1,6 @@
 # Story 3.1: Integrate AI Puzzle Generation Service
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -15,20 +15,20 @@ So that we can dynamically create interactive challenges for the game.
 
 ## Tasks / Subtasks
 
-- [ ] AC 1: Ensure Gemini API access is configured.
-  - [ ] Subtask: Verify Gemini API key is accessible (should be configured in Story 2.1).
-- [ ] AC 1: Install `google-generativeai` Python client library (if not already installed).
-  - [ ] Subtask: Verify `google-generativeai` is in `requirements.txt` and installed (should be from Story 2.1).
-- [ ] AC 1, 2: Extend `services/ai_service.py` for puzzle generation.
-  - [ ] Subtask: Implement a function to formulate prompts for puzzle generation, focusing on mechanics and types (e.g., Observation, Riddle).
-  - [ ] Subtask: Call the Gemini API to generate puzzle descriptions and solutions.
-  - [ ] Subtask: Implement logic to receive and parse the AI-generated puzzle.
-- [ ] AC 1, 2: Create Flask API routes for puzzle generation.
-  - [ ] Subtask: Define a `POST /generate_puzzle` endpoint in `routes.py`.
-  - [ ] Subtask: This endpoint will receive a prompt/context, call `services/ai_service.py`, and return the generated puzzle.
-- [ ] AC 1, 2: Implement unit and integration tests.
-  - [ ] Subtask: Write unit tests for `services/ai_service.py`, mocking the Gemini API to verify prompt construction, API calls, and response parsing for puzzles.
-  - [ ] Subtask: Write integration tests for the `POST /generate_puzzle` Flask route, verifying interaction with `services/ai_service.py` and correct puzzle return.
+- [x] AC 1: Ensure Gemini API access is configured.
+  - [x] Subtask: Verify Gemini API key is accessible (should be configured in Story 2.1).
+- [x] AC 1: Install `google-generativeai` Python client library (if not already installed).
+  - [x] Subtask: Verify `google-generativeai` is in `requirements.txt` and installed (should be from Story 2.1).
+- [x] AC 1, 2: Extend `services/ai_service.py` for puzzle generation.
+  - [x] Subtask: Implement a function to formulate prompts for puzzle generation, focusing on mechanics and types (e.g., Observation, Riddle).
+  - [x] Subtask: Call the Gemini API to generate puzzle descriptions and solutions.
+  - [x] Subtask: Implement logic to receive and parse the AI-generated puzzle.
+- [x] AC 1, 2: Create Flask API routes for puzzle generation.
+  - [x] Subtask: Define a `POST /generate_puzzle` endpoint in `routes.py`.
+  - [x] Subtask: This endpoint will receive a prompt/context, call `services/ai_service.py`, and return the generated puzzle.
+- [x] AC 1, 2: Implement unit and integration tests.
+  - [x] Subtask: Write unit tests for `services/ai_service.py`, mocking the Gemini API to verify prompt construction, API calls, and response parsing for puzzles.
+  - [x] Subtask: Write integration tests for the `POST /generate_puzzle` Flask route, verifying interaction with `services/ai_service.py` and correct puzzle return.
 
 ## Dev Notes
 
@@ -90,10 +90,16 @@ So that we can dynamically create interactive challenges for the game.
 ### Debug Log References
 
 ### Completion Notes List
+- Extended `ai_service.py` with a `generate_puzzle` function for AI puzzle generation. Created a new `POST /generate_puzzle` API endpoint in `routes.py`. Implemented unit tests for `ai_service.py` puzzle generation logic and integration tests for the new Flask route to verify functionality and correct puzzle return.
 
 ### File List
+- Modified: `ai-escape-app/services/ai_service.py`
+- Modified: `ai-escape-app/routes.py`
+- Modified: `ai-escape-app/tests/unit/test_ai_service.py`
+- Created: `ai-escape-app/tests/integration/test_puzzle_route.py`
 
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-08**: Integrated AI puzzle generation service (Story 3.1).
 - **2025-12-04**: Story context regenerated.

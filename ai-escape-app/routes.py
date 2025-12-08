@@ -7,7 +7,7 @@ from services.game_logic import (
     solve_puzzle,
     get_contextual_options,
 )
-from services.ai_service import generate_narrative, generate_room_description
+from services.ai_service import generate_narrative, generate_room_description, generate_puzzle
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
 
 bp = Blueprint("main", __name__)
@@ -251,6 +251,33 @@ def generate_room_description_route():
         return jsonify({"error": description}), 500
 
     return jsonify({"description": description}), 200
+
+@bp.route("/generate_puzzle", methods=["POST"])
+def generate_puzzle_route():
+    data = request.get_json()
+    puzzle_type = data.get("puzzle_type")
+    difficulty = data.get("difficulty")
+    theme = data.get("theme")
+    location = data.get("location")
+    narrative_archetype = data.get("narrative_archetype")
+    puzzle_context = data.get("puzzle_context")
+
+    if not all([puzzle_type, difficulty, theme, location]):
+        return jsonify({"error": "Puzzle type, difficulty, theme, and location are required"}), 400
+
+    puzzle = generate_puzzle(
+        puzzle_type=puzzle_type,
+        difficulty=difficulty,
+        theme=theme,
+        location=location,
+        narrative_archetype=narrative_archetype,
+        puzzle_context=puzzle_context,
+    )
+
+    if "error" in puzzle:
+        return jsonify({"error": puzzle["error"]}), 500
+
+    return jsonify(puzzle), 200
 
 
 
