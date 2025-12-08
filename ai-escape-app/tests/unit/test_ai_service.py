@@ -1,7 +1,8 @@
 import pytest
 from unittest.mock import patch, MagicMock
 import os
-from services.ai_service import generate_narrative
+from services.ai_service import generate_narrative, generate_room_description
+
 
 # Mock the os.getenv to control GEMINI_API_KEY for tests
 @pytest.fixture(autouse=True)
@@ -36,6 +37,26 @@ def test_generate_narrative_api_error(mock_genai):
     mock_genai.GenerativeModel.assert_called_once_with('gemini-pro')
     mock_genai.GenerativeModel.return_value.generate_content.assert_called_once_with(prompt)
     assert "Error: Could not generate narrative. API Error" in result
+
+@patch('services.ai_service.genai')
+def test_generate_room_description_success(mock_genai):
+    # Setup mock response
+    mock_response = MagicMock()
+    mock_response.text = "A dusty room with a single flickering candle."
+    mock_genai.GenerativeModel.return_value.generate_content.return_value = mock_response
+
+    theme = "haunted"
+    location = "mansion"
+    narrative_state = "The player has just entered the mansion."
+    room_context = {"name": "Entrance Hall", "exits": ["north"], "puzzles": [], "items": []}
+
+    result = generate_room_description(theme, location, narrative_state, room_context)
+
+    # Assertions
+    mock_genai.GenerativeModel.assert_called_once_with('gemini-pro')
+    mock_genai.GenerativeModel.return_value.generate_content.assert_called_once()
+    assert result == "A dusty room with a single flickering candle."
+    # You could also add more specific assertions about the prompt content here if needed
 
 # Test case for missing API key (should be handled by the initial check in ai_service.py)
 # This test will likely not pass if run as part of a suite where os.getenv is mocked globally

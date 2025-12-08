@@ -11,6 +11,8 @@ class GameSession(Base):
     id = Column(Integer, primary_key=True)
     player_id = Column(String, nullable=False)
     current_room = Column(String, default="start_room")
+    current_room_description = Column(String)
+
     inventory = Column(JSON, default=[])
     game_history = Column(JSON, default=[])
     narrative_state = Column(JSON, default={})

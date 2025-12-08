@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Escape Room</title>
+</head>
+<body>
+    <h1>AI Escape Room</h1>
+
+    <h2>{{ room_name }}</h2>
+    <p id="room-description">{{ room_description }}</p>
+
+    <div id="game-options">
+        <!-- Options will be populated by JavaScript -->
+    </div>
+
+    <script>
+        // Basic JavaScript to fetch game state and interact
+        const sessionId = {{ session_id }};
+
+        async function fetchGameState() {
+            const response = await fetch(`/game_session/${sessionId}`);
+            const data = await response.json();
+            
+            document.querySelector('h2').textContent = data.current_room_name;
+            document.getElementById('room-description').textContent = data.current_room_description;
+
+            const optionsContainer = document.getElementById('game-options');
+            optionsContainer.innerHTML = '';
+            data.contextual_options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.onclick = () => handleInteraction(index);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        async function handleInteraction(optionIndex) {
+            await fetch(`/game_session/${sessionId}/interact`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ option_index: optionIndex }),
+            });
+            fetchGameState(); // Refresh game state after interaction
+        }
+
+        // Initial fetch
+        fetchGameState();
+    </script>
+</body>
+</html>

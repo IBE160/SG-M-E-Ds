@@ -1,6 +1,6 @@
 # Story 2.2: Dynamic Room Description Generation
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -15,17 +15,17 @@ So that each playthrough offers fresh environments.
 
 ## Tasks / Subtasks
 
-- [ ] AC 1: Extend `services/ai_service.py` to generate room descriptions.
-  - [ ] Subtask: Implement a function to formulate prompts for room descriptions, incorporating current game `theme`, `location`, `narrative_state`, and `room_context` (from `GameSession`).
-  - [ ] Subtask: Call the Gemini API to generate the room description.
-- [ ] AC 1, 2: Create or update Flask API route for room description generation.
-  - [ ] Subtask: Define a `POST /generate_room_description` endpoint in `routes.py`.
-  - [ ] Subtask: This endpoint will receive context, call `services/ai_service.py`, and return the generated room description.
-- [ ] AC 2: Integrate dynamic room descriptions with UI.
-  - [ ] Subtask: Modify existing Jinja2 templates (e.g., `templates/game.html`) to display the dynamically generated room description.
-- [ ] AC 1, 2: Implement unit and integration tests.
-  - [ ] Subtask: Write unit tests for the room description generation logic in `services/ai_service.py`, mocking the Gemini API.
-  - [ ] Subtask: Write integration tests for the `POST /generate_room_description` Flask route, verifying API interaction and proper display.
+- [x] AC 1: Extend `services/ai_service.py` to generate room descriptions.
+  - [x] Subtask: Implement a function to formulate prompts for room descriptions, incorporating current game `theme`, `location`, `narrative_state`, and `room_context` (from `GameSession`).
+  - [x] Subtask: Call the Gemini API to generate the room description.
+- [x] AC 1, 2: Create or update Flask API route for room description generation.
+  - [x] Subtask: Define a `POST /generate_room_description` endpoint in `routes.py`.
+  - [x] Subtask: This endpoint will receive context, call `services/ai_service.py`, and return the generated room description.
+- [x] AC 2: Integrate dynamic room descriptions with UI.
+  - [x] Subtask: Modify existing Jinja2 templates (e.g., `templates/game.html`) to display the dynamically generated room description.
+- [x] AC 1, 2: Implement unit and integration tests.
+  - [x] Subtask: Write unit tests for the room description generation logic in `services/ai_service.py`, mocking the Gemini API.
+  - [x] Subtask: Write integration tests for the `POST /generate_room_description` Flask route, verifying API interaction and proper display.
   - [ ] Subtask: Write E2E tests to visually confirm that dynamic room descriptions are displayed.
 
 ## Dev Notes
@@ -87,10 +87,18 @@ So that each playthrough offers fresh environments.
 ### Debug Log References
 
 ### Completion Notes List
+- Extended `ai_service` to generate dynamic room descriptions based on game context. Added a new `POST /generate_room_description` endpoint. Updated the `GameSession` model to store the dynamic description. Created a basic `game.html` template and a route to render it. Added unit and integration tests for the new functionality.
 
 ### File List
+- Modified: `ai-escape-app/services/ai_service.py`
+- Modified: `ai-escape-app/routes.py`
+- Modified: `ai-escape-app/models.py`
+- Modified: `ai-escape-app/tests/unit/test_ai_service.py`
+- Created: `ai-escape-app/templates/game.html`
+- Created: `ai-escape-app/tests/integration/test_room_description_route.py`
 
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-08**: Completed dynamic room description generation (Story 2.2).
 - **2025-12-04**: Story context regenerated.

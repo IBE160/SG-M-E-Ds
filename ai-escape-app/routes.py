@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, current_app, jsonify, request, render_template
 from services.game_logic import (
     create_game_session,
     get_game_session,
@@ -7,7 +7,7 @@ from services.game_logic import (
     solve_puzzle,
     get_contextual_options,
 )
-from services.ai_service import generate_narrative
+from services.ai_service import generate_narrative, generate_room_description
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
 
 bp = Blueprint("main", __name__)
@@ -44,6 +44,23 @@ def start_game():
         201,
     )
 
+@bp.route("/game/<int:session_id>")
+def game_view(session_id):
+    game_session = get_game_session(current_app.session, session_id)
+    if not game_session:
+        return "Game session not found", 404
+
+    current_room_info = ROOM_DATA.get(game_session.current_room)
+    room_name = current_room_info.get("name") if current_room_info else "A mysterious place"
+    room_description = current_room_info.get("description") if current_room_info else "You find yourself in an unknown room."
+
+    return render_template(
+        "game.html",
+        session_id=session_id,
+        room_name=room_name,
+        room_description=room_description,
+    )
+
 
 @bp.route("/game_session/<int:session_id>", methods=["GET"])
 def get_session(session_id):
@@ -64,7 +81,7 @@ def get_session(session_id):
             "player_id": game_session.player_id,
             "current_room": game_session.current_room,
             "current_room_name": current_room_info.get("name") if current_room_info else game_session.current_room, # Added room name
-            "current_room_description": current_room_info.get("description") if current_room_info else "", # Added room description
+            "current_room_description": game_session.current_room_description or (current_room_info.get("description") if current_room_info else ""), # Use dynamic description
             "current_room_image": room_image, # New field
             "inventory": game_session.inventory,
             "game_history": game_session.game_history,
@@ -103,9 +120,36 @@ def move_player(session_id):
     if not new_room_id:
         return jsonify({"error": f"Cannot move {direction} from {room_info['name']}."}), 400
 
-    updated_session = update_game_session(
-        current_app.session, session_id, current_room=new_room_id
+    # Generate new room description
+    new_room_info = ROOM_DATA.get(new_room_id)
+    if not new_room_info:
+        return jsonify({"error": "New room not found in ROOM_DATA"}), 500
+        
+    room_context = {
+        "name": new_room_info.get("name"),
+        "exits": list(new_room_info.get("exits", {}).keys()),
+        "puzzles": list(new_room_info.get("puzzles", {}).keys()),
+        "items": new_room_info.get("items", []),
+    }
+    
+    new_description = generate_room_description(
+        theme=game_session.theme,
+        location=game_session.location,
+        narrative_state=game_session.narrative_state,
+        room_context=room_context,
     )
+
+    if new_description.startswith("Error:"):
+        # Handle error in description generation, maybe fall back to static description
+        new_description = new_room_info.get("description", "A mysterious room.")
+
+    updated_session = update_game_session(
+        current_app.session,
+        session_id,
+        current_room=new_room_id,
+        current_room_description=new_description,
+    )
+
     if not updated_session:
         return jsonify({"error": "Game session not found after update"}), 500 # Should not happen if game_session was found
 
@@ -185,6 +229,24 @@ def generate_narrative_route():
         return jsonify({"error": narrative}), 500
     
     return jsonify({"narrative": narrative}), 200
+
+@bp.route("/generate_room_description", methods=["POST"])
+def generate_room_description_route():
+    data = request.get_json()
+    theme = data.get("theme")
+    location = data.get("location")
+    narrative_state = data.get("narrative_state")
+    room_context = data.get("room_context")
+
+    if not all([theme, location, narrative_state, room_context]):
+        return jsonify({"error": "Theme, location, narrative_state, and room_context are required"}), 400
+
+    description = generate_room_description(theme, location, narrative_state, room_context)
+
+    if description.startswith("Error:"):
+        return jsonify({"error": description}), 500
+
+    return jsonify({"description": description}), 200
 
 
 
