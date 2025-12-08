@@ -55,6 +55,6 @@ workflow_status:
   validate-epic-tech-context: completed
   create-story: completed
   validate-create-story: completed
-  create-story-context: docs/sprint-artifacts/4-1-implement-dynamic-difficulty-adjustment.context.xml
-  validate-story-context: docs/sprint-artifacts/validation-report-4-1-implement-dynamic-difficulty-adjustment.context-2025-12-04.md
+  create-story-context: docs/sprint-artifacts/4-2-expand-library-of-visual-assets-and-themes.context.xml
+  validate-story-context: docs/sprint-artifacts/validation-report-4-2-expand-library-of-visual-assets-and-themes.context-2025-12-04.md
   story-ready-for-dev: completed
