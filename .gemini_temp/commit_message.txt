@@ -1,0 +1,42 @@
+feat: Implement core game logic and interaction for stories 1-1 to 1-5
+
+This commit addresses the development of the backend for the AI Escape game across five stories.
+It includes project initialization, game state management, hard-coded room and puzzle implementation,
+the core interaction model, and basic visual data handling for rooms.
+
+Detailed changes per story:
+
+- **Story 1.1 (Project Initialization):**
+  - Initialized Flask project structure (venv, basic directories, .env).
+  - Implemented "Hello World" route in app.py.
+  - Configured GitHub Actions CI for Python.
+  - Set up setup.cfg for Flake8 and conftest.py for Pytest.
+  - Ensured all unit/integration tests for project structure and basic app functionality pass.
+
+- **Story 1.2 (Game State Management):**
+  - Verified existing GameSession model and SQLAlchemy configuration.
+  - Confirmed existing CRUD operations for GameSession in game_logic.py.
+  - Verified existing Flask routes for GameSession updates (move, inventory).
+  - Ensured all unit/integration tests for game state management pass.
+
+- **Story 1.3 (Static Hard-coded Escape Room):**
+  - Designed a 3-room sequence and two distinct puzzles.
+  - Implemented hard-coded room and puzzle data in ai-escape-app/data/rooms.py.
+  - Added solve_puzzle logic in game_logic.py and a new solve_puzzle_route.
+  - Modified move_player logic to handle room transitions based on ROOM_DATA and trigger game escape.
+  - Created test_rooms_data.py for unit tests and updated test_app.py for integration tests, including test_game_escape.
+
+- **Story 1.4 (Core Interaction Model):**
+  - Implemented get_contextual_options in game_logic.py for dynamic interaction lists.
+  - Modified get_session route to return contextual_options.
+  - Created interact route to process player choices (Look around, Go, Solve, Go back).
+  - Implemented "Go back" functionality using game_history.
+  - Added comprehensive integration tests for the interact route.
+
+- **Story 1.5 (Basic Visuals for Rooms):**
+  - Created ai-escape-app/static/images/ and placeholder image files for rooms.
+  - Mapped room IDs to image assets in ai-escape-app/data/rooms.py.
+  - Modified get_session route to return current_room_image, name, and description.
+  - Added unit tests for image mapping and updated integration tests for get_session response.
+
+All tests are passing, and linting/formatting is compliant.
