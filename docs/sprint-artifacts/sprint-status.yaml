@@ -39,7 +39,7 @@ development_status:
   epic-1: contexted
   1-1-project-initialization-and-deployment-setup: done
   1-2-implement-basic-game-state-management: done
-  1-3-create-a-static-hard-coded-escape-room: review
+  1-3-create-a-static-hard-coded-escape-room: done
   1-4-implement-the-core-interaction-model: review
   1-5-display-basic-visuals-for-rooms: review
   epic-1-retrospective: optional
