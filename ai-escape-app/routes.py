@@ -10,10 +10,12 @@ from services.game_logic import (
     load_game_state, # New import
     get_saved_games, # New import
 )
+from services.settings import get_player_settings, update_player_settings # New import
 from services.ai_service import generate_narrative, generate_room_description, generate_puzzle, evaluate_and_adapt_puzzle, adjust_difficulty_based_on_performance
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
 from data.game_options import GAME_SETUP_OPTIONS
 from data.help_content import HELP_CONTENT # New import
+from data.game_settings import GAME_SETTINGS # New import
 
 bp = Blueprint("main", __name__)
 
@@ -64,6 +66,33 @@ def get_help_content():
     Returns the structured help content for the game.
     """
     return jsonify(HELP_CONTENT), 200
+
+@bp.route("/game_settings", methods=["GET"])
+def get_game_settings():
+    """
+    Returns the structured game settings for the options menu.
+    """
+    return jsonify(GAME_SETTINGS), 200
+
+@bp.route("/update_options", methods=["POST"])
+def update_options():
+    data = request.get_json()
+    player_id = data.get("player_id")
+    new_settings = data.get("settings")
+
+    if not player_id or not new_settings:
+        return jsonify({"error": "Player ID and settings are required"}), 400
+
+    updated_settings = update_player_settings(current_app.session, player_id, new_settings)
+    if not updated_settings:
+        return jsonify({"error": "Failed to update settings"}), 500 # This case should ideally not happen if get_player_settings creates defaults
+    
+    return jsonify(updated_settings.to_dict()), 200
+
+@bp.route("/player_settings/<player_id>", methods=["GET"])
+def get_player_settings_route(player_id):
+    player_settings = get_player_settings(current_app.session, player_id)
+    return jsonify(player_settings.to_dict()), 200
 
 @bp.route("/start_game", methods=["POST"])
 def start_game():

@@ -87,3 +87,23 @@ class SavedGame(Base):
 
     def __repr__(self):
         return f"<SavedGame(id={self.id}, session_id={self.session_id}, save_name='{self.save_name}')>"
+
+
+class PlayerSettings(Base):
+    __tablename__ = "player_settings"
+
+    player_id = Column(String, primary_key=True, nullable=False)
+    settings = Column(JSON, default=lambda: {})
+    last_updated = Column(
+        DateTime(timezone=True), default=func.now(), onupdate=func.now()
+    )
+
+    def to_dict(self):
+        return {
+            "player_id": self.player_id,
+            "settings": self.settings,
+            "last_updated": self.last_updated.isoformat(),
+        }
+
+    def __repr__(self):
+        return f"<PlayerSettings(player_id='{self.player_id}')>"

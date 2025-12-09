@@ -9,6 +9,7 @@
     <h1>AI Escape Room</h1>
     <button id="save-game-btn">Save Game</button>
     <button id="help-btn">Help</button>
+    <button id="options-btn">Options</button>
 
     <h2>{{ room_name }}</h2>
     <p id="room-description">{{ room_description }}</p>
@@ -28,13 +29,33 @@
         </div>
     </div>
 
+    <!-- Options Modal -->
+    <div id="options-modal" style="display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+        <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%;">
+            <span id="close-options-modal" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+            <h2>Game Options</h2>
+            <div id="options-content-display">
+                <!-- Options will be loaded here -->
+            </div>
+            <button id="save-options-btn">Save Settings</button>
+        </div>
+    </div>
+
     <script>
         const sessionId = {{ session_id }};
         const saveGameBtn = document.getElementById('save-game-btn');
         const helpBtn = document.getElementById('help-btn');
+        const optionsBtn = document.getElementById('options-btn'); // New
         const helpModal = document.getElementById('help-modal');
         const closeHelpModalBtn = document.getElementById('close-help-modal');
         const helpContentDisplay = document.getElementById('help-content-display');
+        const optionsModal = document.getElementById('options-modal'); // New
+        const closeOptionsModalBtn = document.getElementById('close-options-modal'); // New
+        const optionsContentDisplay = document.getElementById('options-content-display'); // New
+        const saveOptionsBtn = document.getElementById('save-options-btn'); // New
+
+        let currentSettings = {}; // To store current settings, loaded from backend
+        const PLAYER_ID = 'player_123'; // TODO: Implement actual player ID management
 
         async function fetchGameState() {
             const response = await fetch(`/game_session/${sessionId}`);
@@ -119,6 +140,102 @@
             }
         }
 
+        async function fetchGameSettings() {
+            try {
+                // Fetch general settings structure and defaults
+                const generalSettingsResponse = await fetch('/game_settings');
+                if (!generalSettingsResponse.ok) {
+                    throw new Error(`HTTP error! status: ${generalSettingsResponse.status}`);
+                }
+                const generalSettings = await generalSettingsResponse.json();
+
+                // Fetch player-specific settings
+                const playerSettingsResponse = await fetch(`/player_settings/${PLAYER_ID}`);
+                if (!playerSettingsResponse.ok) {
+                    throw new Error(`HTTP error! status: ${playerSettingsResponse.status}`);
+                }
+                const playerSettings = await playerSettingsResponse.json();
+
+                // Merge: player-specific settings override general defaults
+                currentSettings = { ...generalSettings, ...playerSettings.settings };
+                
+                renderGameSettings(generalSettings); // Render using general structure
+            } catch (error) {
+                console.error('Failed to fetch game settings:', error);
+                optionsContentDisplay.innerHTML = `<p style="color: red;">Failed to load game settings.</p>`;
+            }
+        }
+
+        function renderGameSettings(generalSettings) {
+            optionsContentDisplay.innerHTML = '';
+            for (const key in generalSettings) {
+                if (generalSettings.hasOwnProperty(key)) {
+                    const setting = generalSettings[key];
+                    const settingDiv = document.createElement('div');
+                    settingDiv.innerHTML = `<h4>${setting.title}</h4>`;
+                    let inputElement;
+
+                    if (setting.type === 'slider') {
+                        inputElement = document.createElement('input');
+                        inputElement.type = 'range';
+                        inputElement.min = setting.min;
+                        inputElement.max = setting.max;
+                        inputElement.step = setting.step;
+                        inputElement.value = currentSettings[key] || setting.default; // Use current or default
+                        inputElement.id = `setting-${key}`;
+                        inputElement.addEventListener('input', (event) => {
+                            currentSettings[key] = parseInt(event.target.value);
+                            // Optionally display current value next to slider
+                        });
+                    } else if (setting.type === 'select') {
+                        inputElement = document.createElement('select');
+                        inputElement.id = `setting-${key}`;
+                        setting.options.forEach(option => {
+                            const optionElement = document.createElement('option');
+                            optionElement.value = option.value;
+                            optionElement.textContent = option.label;
+                            if ((currentSettings[key] || setting.default) === option.value) {
+                                optionElement.selected = true;
+                            }
+                            inputElement.appendChild(optionElement);
+                        });
+                        inputElement.addEventListener('change', (event) => {
+                            currentSettings[key] = event.target.value;
+                        });
+                    }
+                    // Add other types as needed
+                    if (inputElement) {
+                        settingDiv.appendChild(inputElement);
+                    }
+                    optionsContentDisplay.appendChild(settingDiv);
+                }
+            }
+        }
+
+        async function saveGameSettings() {
+            try {
+                const response = await fetch('/update_options', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ player_id: PLAYER_ID, settings: currentSettings }), // Send player_id and all current settings
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                alert("Settings saved successfully!");
+                optionsModal.style.display = 'none'; // Close modal on success
+            } catch (error) {
+                console.error('Failed to save settings:', error);
+                alert('Failed to save settings: ' + error.message);
+            }
+        }
+
+
         helpBtn.addEventListener('click', () => {
             fetchHelpContent();
             helpModal.style.display = 'block';
@@ -128,10 +245,25 @@
             helpModal.style.display = 'none';
         });
 
+        optionsBtn.addEventListener('click', () => {
+            fetchGameSettings(); // Fetch current settings when opening
+            optionsModal.style.display = 'block';
+        });
+
+        closeOptionsModalBtn.addEventListener('click', () => {
+            optionsModal.style.display = 'none';
+        });
+
+        saveOptionsBtn.addEventListener('click', saveGameSettings);
+
+
         // Close modal if user clicks outside of it
         window.addEventListener('click', (event) => {
             if (event.target == helpModal) {
                 helpModal.style.display = 'none';
+            }
+            if (event.target == optionsModal) {
+                optionsModal.style.display = 'none';
             }
         });
 
@@ -141,5 +273,3 @@
         // Initial fetch
         fetchGameState();
     </script>
-</body>
-</html>

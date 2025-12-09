@@ -1,6 +1,6 @@
 # Story 5.3: Implement an Options Menu
 
-Status: drafted
+Status: review
 
 ## Story
 
@@ -15,22 +15,22 @@ So that I can customize my experience.
 
 ## Tasks / Subtasks
 
-- [ ] AC 1: Define game settings.
-  - [ ] Subtask: Identify adjustable game settings (e.g., sound volume, music volume, language, display preferences).
-  - [ ] Subtask: Document default values and valid ranges/options for each setting.
-- [ ] AC 1: Create a Flask API route for updating player settings.
-  - [ ] Subtask: Define a `POST /update_options` endpoint in `routes.py` to receive and process player setting changes.
-- [ ] AC 1: Implement UI for the Options menu.
-  - [ ] Subtask: Create a new Jinja2 template or modify an existing one to display the options menu within a modal pattern.
-  - [ ] Subtask: Utilize appropriate "Form Patterns" (e.g., Toggle Switches for binary, Select Menus for lists, Range Sliders for volume) for each setting.
-  - [ ] Subtask: Ensure the options menu is accessible from various points in the game UI.
-- [ ] AC 2: Integrate setting changes with game logic.
-  - [ ] Subtask: Implement logic in `services/game_logic.py` (or a new `services/settings.py` module) to apply adjusted settings to the game (e.g., update sound volume).
-  - [ ] Subtask: Persist user settings in the database (e.g., in a `PlayerSettings` model or within `GameSession`).
-- [ ] AC 1, 2: Implement unit and integration tests.
-  - [ ] Subtask: Write unit tests for the settings management logic (e.g., validating settings, applying changes).
-  - [ ] Subtask: Write integration tests for the `POST /update_options` Flask route, verifying correct setting updates and persistence.
-  - [ ] Subtask: Write E2E tests to simulate player adjusting settings and verifying the changes affect the game as expected.
+- [x] AC 1: Define game settings.
+  - [x] Subtask: Identify adjustable game settings (e.g., sound volume, music volume, language, display preferences).
+  - [x] Subtask: Document default values and valid ranges/options for each setting.
+- [x] AC 1: Create a Flask API route for updating player settings.
+  - [x] Subtask: Define a `POST /update_options` endpoint in `routes.py` to receive and process player setting changes.
+- [x] AC 1: Implement UI for the Options menu.
+  - [x] Subtask: Create a new Jinja2 template or modify an existing one to display the options menu within a modal pattern.
+  - [x] Subtask: Utilize appropriate "Form Patterns" (e.g., Toggle Switches for binary, Select Menus for lists, Range Sliders for volume) for each setting.
+  - [x] Subtask: Ensure the options menu is accessible from various points in the game UI.
+- [x] AC 2: Integrate setting changes with game logic.
+  - [x] Subtask: Implement logic in `services/game_logic.py` (or a new `services/settings.py` module) to apply adjusted settings to the game (e.g., update sound volume).
+  - [x] Subtask: Persist user settings in the database (e.g., in a `PlayerSettings` model or within `GameSession`).
+- [x] AC 1, 2: Implement unit and integration tests.
+  - [x] Subtask: Write unit tests for the settings management logic (e.g., validating settings, applying changes).
+  - [x] Subtask: Write integration tests for the `POST /update_options` Flask route, verifying correct setting updates and persistence.
+  - [x] Subtask: Write E2E tests to simulate player adjusting settings and verifying the changes affect the game as expected.
 
 ## Dev Notes
 
@@ -73,6 +73,7 @@ So that I can customize my experience.
 ## Dev Agent Record
 
 ### Context Reference
+- docs/sprint-artifacts/5-3-implement-an-options-menu.context.xml
 
 ### Agent Model Used
 
@@ -82,8 +83,26 @@ So that I can customize my experience.
 
 ### Completion Notes List
 
+- Implemented Options Menu functionality, including:
+    - Defined game settings structure in `ai-escape-app/data/game_settings.py`.
+    - Created `PlayerSettings` model in `ai-escape-app/models.py` for persisting player-specific settings.
+    - Implemented `get_player_settings` and `update_player_settings` logic in `ai-escape-app/services/settings.py`.
+    - Added new API routes in `routes.py`: `GET /game_settings`, `GET /player_settings/<player_id>`, and updated `POST /update_options`.
+    - Integrated UI for Options menu in `templates/game.html`, including button, modal structure, and client-side JavaScript logic for fetching, rendering, and updating settings.
+- Created comprehensive unit, integration, and E2E tests for options menu functionality. All tests are passing.
+
 ### File List
+
+- ai-escape-app/data/game_settings.py (new)
+- ai-escape-app/models.py (modified)
+- ai-escape-app/services/settings.py (new)
+- ai-escape-app/routes.py (modified)
+- ai-escape-app/templates/game.html (modified)
+- ai-escape-app/tests/unit/test_settings_service.py (new)
+- ai-escape-app/tests/integration/test_settings_routes.py (new)
+- ai-escape-app/tests/e2e/test_options_menu_flow.py (new)
 
 ## Change Log
 
 - **2025-12-03**: Story created.
+- **2025-12-09**: Implemented Options Menu functionality, including settings definition, data models, service logic, API routes, UI integration, and comprehensive test coverage.
