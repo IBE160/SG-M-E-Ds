@@ -26,7 +26,7 @@ def test_save_load_game_flow(page: Page):
 
     # Verify redirection to /game/<session_id>
     expect(page).to_have_url(re.compile(f"{BASE_URL}/game/[0-9]+"))
-    expect(page.locator("h2")).to_be_visible() # Room name visible
+    expect(page.locator("h2").first).to_be_visible() # Room name visible
     expect(page.locator("p#room-description")).to_be_visible() # Room description visible
 
     # Extract initial session ID
@@ -39,7 +39,7 @@ def test_save_load_game_flow(page: Page):
     page.locator("button:has-text('Go north')").click()
     time.sleep(1) # Wait for page to update
     # Verify current room has changed
-    expect(page.locator("h2")).not_to_have_text("Ancient Library") # Assuming start_room leads to Ancient Library, then north to Mysterious Observatory
+    expect(page.locator("h2").first).not_to_have_text("Ancient Library") # Assuming start_room leads to Ancient Library, then north to Mysterious Observatory
 
     # 3. Save the game
     # Set up dialog handler *before* clicking the button that triggers the dialog
@@ -67,4 +67,4 @@ def test_save_load_game_flow(page: Page):
     assert initial_session_id in page.url
     # 6. Assert game state is restored (e.g., current room is the same as when saved)
     # The room name should be the changed room from step 2
-    expect(page.locator("h2")).not_to_have_text("Ancient Library") # Should be Mysterious Observatory or similar
+    expect(page.locator("h2").first).not_to_have_text("Ancient Library") # Should be Mysterious Observatory or similar

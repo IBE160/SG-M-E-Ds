@@ -62,5 +62,5 @@ def test_game_setup_flow(page: Page):
 
     # Further assertions on the game page can be added if needed,
     # e.g., checking for specific elements indicating a successful game start.
-    expect(page.locator("h2")).to_be_visible()
+    expect(page.locator("h2").first).to_be_visible()
     expect(page.locator("p#room-description")).to_be_visible()

@@ -8,6 +8,7 @@
 <body>
     <h1>AI Escape Room</h1>
     <button id="save-game-btn">Save Game</button>
+    <button id="help-btn">Help</button>
 
     <h2>{{ room_name }}</h2>
     <p id="room-description">{{ room_description }}</p>
@@ -16,9 +17,24 @@
         <!-- Options will be populated by JavaScript -->
     </div>
 
+    <!-- Help Modal -->
+    <div id="help-modal" style="display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+        <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%;">
+            <span id="close-help-modal" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+            <h2>Help & Information</h2>
+            <div id="help-content-display">
+                <!-- Help content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
     <script>
         const sessionId = {{ session_id }};
         const saveGameBtn = document.getElementById('save-game-btn');
+        const helpBtn = document.getElementById('help-btn');
+        const helpModal = document.getElementById('help-modal');
+        const closeHelpModalBtn = document.getElementById('close-help-modal');
+        const helpContentDisplay = document.getElementById('help-content-display');
 
         async function fetchGameState() {
             const response = await fetch(`/game_session/${sessionId}`);
@@ -75,6 +91,50 @@
                 alert('Failed to save game: ' + error.message);
             }
         }
+
+        async function fetchHelpContent() {
+            try {
+                const response = await fetch('/help_content');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const helpData = await response.json();
+                renderHelpContent(helpData);
+            } catch (error) {
+                console.error('Failed to fetch help content:', error);
+                helpContentDisplay.innerHTML = `<p style="color: red;">Failed to load help content.</p>`;
+            }
+        }
+
+        function renderHelpContent(helpData) {
+            helpContentDisplay.innerHTML = '';
+            for (const key in helpData) {
+                if (helpData.hasOwnProperty(key)) {
+                    const section = helpData[key];
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.innerHTML = `<h3>${section.title}</h3>` + 
+                                           section.content.map(p => `<p>${p}</p>`).join('');
+                    helpContentDisplay.appendChild(sectionDiv);
+                }
+            }
+        }
+
+        helpBtn.addEventListener('click', () => {
+            fetchHelpContent();
+            helpModal.style.display = 'block';
+        });
+
+        closeHelpModalBtn.addEventListener('click', () => {
+            helpModal.style.display = 'none';
+        });
+
+        // Close modal if user clicks outside of it
+        window.addEventListener('click', (event) => {
+            if (event.target == helpModal) {
+                helpModal.style.display = 'none';
+            }
+        });
+
 
         saveGameBtn.addEventListener('click', saveCurrentGame);
 

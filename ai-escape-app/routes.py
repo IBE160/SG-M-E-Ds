@@ -13,6 +13,7 @@ from services.game_logic import (
 from services.ai_service import generate_narrative, generate_room_description, generate_puzzle, evaluate_and_adapt_puzzle, adjust_difficulty_based_on_performance
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
 from data.game_options import GAME_SETUP_OPTIONS
+from data.help_content import HELP_CONTENT # New import
 
 bp = Blueprint("main", __name__)
 
@@ -56,6 +57,13 @@ def list_saved_games():
     
     saved_games = get_saved_games(current_app.session, player_id)
     return jsonify([sg.to_dict() for sg in saved_games]), 200
+
+@bp.route("/help_content", methods=["GET"])
+def get_help_content():
+    """
+    Returns the structured help content for the game.
+    """
+    return jsonify(HELP_CONTENT), 200
 
 @bp.route("/start_game", methods=["POST"])
 def start_game():
