@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Escape Room</title>
 </head>
-<body>
+<body style="height: 100vh; margin: 0;">
+    <div id="background-image-container"></div>
     <h1>AI Escape Room</h1>
     <button id="save-game-btn">Save Game</button>
     <button id="help-btn">Help</button>
@@ -63,6 +64,13 @@
             
             document.querySelector('h2').textContent = data.current_room_name;
             document.getElementById('room-description').textContent = data.current_room_description;
+            // Dynamically update background image
+            const bgContainer = document.getElementById('background-image-container');
+            if (data.current_room_image) {
+                bgContainer.style.backgroundImage = `url(${data.current_room_image})`;
+            } else {
+                bgContainer.style.backgroundImage = ''; // Clear if no image
+            }
 
             const optionsContainer = document.getElementById('game-options');
             optionsContainer.innerHTML = '';
