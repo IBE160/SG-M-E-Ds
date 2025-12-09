@@ -1,0 +1,126 @@
+/* ai-escape-app/static/css/style.css */
+
+/* Tailwind CSS - assumed to be imported or built separately */
+/* @tailwind base; */
+/* @tailwind components; */
+/* @tailwind utilities; */
+
+/* --- Variables from UX Design Specification --- */
+:root {
+    /* Colors */
+    --color-primary: #F8F9FA;         /* Main text, important UI elements */
+    --color-secondary: #8B4513;       /* Unused, available for UI */
+    --color-accent: #C78D5F;          /* Clickable items, highlights, CTAs */
+    --color-info: #22B8D4;            /* Informational messages, cooldowns */
+    --color-background: #212529;      /* Main background color */
+    --color-surface: #343A40;         /* Cards, modals, button backgrounds */
+    --color-border: #495057;          /* Borders, dividers */
+    --color-text-primary: #F8F9FA;    /* Primary content text */
+    --color-text-secondary: #ADB5BD;  /* Secondary/hint text */
+
+    /* Typography - not directly used as CSS vars, but for reference */
+    /* Heading Font: 'Press Start 2P' */
+    /* Body Font: 'Roboto Mono' */
+
+    /* Spacing - can be used with rem or px in actual Tailwind classes */
+    /* Base Unit: 1rem (16px) */
+}
+
+/* --- Base Styles --- */
+body {
+    font-family: 'Roboto Mono', monospace;
+    color: var(--color-text-primary);
+    background-color: var(--color-background);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Press Start 2P', cursive;
+    color: var(--color-primary);
+}
+
+/* --- Components & Patterns from UX Design --- */
+
+/* Primary Button Styling - assuming Tailwind's utility classes are primary */
+/* These custom styles are for elements with .primary-btn not covered by Tailwind */
+.primary-btn {
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.primary-btn:hover:not(:disabled) {
+    background-color: var(--color-accent);
+    color: var(--color-background); /* Invert text for contrast */
+}
+
+.primary-btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.primary-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Option Button Styling */
+.option-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 80px; /* Ensure a minimum height for clickable area */
+}
+
+.option-btn.large {
+    min-height: 120px;
+}
+
+.option-btn .font-heading {
+    margin-bottom: 0.25rem;
+}
+
+.option-btn.active {
+    background-color: var(--color-accent);
+    color: var(--color-background); /* Invert text for contrast */
+}
+
+/* Action Button Styling */
+.action-btn {
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive; /* Use heading font for action buttons */
+    font-size: 0.875rem;
+}
+
+.action-btn:hover:not(:disabled) {
+    background-color: var(--color-accent);
+    color: var(--color-background);
+}
+
+.action-btn.primary-btn { /* For action buttons that are primary actions */
+    background-color: var(--color-accent);
+    color: var(--color-background);
+}
+
+.action-btn.primary-btn:hover:not(:disabled) {
+    background-color: var(--color-surface); /* Invert hover for primary */
+    color: var(--color-text-primary);
+}
+
+
+/* Focus Indicators */
+/* Custom focus indicator */
+*:focus-visible {
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 0 2px var(--color-primary); /* Custom focus ring */
+}

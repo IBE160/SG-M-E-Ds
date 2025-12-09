@@ -9,14 +9,17 @@ from services.game_logic import (
 )
 from services.ai_service import generate_narrative, generate_room_description, generate_puzzle, evaluate_and_adapt_puzzle, adjust_difficulty_based_on_performance
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
+from data.game_options import GAME_SETUP_OPTIONS
 
 bp = Blueprint("main", __name__)
 
 
-@bp.route("/")
-def hello_world():
-    return "Hello, World!"
-
+@bp.route("/game_setup_options", methods=["GET"])
+def get_game_setup_options():
+    """
+    Returns the expanded list of game setup options (themes, locations, puzzle types, difficulty levels).
+    """
+    return jsonify(GAME_SETUP_OPTIONS), 200
 
 @bp.route("/start_game", methods=["POST"])
 def start_game():

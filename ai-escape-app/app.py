@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models import Base
@@ -33,8 +33,8 @@ def create_app(config_object=Config):
     app.session = session
 
     @app.route("/")
-    def hello_world():
-        return "Hello, World!"
+    def index():
+        return render_template("index.html")
 
     app.register_blueprint(bp)
 

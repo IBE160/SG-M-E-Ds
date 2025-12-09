@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Escape</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-background text-text-primary font-body flex items-center justify-center min-h-screen">
+    <div class="container mx-auto p-4 max-w-md">
+        <h1 class="font-heading text-4xl text-center mb-8 text-primary">AI Escape</h1>
+
+        <div id="game-mode-selection" class="mb-8">
+            <h2 class="text-xl font-heading mb-4 text-center">Choose Your Adventure</h2>
+            <div class="flex flex-col space-y-4">
+                <button class="option-btn large primary-btn" data-mode="design-your-own">
+                    <span class="font-heading text-lg">DESIGN YOUR OWN</span>
+                    <span class="font-body text-sm text-text-secondary">Customize your escape room experience.</span>
+                </button>
+                <button class="option-btn large primary-btn" data-mode="ai-driven">
+                    <span class="font-heading text-lg">AI-DRIVEN</span>
+                    <span class="font-body text-sm text-text-secondary">Let the AI craft a unique room for you.</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="game-setup-wizard" class="hidden">
+            <!-- Step 1: Theme -->
+            <div id="setup-step-theme" class="setup-step" data-step="theme">
+                <h2 class="text-xl font-heading mb-4 text-center">Step 1: Choose Your Theme</h2>
+                <div id="theme-options" class="grid grid-cols-2 gap-4">
+                    <!-- Theme options will be loaded here -->
+                </div>
+                <div class="flex justify-between mt-6">
+                    <button class="action-btn" data-action="back">BACK</button>
+                    <button class="action-btn primary-btn" data-action="next">NEXT</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Location -->
+            <div id="setup-step-location" class="setup-step hidden" data-step="location">
+                <h2 class="text-xl font-heading mb-4 text-center">Step 2: Choose Your Location</h2>
+                <div id="location-options" class="grid grid-cols-2 gap-4">
+                    <!-- Location options will be loaded here -->
+                </div>
+                <div class="flex justify-between mt-6">
+                    <button class="action-btn" data-action="back">BACK</button>
+                    <button class="action-btn primary-btn" data-action="next">NEXT</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Difficulty -->
+            <div id="setup-step-difficulty" class="setup-step hidden" data-step="difficulty">
+                <h2 class="text-xl font-heading mb-4 text-center">Step 3: Choose Difficulty</h2>
+                <div id="difficulty-options" class="grid grid-cols-2 gap-4">
+                    <!-- Difficulty options will be loaded here -->
+                </div>
+                <div class="flex justify-between mt-6">
+                    <button class="action-btn" data-action="back">BACK</button>
+                    <button class="action-btn primary-btn" data-action="start">START ADVENTURE</button>
+                </div>
+            </div>
+        </div>
+        
+        <p class="text-center text-red-500 mt-4 hidden" id="error-message">Please select an option before proceeding.</p>
+    </div>
+
+    <script>
+        const gameModeSelection = document.getElementById('game-mode-selection');
+        const gameSetupWizard = document.getElementById('game-setup-wizard');
+        const errorMessage = document.getElementById('error-message');
+        let currentStep = 0;
+        const steps = ['theme', 'location', 'difficulty'];
+        let selectedOptions = {
+            theme: null,
+            location: null,
+            difficulty: null,
+            puzzle_type: null // Puzzle type will be auto-selected based on theme or a default
+        };
+        let gameOptions = {}; // To store fetched options
+
+        // --- Event Listeners ---
+        gameModeSelection.addEventListener('click', async (event) => {
+            const button = event.target.closest('.option-btn');
+            if (button) {
+                const mode = button.dataset.mode;
+                if (mode === 'design-your-own') {
+                    gameModeSelection.classList.add('hidden');
+                    gameSetupWizard.classList.remove('hidden');
+                    await loadGameOptions();
+                    showStep(steps[currentStep]);
+                } else if (mode === 'ai-driven') {
+                    alert('AI-Driven mode is not yet implemented. Please choose "Design Your Own".');
+                    // In a real app, this would lead to an AI prompt screen
+                }
+            }
+        });
+
+        gameSetupWizard.addEventListener('click', async (event) => {
+            const button = event.target.closest('.action-btn');
+            if (button) {
+                const action = button.dataset.action;
+                if (action === 'next') {
+                    if (validateSelection(steps[currentStep])) {
+                        currentStep++;
+                        showError(false);
+                        if (currentStep < steps.length) {
+                            showStep(steps[currentStep]);
+                        }
+                    } else {
+                        showError(true);
+                    }
+                } else if (action === 'back') {
+                    currentStep--;
+                    showError(false);
+                    if (currentStep >= 0) {
+                        showStep(steps[currentStep]);
+                    } else {
+                        // Go back to game mode selection
+                        gameSetupWizard.classList.add('hidden');
+                        gameModeSelection.classList.remove('hidden');
+                        currentStep = 0; // Reset step
+                        resetSelectedOptions();
+                    }
+                } else if (action === 'start') {
+                    if (validateSelection(steps[currentStep])) {
+                        showError(false);
+                        await startGame();
+                    } else {
+                        showError(true);
+                    }
+                }
+            } else {
+                // Option button click handler
+                const optionBtn = event.target.closest('.option-btn');
+                if (optionBtn && optionBtn.dataset.type) {
+                    const type = optionBtn.dataset.type;
+                    const id = optionBtn.dataset.id;
+                    selectedOptions[type] = id;
+                    // Visually mark selected option
+                    document.querySelectorAll(`#${type}-options .option-btn`).forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    optionBtn.classList.add('active');
+                }
+            }
+        });
+
+        // --- Functions ---
+        function showStep(stepName) {
+            document.querySelectorAll('.setup-step').forEach(stepDiv => {
+                stepDiv.classList.add('hidden');
+            });
+            document.getElementById(`setup-step-${stepName}`).classList.remove('hidden');
+        }
+
+        async function loadGameOptions() {
+            try {
+                const response = await fetch('/game_setup_options');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                gameOptions = await response.json();
+                renderOptions('themes', 'theme-options'); // Changed from 'theme' to 'themes'
+                renderOptions('locations', 'location-options'); // Changed from 'location' to 'locations'
+                renderOptions('difficulty_levels', 'difficulty-options');
+            } catch (error) {
+                console.error('Failed to load game options:', error);
+                alert('Failed to load game options. Please try again later.');
+            }
+        }
+
+        function renderOptions(type, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = ''; // Clear previous options
+            const options = gameOptions[type]; // Use the 'type' to get the array from gameOptions
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.classList.add('option-btn', 'primary-btn');
+                button.dataset.type = type; // Store the category type
+                button.dataset.id = option.id;
+                button.innerHTML = `
+                    <span class="font-heading text-base">${option.name}</span>
+                    <span class="font-body text-xs text-text-secondary">${option.description}</span>
+                `;
+                container.appendChild(button);
+            });
+            // Auto-select first option if none is selected and it's the first render
+            if (!selectedOptions[type] && options.length > 0) {
+                selectedOptions[type] = options[0].id;
+                container.querySelector(`.option-btn[data-id="${options[0].id}"]`).classList.add('active');
+            } else if (selectedOptions[type]) {
+                 // Re-apply active class if an option was already selected (e.g., after going 'back')
+                const activeBtn = container.querySelector(`.option-btn[data-id="${selectedOptions[type]}"]`);
+                if (activeBtn) {
+                    activeBtn.classList.add('active');
+                }
+            }
+        }
+
+        function validateSelection(stepName) {
+            // Updated to use the correct key from gameOptions
+            const type = (stepName === 'theme') ? 'themes' : 
+                         (stepName === 'location') ? 'locations' : 
+                         (stepName === 'difficulty') ? 'difficulty_levels' : stepName;
+            if (type === 'puzzle_type') return true; // Puzzle type is not directly selectable in this flow
+            return selectedOptions[type] !== null;
+        }
+
+        async function startGame() {
+            // Default puzzle_type for now. In a more complex app, this might be theme-dependent.
+            selectedOptions.puzzle_type = gameOptions.puzzle_types[0].id; // Taking the first puzzle type as default
+
+            try {
+                const response = await fetch('/start_game', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        player_id: 'player_123', // TODO: Implement actual player ID management
+                        theme: selectedOptions.themes, // Use selectedOptions.themes
+                        location: selectedOptions.locations, // Use selectedOptions.locations
+                        difficulty: selectedOptions.difficulty_levels, // Use selectedOptions.difficulty_levels
+                        // puzzle_type: selectedOptions.puzzle_type // Currently not passed to start_game backend
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const gameData = await response.json();
+                window.location.href = `/game/${gameData.id}`; // Redirect to the game page
+            } catch (error) {
+                console.error('Failed to start game:', error);
+                alert('Failed to start game: ' + error.message);
+            }
+        }
+
+        function showError(show) {
+            if (show) {
+                errorMessage.classList.remove('hidden');
+            } else {
+                errorMessage.classList.add('hidden');
+            }
+        }
+
+        function resetSelectedOptions() {
+            selectedOptions = {
+                theme: null,
+                location: null,
+                difficulty: null,
+                puzzle_type: null
+            };
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        }
+    </script>
+</body>
+</html>

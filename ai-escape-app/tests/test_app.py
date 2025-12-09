@@ -36,10 +36,10 @@ def client():
             app.session.close()
 
 
-def test_hello_world(client):
+def test_index_page(client):
     rv = client.get("/")
     assert rv.status_code == 200
-    assert b"Hello, World!" in rv.data
+    assert b"AI Escape" in rv.data
 
 
 def test_start_game(client):

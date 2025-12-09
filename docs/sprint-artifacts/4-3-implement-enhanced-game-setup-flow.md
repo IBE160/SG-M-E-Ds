@@ -1,6 +1,6 @@
 # Story 4.3: Implement Enhanced Game Setup Flow
 
-Status: drafted
+Status: review
 
 ## Story
 
@@ -14,20 +14,20 @@ So that I can customize my experience more effectively.
 
 ## Tasks / Subtasks
 
-- [ ] AC 1: Define expanded lists of themes, locations, puzzle types, and difficulty levels.
-  - [ ] Subtask: Document the new options and their descriptions.
-  - [ ] Subtask: Store these options in a structured format accessible by the backend (e.g., configuration file, database).
-- [ ] AC 1: Create or update Flask API routes to expose game setup options.
-  - [ ] Subtask: Define a `GET /game_setup_options` endpoint in `routes.py` to retrieve the expanded list of choices.
-- [ ] AC 1: Implement enhanced UI for game setup.
-  - [ ] Subtask: Modify Jinja2 templates (e.g., `templates/game_setup.html`) to present the expanded options clearly.
-  - [ ] Subtask: Utilize `.option-btn` components and incorporate improved instructional text from UX design specifications.
-- [ ] AC 1: Integrate player choices with `GameSession` initialization.
-  - [ ] Subtask: Ensure selected themes, locations, puzzle types, and difficulty levels are passed to `create_game_session` (Story 1.2) and stored in `GameSession`.
-- [ ] AC 1: Implement unit and integration tests.
-  - [ ] Subtask: Write unit tests for the data structure holding game setup options.
-  - [ ] Subtask: Write integration tests for the `GET /game_setup_options` Flask route, verifying correct option retrieval.
-  - [ ] Subtask: Write E2E tests to simulate player interaction with the enhanced game setup flow and verify correct option display and selection.
+- [x] AC 1: Define expanded lists of themes, locations, puzzle types, and difficulty levels.
+  - [x] Subtask: Document the new options and their descriptions.
+  - [x] Subtask: Store these options in a structured format accessible by the backend (e.g., configuration file, database).
+- [x] AC 1: Create or update Flask API routes to expose game setup options.
+  - [x] Subtask: Define a `GET /game_setup_options` endpoint in `routes.py` to retrieve the expanded list of choices.
+- [x] AC 1: Implement enhanced UI for game setup.
+  - [x] Subtask: Modify Jinja2 templates (e.g., `templates/game_setup.html`) to present the expanded options clearly.
+  - [x] Subtask: Utilize `.option-btn` components and incorporate improved instructional text from UX design specifications.
+- [x] AC 1: Integrate player choices with `GameSession` initialization.
+  - [x] Subtask: Ensure selected themes, locations, puzzle types, and difficulty levels are passed to `create_game_session` (Story 1.2) and stored in `GameSession`.
+- [x] AC 1: Implement unit and integration tests.
+  - [x] Subtask: Write unit tests for the data structure holding game setup options.
+  - [x] Subtask: Write integration tests for the `GET /game_setup_options` Flask route, verifying correct option retrieval.
+  - [x] Subtask: Write E2E tests to simulate player interaction with the enhanced game setup flow and verify correct option display and selection.
 
 ## Dev Notes
 
@@ -86,9 +86,28 @@ So that I can customize my experience more effectively.
 
 ### Completion Notes List
 
+- Implemented expanded game setup options in `ai-escape-app/data/game_options.py`.
+- Exposed game setup options via `GET /game_setup_options` Flask API route in `ai-escape-app/routes.py`.
+- Created `ai-escape-app/templates/index.html` as the new entry point for game setup UI, fetching options and initiating game sessions.
+- Modified `ai-escape-app/app.py` to render `index.html` and import `render_template`.
+- Added custom CSS (`ai-escape-app/static/css/style.css`) based on UX design specifications.
+- Implemented unit tests for `ai-escape-app/data/game_options.py` in `ai-escape-app/tests/unit/test_game_options_data.py`.
+- Implemented integration tests for `GET /game_setup_options` route in `ai-escape-app/tests/integration/test_game_setup_routes.py`.
+- Implemented E2E tests for the full game setup flow using Playwright in `ai-escape-app/tests/e2e/test_game_setup_flow.py`.
+
 ### File List
+
+- ai-escape-app/data/game_options.py (modified)
+- ai-escape-app/routes.py (modified)
+- ai-escape-app/app.py (modified)
+- ai-escape-app/templates/index.html (new)
+- ai-escape-app/static/css/style.css (new)
+- ai-escape-app/tests/unit/test_game_options_data.py (new)
+- ai-escape-app/tests/integration/test_game_setup_routes.py (new)
+- ai-escape-app/tests/e2e/test_game_setup_flow.py (new)
 
 ## Change Log
 
 - **2025-12-03**: Story created.
 - **2025-12-04**: Story context regenerated.
+- **2025-12-08**: Implemented enhanced game setup flow, including expanded options, API route, new UI (index.html), and comprehensive tests.
