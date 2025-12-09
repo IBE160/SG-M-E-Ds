@@ -22,6 +22,20 @@
                     <span class="font-heading text-lg">AI-DRIVEN</span>
                     <span class="font-body text-sm text-text-secondary">Let the AI craft a unique room for you.</span>
                 </button>
+                <button class="option-btn large secondary-btn" data-mode="load-game">
+                    <span class="font-heading text-lg">LOAD GAME</span>
+                    <span class="font-body text-sm text-text-secondary">Continue a previously saved adventure.</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="load-game-section" class="hidden">
+            <h2 class="text-xl font-heading mb-4 text-center">Load a Saved Game</h2>
+            <div id="saved-games-list" class="flex flex-col space-y-4">
+                <!-- Saved games will be loaded here by JavaScript -->
+            </div>
+            <div class="flex justify-center mt-6">
+                <button class="action-btn" data-action="back-to-main">BACK</button>
             </div>
         </div>
 
@@ -69,6 +83,8 @@
     <script>
         const gameModeSelection = document.getElementById('game-mode-selection');
         const gameSetupWizard = document.getElementById('game-setup-wizard');
+        const loadGameSection = document.getElementById('load-game-section');
+        const savedGamesList = document.getElementById('saved-games-list');
         const errorMessage = document.getElementById('error-message');
         let currentStep = 0;
         const steps = ['theme', 'location', 'difficulty'];
@@ -79,6 +95,7 @@
             puzzle_type: null // Puzzle type will be auto-selected based on theme or a default
         };
         let gameOptions = {}; // To store fetched options
+        const PLAYER_ID = 'player_123'; // TODO: Implement actual player ID management
 
         // --- Event Listeners ---
         gameModeSelection.addEventListener('click', async (event) => {
@@ -93,6 +110,8 @@
                 } else if (mode === 'ai-driven') {
                     alert('AI-Driven mode is not yet implemented. Please choose "Design Your Own".');
                     // In a real app, this would lead to an AI prompt screen
+                } else if (mode === 'load-game') {
+                    showLoadGameSection();
                 }
             }
         });
@@ -132,7 +151,7 @@
                     }
                 }
             } else {
-                // Option button click handler
+                // Option button click handler for game setup wizard
                 const optionBtn = event.target.closest('.option-btn');
                 if (optionBtn && optionBtn.dataset.type) {
                     const type = optionBtn.dataset.type;
@@ -143,6 +162,20 @@
                         btn.classList.remove('active');
                     });
                     optionBtn.classList.add('active');
+                }
+            }
+        });
+
+        loadGameSection.addEventListener('click', async (event) => {
+            const button = event.target.closest('.action-btn');
+            if (button && button.dataset.action === 'back-to-main') {
+                loadGameSection.classList.add('hidden');
+                gameModeSelection.classList.remove('hidden');
+            } else {
+                const savedGameBtn = event.target.closest('.saved-game-btn');
+                if (savedGameBtn) {
+                    const savedGameId = savedGameBtn.dataset.id;
+                    await loadSelectedGame(savedGameId);
                 }
             }
         });
@@ -219,7 +252,7 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        player_id: 'player_123', // TODO: Implement actual player ID management
+                        player_id: PLAYER_ID,
                         theme: selectedOptions.themes, // Use selectedOptions.themes
                         location: selectedOptions.locations, // Use selectedOptions.locations
                         difficulty: selectedOptions.difficulty_levels, // Use selectedOptions.difficulty_levels
@@ -258,6 +291,62 @@
             document.querySelectorAll('.option-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
+        }
+
+        async function showLoadGameSection() {
+            gameModeSelection.classList.add('hidden');
+            gameSetupWizard.classList.add('hidden'); // Ensure wizard is hidden
+            loadGameSection.classList.remove('hidden');
+            await fetchSavedGames(PLAYER_ID);
+        }
+
+        async function fetchSavedGames(playerId) {
+            try {
+                const response = await fetch(`/saved_games?player_id=${playerId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const savedGames = await response.json();
+                renderSavedGames(savedGames);
+            } catch (error) {
+                console.error('Failed to fetch saved games:', error);
+                savedGamesList.innerHTML = `<p class="text-red-500 text-center">Failed to load saved games.</p>`;
+            }
+        }
+
+        function renderSavedGames(savedGames) {
+            savedGamesList.innerHTML = ''; // Clear previous list
+            if (savedGames.length === 0) {
+                savedGamesList.innerHTML = `<p class="text-text-secondary text-center">No saved games found.</p>`;
+                return;
+            }
+
+            savedGames.forEach(game => {
+                const savedAt = new Date(game.saved_at).toLocaleString();
+                const button = document.createElement('button');
+                button.classList.add('saved-game-btn', 'option-btn', 'primary-btn', 'text-left');
+                button.dataset.id = game.id;
+                button.innerHTML = `
+                    <span class="font-heading text-lg">${game.save_name}</span>
+                    <span class="font-body text-xs text-text-secondary">Saved: ${savedAt}</span>
+                `;
+                savedGamesList.appendChild(button);
+            });
+        }
+
+        async function loadSelectedGame(savedGameId) {
+            try {
+                const response = await fetch(`/load_game/${savedGameId}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                const loadedGameData = await response.json();
+                window.location.href = `/game/${loadedGameData.id}`; // Redirect to the game page with the loaded session ID
+            } catch (error) {
+                console.error('Failed to load game:', error);
+                alert('Failed to load game: ' + error.message);
+            }
         }
     </script>
 </body>

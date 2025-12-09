@@ -7,6 +7,7 @@
 </head>
 <body>
     <h1>AI Escape Room</h1>
+    <button id="save-game-btn">Save Game</button>
 
     <h2>{{ room_name }}</h2>
     <p id="room-description">{{ room_description }}</p>
@@ -16,8 +17,8 @@
     </div>
 
     <script>
-        // Basic JavaScript to fetch game state and interact
         const sessionId = {{ session_id }};
+        const saveGameBtn = document.getElementById('save-game-btn');
 
         async function fetchGameState() {
             const response = await fetch(`/game_session/${sessionId}`);
@@ -46,6 +47,36 @@
             });
             fetchGameState(); // Refresh game state after interaction
         }
+
+        async function saveCurrentGame() {
+            const saveName = prompt("Enter a name for your saved game:");
+            if (!saveName) {
+                alert("Save operation cancelled.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/save_game', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ session_id: sessionId, save_name: saveName }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                alert(`Game saved successfully as "${saveName}"!`);
+            } catch (error) {
+                console.error('Failed to save game:', error);
+                alert('Failed to save game: ' + error.message);
+            }
+        }
+
+        saveGameBtn.addEventListener('click', saveCurrentGame);
 
         // Initial fetch
         fetchGameState();

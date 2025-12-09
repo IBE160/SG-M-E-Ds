@@ -1,6 +1,4 @@
-# Story 5.1: Implement Save/Load Game Functionality
-
-Status: drafted
+Status: review
 
 ## Story
 
@@ -15,21 +13,21 @@ So that I can continue my adventure at any time.
 
 ## Tasks / Subtasks
 
-- [ ] AC 1: Extend `services/game_logic.py` to handle save game operations.
-  - [ ] Subtask: Implement a function to serialize the current `GameSession` state and store it in the database.
-- [ ] AC 2: Extend `services/game_logic.py` to handle load game operations.
-  - [ ] Subtask: Implement a function to retrieve a saved `GameSession` from the database and deserialize it.
-- [ ] AC 1, 2: Create Flask API routes for save/load functionality.
-  - [ ] Subtask: Define a `POST /save_game` endpoint in `routes.py` to trigger game saving.
-  - [ ] Subtask: Define a `GET /load_game/<int:session_id>` endpoint in `routes.py` to retrieve a specific saved game.
-  - [ ] Subtask: Define a `GET /saved_games` endpoint to list available saved games (e.g., for display in a "Load Game" screen).
-- [ ] AC 1, 2: Implement UI for save/load interaction.
-  - [ ] Subtask: Create/modify Jinja2 templates for a "Save Game" option (e.g., in a pause menu) and a "Load Game" screen (e.g., displaying a list of saved games).
-  - [ ] Subtask: Implement client-side logic to call the save/load API endpoints.
-- [ ] AC 1, 2: Implement unit and integration tests.
-  - [ ] Subtask: Write unit tests for `services/game_logic.py` functions related to serialization, deserialization, and database interaction for save/load.
-  - [ ] Subtask: Write integration tests for Flask routes (`/save_game`, `/load_game`, `/saved_games`), verifying correct data persistence and retrieval.
-  - [ ] Subtask: Write E2E tests to simulate player saving and loading games, verifying state is correctly preserved and restored.
+- [x] AC 1: Extend `services/game_logic.py` to handle save game operations.
+  - [x] Subtask: Implement a function to serialize the current `GameSession` state and store it in the database.
+- [x] AC 2: Extend `services/game_logic.py` to handle load game operations.
+  - [x] Subtask: Implement a function to retrieve a saved `GameSession` from the database and deserialize it.
+- [x] AC 1, 2: Create Flask API routes for save/load functionality.
+  - [x] Subtask: Define a `POST /save_game` endpoint in `routes.py` to trigger game saving.
+  - [x] Subtask: Define a `GET /load_game/<int:session_id>` endpoint in `routes.py` to retrieve a specific saved game.
+  - [x] Subtask: Define a `GET /saved_games` endpoint to list available saved games (e.g., for display in a "Load Game" screen).
+- [x] AC 1, 2: Implement UI for save/load interaction.
+  - [x] Subtask: Create/modify Jinja2 templates for a "Save Game" option (e.g., in a pause menu) and a "Load Game" screen (e.g., displaying a list of saved games).
+  - [x] Subtask: Implement client-side logic to call the save/load API endpoints.
+- [x] AC 1, 2: Implement unit and integration tests.
+  - [x] Subtask: Write unit tests for `services/game_logic.py` functions related to serialization, deserialization, and database interaction for save/load.
+  - [x] Subtask: Write integration tests for Flask routes (`/save_game`, `/load_game`, `/saved_games`), verifying correct data persistence and retrieval.
+  - [x] Subtask: Write E2E tests to simulate player saving and loading games, verifying state is correctly preserved and restored.
 
 ## Dev Notes
 
@@ -77,6 +75,7 @@ So that I can continue my adventure at any time.
 ## Dev Agent Record
 
 ### Context Reference
+- docs/sprint-artifacts/5-1-implement-save-load-game-functionality.context.xml
 
 ### Agent Model Used
 
@@ -86,9 +85,25 @@ So that I can continue my adventure at any time.
 
 ### Completion Notes List
 
+- Implemented Save Game functionality in `services/game_logic.py`, including `save_game_state`, `load_game_state`, and `get_saved_games` functions.
+- Modified `models.py` to include the `SavedGame` model and a `to_dict()` method for `GameSession`, along with a `player_id` for `SavedGame`.
+- Added new API routes in `routes.py`: `POST /save_game`, `GET /load_game/<int:saved_game_id>`, and `GET /saved_games`.
+- Implemented UI for Save/Load in `templates/index.html` (Load Game) and `templates/game.html` (Save Game), including client-side JavaScript logic.
+- Created comprehensive unit, integration, and E2E tests for save/load functionality. All tests are passing.
+
 ### File List
+
+- ai-escape-app/models.py (modified)
+- ai-escape-app/services/game_logic.py (modified)
+- ai-escape-app/routes.py (modified)
+- ai-escape-app/templates/index.html (modified)
+- ai-escape-app/templates/game.html (modified)
+- ai-escape-app/tests/unit/test_game_logic_save_load.py (new)
+- ai-escape-app/tests/integration/test_save_load_routes.py (new)
+- ai-escape-app/tests/e2e/test_save_load_flow.py (new)
 
 ## Change Log
 
 - **2025-12-03**: Story created.
 - **2025-12-04**: Story context regenerated.
+- **2025-12-09**: Implemented Save/Load Game functionality, including data model extensions, service logic, API routes, UI integration, and comprehensive test coverage.

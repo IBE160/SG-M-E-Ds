@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified # New import
-from models import GameSession
+from models import GameSession, SavedGame
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
 from services.ai_service import evaluate_and_adapt_puzzle
 
@@ -273,3 +273,60 @@ def verify_puzzle_solvability(puzzles: list[dict]) -> tuple[bool, str]:
     # and delegate complex cycle detection to the AI's generation or a later story.
 
     return True, "Puzzle chain appears solvable based on prerequisites and outcomes."
+
+def save_game_state(db_session: Session, session_id: int, save_name: str, saved_at: datetime = None) -> SavedGame | None:
+    """
+    Saves the current state of a game session to the SavedGame table.
+    """
+    game_session = get_game_session(db_session, session_id)
+    if not game_session:
+        return None
+
+    game_state_dict = game_session.to_dict()
+
+    new_saved_game = SavedGame(
+        player_id=game_session.player_id,
+        session_id=session_id,
+        save_name=save_name,
+        game_state=game_state_dict,
+        saved_at=saved_at if saved_at else datetime.now(timezone.utc),
+    )
+
+    db_session.add(new_saved_game)
+    db_session.commit()
+    db_session.refresh(new_saved_game)
+    return new_saved_game
+
+
+def load_game_state(db_session: Session, saved_game_id: int) -> GameSession | None:
+    """
+    Loads a game state from a SavedGame record and applies it to the original GameSession.
+    """
+    saved_game = db_session.query(SavedGame).filter(SavedGame.id == saved_game_id).first()
+    if not saved_game:
+        return None
+
+    # The game state is stored in the 'game_state' field.
+    # We need to exclude fields that are not part of the GameSession model or should not be overwritten.
+    game_state_to_load = saved_game.game_state
+    session_id = saved_game.session_id
+
+    # We need to be careful about what we're updating. 
+    # For example, 'id', 'player_id', 'start_time' should likely not be changed.
+    # The update_game_session function handles the update logic.
+    
+    # Remove keys that should not be updated from the loaded state
+    game_state_to_load.pop('id', None)
+    game_state_to_load.pop('player_id', None)
+    game_state_to_load.pop('start_time', None)
+    game_state_to_load.pop('last_updated', None)
+
+
+    return update_game_session(db_session, session_id, **game_state_to_load)
+
+
+def get_saved_games(db_session: Session, player_id: str) -> list[SavedGame]:
+    """
+    Retrieves all saved games for a given player.
+    """
+    return db_session.query(SavedGame).filter(SavedGame.player_id == player_id).order_by(SavedGame.saved_at.desc()).all()

@@ -6,6 +6,9 @@ from services.game_logic import (
     update_player_inventory,
     solve_puzzle,
     get_contextual_options,
+    save_game_state, # New import
+    load_game_state, # New import
+    get_saved_games, # New import
 )
 from services.ai_service import generate_narrative, generate_room_description, generate_puzzle, evaluate_and_adapt_puzzle, adjust_difficulty_based_on_performance
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
@@ -20,6 +23,39 @@ def get_game_setup_options():
     Returns the expanded list of game setup options (themes, locations, puzzle types, difficulty levels).
     """
     return jsonify(GAME_SETUP_OPTIONS), 200
+
+@bp.route("/save_game", methods=["POST"])
+def save_game():
+    data = request.get_json()
+    session_id = data.get("session_id")
+    save_name = data.get("save_name")
+
+    if not session_id or not save_name:
+        return jsonify({"error": "Session ID and save name are required"}), 400
+
+    saved_game = save_game_state(current_app.session, session_id, save_name)
+    if not saved_game:
+        return jsonify({"error": "Game session not found or failed to save"}), 404
+    
+    return jsonify(saved_game.to_dict()), 201
+
+@bp.route("/load_game/<int:saved_game_id>", methods=["GET"])
+def load_game(saved_game_id):
+    loaded_session = load_game_state(current_app.session, saved_game_id)
+    if not loaded_session:
+        return jsonify({"error": "Saved game not found or failed to load"}), 404
+    
+    # After loading, we return the details of the updated game session
+    return jsonify(loaded_session.to_dict()), 200
+
+@bp.route("/saved_games", methods=["GET"])
+def list_saved_games():
+    player_id = request.args.get("player_id")
+    if not player_id:
+        return jsonify({"error": "Player ID is required as a query parameter"}), 400
+    
+    saved_games = get_saved_games(current_app.session, player_id)
+    return jsonify([sg.to_dict() for sg in saved_games]), 200
 
 @bp.route("/start_game", methods=["POST"])
 def start_game():
