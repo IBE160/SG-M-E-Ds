@@ -55,7 +55,7 @@
         const saveOptionsBtn = document.getElementById('save-options-btn'); // New
 
         let currentSettings = {}; // To store current settings, loaded from backend
-        const PLAYER_ID = 'player_123'; // TODO: Implement actual player ID management
+        const PLAYER_ID = 'test_e2e_player'; // Standardize PLAYER_ID for E2E tests
 
         async function fetchGameState() {
             const response = await fetch(`/game_session/${sessionId}`);

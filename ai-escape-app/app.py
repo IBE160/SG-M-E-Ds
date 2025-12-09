@@ -34,6 +34,10 @@ def create_app(config_object=Config):
 
     @app.route("/")
     def index():
+        return "Hello, World!"
+
+    @app.route("/game")
+    def game_setup():
         return render_template("index.html")
 
     app.register_blueprint(bp)

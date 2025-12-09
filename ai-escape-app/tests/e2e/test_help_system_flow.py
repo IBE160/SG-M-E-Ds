@@ -11,7 +11,7 @@ def setup_teardown_browser(browser: Browser):
 
 def test_help_system_flow(page: Page):
     # 1. Start a new game to get to the game page
-    page.goto(BASE_URL)
+    page.goto(f"{BASE_URL}/game")
     page.locator("button.option-btn.large[data-mode='design-your-own']").click()
     page.locator("#theme-options .option-btn").first.click()
     page.locator("#setup-step-theme button.action-btn[data-action='next']").click()

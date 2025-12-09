@@ -14,7 +14,7 @@ def setup_teardown_browser(browser: Browser):
 
 def test_save_load_game_flow(page: Page):
     # 1. Start a new game
-    page.goto(BASE_URL)
+    page.goto(f"{BASE_URL}/game")
     page.locator("button.option-btn.large[data-mode='design-your-own']").click()
     # Select theme, location, difficulty (using the first option for each)
     page.locator("#theme-options .option-btn").first.click()
@@ -53,8 +53,8 @@ def test_save_load_game_flow(page: Page):
     time.sleep(1)
 
     # 4. Go back to the main menu (navigate directly)
-    page.goto(BASE_URL)
-    expect(page).to_have_url(BASE_URL + "/")
+    page.goto(f"{BASE_URL}/game")
+    expect(page).to_have_url(f"{BASE_URL}/game")
 
     # 5. Load the game
     page.locator("button[data-mode='load-game']").click()

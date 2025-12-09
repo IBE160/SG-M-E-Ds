@@ -10,7 +10,7 @@ from services.game_logic import (
     load_game_state, # New import
     get_saved_games, # New import
 )
-from services.settings import get_player_settings, update_player_settings # New import
+from services.settings import get_player_settings, update_player_settings, delete_player_settings # New import
 from services.ai_service import generate_narrative, generate_room_description, generate_puzzle, evaluate_and_adapt_puzzle, adjust_difficulty_based_on_performance
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
 from data.game_options import GAME_SETUP_OPTIONS
@@ -93,6 +93,13 @@ def update_options():
 def get_player_settings_route(player_id):
     player_settings = get_player_settings(current_app.session, player_id)
     return jsonify(player_settings.to_dict()), 200
+
+@bp.route("/player_settings/<player_id>", methods=["DELETE"])
+def delete_player_settings_route(player_id):
+    success = delete_player_settings(current_app.session, player_id)
+    if not success:
+        return jsonify({"error": "Player settings not found or failed to delete"}), 404
+    return jsonify({"message": f"Settings for {player_id} deleted successfully"}), 200
 
 @bp.route("/start_game", methods=["POST"])
 def start_game():

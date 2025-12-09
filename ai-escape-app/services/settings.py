@@ -52,3 +52,14 @@ def update_player_settings(db_session: Session, player_id: str, new_settings: di
     db_session.commit()
     db_session.refresh(player_settings)
     return player_settings
+
+def delete_player_settings(db_session: Session, player_id: str) -> bool:
+    """
+    Deletes a player's settings from the database.
+    """
+    player_settings = db_session.query(PlayerSettings).filter(PlayerSettings.player_id == player_id).first()
+    if player_settings:
+        db_session.delete(player_settings)
+        db_session.commit()
+        return True
+    return False

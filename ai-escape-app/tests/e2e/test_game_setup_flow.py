@@ -14,9 +14,9 @@ def setup_teardown_browser(browser):
     yield
 
 def test_game_setup_flow(page: Page):
-    # 1. Navigate to the base URL
-    page.goto(BASE_URL)
-    expect(page).to_have_url(BASE_URL + "/")
+    # 1. Navigate to the game setup URL
+    page.goto(f"{BASE_URL}/game")
+    expect(page).to_have_url(f"{BASE_URL}/game")
     expect(page.locator("h1")).to_have_text("AI Escape")
 
     # 2. Click "DESIGN YOUR OWN"

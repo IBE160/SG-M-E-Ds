@@ -39,6 +39,12 @@ def client():
 def test_index_page(client):
     rv = client.get("/")
     assert rv.status_code == 200
+    assert b"Hello, World!" in rv.data
+
+
+def test_game_setup_page(client):
+    rv = client.get("/game")
+    assert rv.status_code == 200
     assert b"AI Escape" in rv.data
 
 

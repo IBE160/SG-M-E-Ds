@@ -12,14 +12,17 @@ PLAYER_ID = "test_e2e_player" # Consistent player ID for E2E tests
 def setup_teardown_browser(browser: Browser):
     yield
 
-def test_options_menu_flow(page: Page, app_with_db): # Pass app_with_db fixture
-    # Clear PlayerSettings for a clean test run
-    with app_with_db.app_context():
-        app_with_db.session.query(PlayerSettings).delete()
-        app_with_db.session.commit()
+def test_options_menu_flow(page: Page):
+    # Debug: Check current player settings before clearing
+    debug_response = page.request.get(f"{BASE_URL}/player_settings/{PLAYER_ID}")
+    print(f"DEBUG: Initial Player Settings before delete: {debug_response.json()}")
 
+    # Clear PlayerSettings for a clean test run via API call
+    page.request.delete(f"{BASE_URL}/player_settings/{PLAYER_ID}")
+    page.reload() # Force a page reload to clear client-side state
+    
     # 1. Start a new game to get to the game page
-    page.goto(BASE_URL)
+    page.goto(f"{BASE_URL}/game")
     page.locator("button.option-btn.large[data-mode='design-your-own']").click()
     page.locator("#theme-options .option-btn").first.click()
     page.locator("#setup-step-theme button.action-btn[data-action='next']").click()
@@ -45,6 +48,8 @@ def test_options_menu_flow(page: Page, app_with_db): # Pass app_with_db fixture
 
     # 4. Adjust a setting (e.g., sound volume slider)
     sound_slider = page.locator("input#setting-sound")
+    actual_value = sound_slider.input_value()
+    print(f"DEBUG: Sound slider actual value: {actual_value}")
     expect(sound_slider).to_have_value("80") # Default value from game_settings.py
     sound_slider.fill("10") # Set to 10
     expect(sound_slider).to_have_value("10")
