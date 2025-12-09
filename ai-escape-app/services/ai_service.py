@@ -46,7 +46,7 @@ def generate_narrative(prompt: str, narrative_archetype: str = None, theme: str 
         print(f"Error generating narrative: {e}")
         return f"Error: Could not generate narrative. {e}"
 
-def generate_room_description(theme: str, location: str, narrative_state: str, room_context: dict, narrative_archetype: str = None) -> str:
+def generate_room_description(theme: str, location: str, narrative_state: str, room_context: dict, current_room_id: str, narrative_archetype: str = None) -> str:
     """
     Generates a unique room description based on the game's context.
     The AI is aware of expanded themes including 'classic mystery', 'sci-fi', and 'underwater'.
@@ -56,7 +56,7 @@ def generate_room_description(theme: str, location: str, narrative_state: str, r
         archetype_info = f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}"
 
     prompt = f"""
-    Generate a unique and descriptive room description for an escape room game.
+    Generate a unique and descriptive room description for the room identified as '{current_room_id}' in an escape room game.
     The description should be consistent with the provided theme, location, narrative, and room context.
     The available themes include 'classic mystery' (e.g., ancient library, mysterious observatory),
     'sci-fi' (e.g., sci-fi hangar, derelict spaceship), and 'underwater' (e.g., underwater laboratory).

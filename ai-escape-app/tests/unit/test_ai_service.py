@@ -51,8 +51,9 @@ def test_generate_room_description_success(mock_genai):
     location = "mansion"
     narrative_state = "The player has just entered the mansion."
     room_context = {"name": "Entrance Hall", "exits": ["north"], "puzzles": [], "items": []}
+    current_room_id = "entrance_hall" # New argument
 
-    result = generate_room_description(theme, location, narrative_state, room_context)
+    result = generate_room_description(theme, location, narrative_state, room_context, current_room_id) # Updated call
 
     # Assertions
     mock_genai.GenerativeModel.assert_called_once_with('gemini-pro')
@@ -75,7 +76,8 @@ def test_generate_narrative_with_archetype(mock_genai):
 def test_generate_room_description_with_archetype(mock_genai):
     mock_genai.GenerativeModel.return_value.generate_content.return_value.text = "A room."
 
-    generate_room_description("theme", "location", "state", {}, narrative_archetype="mystery")
+    current_room_id = "some_room_id" # New argument
+    generate_room_description("theme", "location", "state", {}, current_room_id, narrative_archetype="mystery") # Updated call
 
     mock_genai.GenerativeModel.return_value.generate_content.assert_called_once()
     prompt = mock_genai.GenerativeModel.return_value.generate_content.call_args[0][0]

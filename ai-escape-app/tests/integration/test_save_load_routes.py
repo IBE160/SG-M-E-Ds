@@ -8,6 +8,73 @@ from app import create_app  # Assuming create_app is in app.py
 from services.game_logic import create_game_session, save_game_state
 import time
 from datetime import datetime, timedelta
+from unittest.mock import patch # Import patch
+
+@pytest.fixture(scope="module")
+def app_with_db():
+    """
+    Fixture for a Flask app with an in-memory SQLite database for testing.
+    """
+    app = create_app(
+        config_object=type(
+            "TestConfig",
+            (object,),
+            {
+                "TESTING": True,
+                "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+                "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+            },
+        )
+    )
+    with app.app_context():
+        engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+        Base.metadata.create_all(engine)
+        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        app.session = SessionLocal() # Attach session to app context for routes to use
+        yield app
+        Base.metadata.drop_all(engine)
+        app.session.close()
+
+@pytest.fixture(scope="module")
+def client(app_with_db: Flask):
+    """
+    Fixture for a test client.
+    """
+    return app_with_db.test_client()
+
+@pytest.fixture(autouse=True)
+def setup_each_test(app_with_db: Flask):
+    """
+    Ensures a clean database state for each test by dropping and recreating tables.
+    Also clears saved games.
+    """
+    with app_with_db.app_context():
+        # Clear existing data
+        app_with_db.session.query(SavedGame).delete()
+        app_with_db.session.query(GameSession).delete()
+        app_with_db.session.commit()
+        # Ensure session is fresh for each test
+        yield
+        app_with_db.session.rollback() # Rollback any uncommitted changes
+
+@pytest.fixture(autouse=True)
+def mock_ai_service_calls():
+    """
+    Mocks AI service calls that might be triggered during game session creation
+    to prevent external API calls and ensure consistent test results.
+    """
+    with patch('services.ai_service.generate_room_description') as mock_generate_room_description, \
+         patch('services.ai_service.generate_narrative') as mock_generate_narrative, \
+         patch('services.ai_service.generate_puzzle') as mock_generate_puzzle, \
+         patch('services.ai_service.evaluate_and_adapt_puzzle') as mock_evaluate_and_adapt_puzzle, \
+         patch('services.ai_service.adjust_difficulty_based_on_performance') as mock_adjust_difficulty_based_on_performance:
+        
+        mock_generate_room_description.return_value = "A mysteriously mocked room."
+        mock_generate_narrative.return_value = "A mocked narrative."
+        mock_generate_puzzle.return_value = {"puzzle_id": "mock_puzzle", "description": "Solve this mocked puzzle."}
+        mock_evaluate_and_adapt_puzzle.return_value = {"evaluation": "mocked evaluation"}
+        mock_adjust_difficulty_based_on_performance.return_value = {"difficulty_adjustment": "no_change"}
+        yield
 
 @pytest.fixture(scope="module")
 def app_with_db():

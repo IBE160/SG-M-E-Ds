@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified # New import
 from models import GameSession, SavedGame
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
-from services.ai_service import evaluate_and_adapt_puzzle
+from services.ai_service import evaluate_and_adapt_puzzle, generate_room_description
 
 
 def create_game_session(
@@ -17,6 +17,23 @@ def create_game_session(
     Initializes and stores a new GameSession in the database.
     """
     first_room_id = next(iter(ROOM_DATA))  # Get the first room ID from ROOM_DATA
+    initial_room_description = generate_room_description(
+        theme=theme,
+        location=location,
+        narrative_state={}, # Initial narrative state is empty
+        room_context={
+            "name": ROOM_DATA[first_room_id]["name"],
+            "exits": list(ROOM_DATA[first_room_id]["exits"].keys()),
+            "puzzles": list(ROOM_DATA[first_room_id]["puzzles"].keys()),
+            "items": ROOM_DATA[first_room_id].get("items", []),
+        },
+        current_room_id=first_room_id, # New parameter
+    )
+
+    if initial_room_description.startswith("Error:"):
+        # Fallback to static description if AI generation fails
+        initial_room_description = ROOM_DATA[first_room_id]["description"]
+
     new_session = GameSession(
         player_id=player_id,
         current_room=first_room_id, # Set default to the first room in ROOM_DATA
@@ -24,7 +41,7 @@ def create_game_session(
         location=location,
         difficulty=difficulty,
         start_time=datetime.now(timezone.utc),
-        current_room_description=ROOM_DATA[first_room_id]["description"], # Initial description
+        current_room_description=initial_room_description, # Use dynamically generated description
         game_history=[], # Initialize with an empty list
         last_updated=datetime.now(timezone.utc),
     )

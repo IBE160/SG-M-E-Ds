@@ -220,6 +220,7 @@ def move_player(session_id):
         location=game_session.location,
         narrative_state=game_session.narrative_state,
         room_context=room_context,
+        current_room_id=new_room_id, # Pass the ID of the new room
     )
 
     if new_description.startswith("Error:"):
@@ -328,13 +329,14 @@ def generate_room_description_route():
     location = data.get("location")
     narrative_state = data.get("narrative_state")
     room_context = data.get("room_context")
+    current_room_id = data.get("current_room_id") # New parameter
     narrative_archetype = data.get("narrative_archetype")
 
-    if not all([theme, location, narrative_state, room_context]):
-        return jsonify({"error": "Theme, location, narrative_state, and room_context are required"}), 400
+    if not all([theme, location, narrative_state, room_context, current_room_id]): # Added current_room_id to check
+        return jsonify({"error": "Theme, location, narrative_state, room_context, and current_room_id are required"}), 400
 
     description = generate_room_description(
-        theme, location, narrative_state, room_context, narrative_archetype=narrative_archetype
+        theme, location, narrative_state, room_context, current_room_id, narrative_archetype=narrative_archetype
     )
 
     if description.startswith("Error:"):
@@ -539,8 +541,36 @@ def interact(session_id):
             game_history = list(game_session.game_history)
             game_history.append(current_room_id)
 
+            # Generate new room description
+            new_room_info = ROOM_DATA.get(new_room_id)
+            if not new_room_info:
+                return jsonify({"error": "New room not found in ROOM_DATA"}), 500
+                
+            room_context = {
+                "name": new_room_info.get("name"),
+                "exits": list(new_room_info.get("exits", {}).keys()),
+                "puzzles": list(new_room_info.get("puzzles", {}).keys()),
+                "items": new_room_info.get("items", []),
+            }
+            
+            new_description = generate_room_description(
+                theme=game_session.theme,
+                location=game_session.location,
+                narrative_state=game_session.narrative_state,
+                room_context=room_context,
+                current_room_id=new_room_id, # Pass the ID of the new room
+            )
+
+            if new_description.startswith("Error:"):
+                # Handle error in description generation, maybe fall back to static description
+                new_description = new_room_info.get("description", "A mysterious room.")
+
             updated_session = update_game_session(
-                current_app.session, session_id, current_room=new_room_id, game_history=game_history
+                current_app.session,
+                session_id,
+                current_room=new_room_id,
+                current_room_description=new_description,
+                game_history=game_history,
             )
             if not updated_session:
                 result["error"] = "Game session not found after update"

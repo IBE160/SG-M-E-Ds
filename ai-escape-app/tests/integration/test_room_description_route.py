@@ -18,7 +18,8 @@ def test_generate_room_description_success(mock_generate_room_description, clien
             "theme": "fantasy",
             "location": "castle",
             "narrative_state": "The player is looking for a lost artifact.",
-            "room_context": {"name": "Throne Room"}
+            "room_context": {"name": "Throne Room"},
+            "current_room_id": "throne_room"
         }
     )
 
@@ -34,7 +35,7 @@ def test_generate_room_description_missing_data(mock_generate_room_description, 
     )
 
     assert response.status_code == 400
-    assert response.json == {'error': 'Theme, location, narrative_state, and room_context are required'}
+    assert response.json == {'error': 'Theme, location, narrative_state, room_context, and current_room_id are required'}
     mock_generate_room_description.assert_not_called()
 
 @patch('routes.generate_room_description')
@@ -47,7 +48,8 @@ def test_generate_room_description_ai_service_error(mock_generate_room_descripti
             "theme": "sci-fi",
             "location": "space station",
             "narrative_state": "The AI is malfunctioning.",
-            "room_context": {"name": "Bridge"}
+            "room_context": {"name": "Bridge"},
+            "current_room_id": "bridge"
         }
     )
 
@@ -66,12 +68,13 @@ def test_generate_room_description_with_archetype(mock_generate_room_description
             "location": "old library",
             "narrative_state": "A book is missing.",
             "room_context": {"name": "Main Hall"},
-            "narrative_archetype": "mystery"
+            "narrative_archetype": "mystery",
+            "current_room_id": "main_hall"
         }
     )
 
     assert response.status_code == 200
     assert response.json == {'description': 'A mysterious room description.'}
     mock_generate_room_description.assert_called_once_with(
-        "mystery", "old library", "A book is missing.", {"name": "Main Hall"}, narrative_archetype="mystery"
+        "mystery", "old library", "A book is missing.", {"name": "Main Hall"}, "main_hall", narrative_archetype="mystery"
     )
