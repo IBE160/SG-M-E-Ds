@@ -48,7 +48,7 @@ development_status:
   2-1-integrate-ai-narrative-generation-service: done
   2-2-dynamic-room-description-generation: done
   2-3-implement-narrative-archetypes-for-coherence: in-progress
-  2-4-dynamic-theme-and-location-integration: ready-for-dev
+  2-4-dynamic-theme-and-location-integration: in-progress
   epic-2-retrospective: optional
 
   epic-3: contexted
