@@ -3,351 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Escape</title>
+    <title>AI Escape - Design Direction Showcase</title>
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-background text-text-primary font-body flex items-center justify-center min-h-screen">
-    <div class="container mx-auto p-4 max-w-md">
-        <h1 class="font-heading text-4xl text-center mb-8 text-primary">AI Escape</h1>
-
-        <div id="game-mode-selection" class="mb-8">
-            <h2 class="text-xl font-heading mb-4 text-center">Choose Your Adventure</h2>
-            <div class="flex flex-col space-y-4">
-                <button class="option-btn large primary-btn" data-mode="design-your-own">
-                    <span class="font-heading text-lg">DESIGN YOUR OWN</span>
-                    <span class="font-body text-sm text-text-secondary">Customize your escape room experience.</span>
-                </button>
-                <button class="option-btn large primary-btn" data-mode="ai-driven">
-                    <span class="font-heading text-lg">AI-DRIVEN</span>
-                    <span class="font-body text-sm text-text-secondary">Let the AI craft a unique room for you.</span>
-                </button>
-                <button class="option-btn large secondary-btn" data-mode="load-game">
-                    <span class="font-heading text-lg">LOAD GAME</span>
-                    <span class="font-body text-sm text-text-secondary">Continue a previously saved adventure.</span>
-                </button>
-            </div>
-        </div>
-
-        <div id="load-game-section" class="hidden">
-            <h2 class="text-xl font-heading mb-4 text-center">Load a Saved Game</h2>
-            <div id="saved-games-list" class="flex flex-col space-y-4">
-                <!-- Saved games will be loaded here by JavaScript -->
-            </div>
-            <div class="flex justify-center mt-6">
-                <button class="action-btn" data-action="back-to-main">BACK</button>
-            </div>
-        </div>
-
-        <div id="game-setup-wizard" class="hidden">
-            <!-- Step 1: Theme -->
-            <div id="setup-step-theme" class="setup-step" data-step="theme">
-                <h2 class="text-xl font-heading mb-4 text-center">Step 1: Choose Your Theme</h2>
-                <div id="theme-options" class="grid grid-cols-2 gap-4">
-                    <!-- Theme options will be loaded here -->
-                </div>
-                <div class="flex justify-between mt-6">
-                    <button class="action-btn" data-action="back">BACK</button>
-                    <button class="action-btn primary-btn" data-action="next">NEXT</button>
-                </div>
-            </div>
-
-            <!-- Step 2: Location -->
-            <div id="setup-step-location" class="setup-step hidden" data-step="location">
-                <h2 class="text-xl font-heading mb-4 text-center">Step 2: Choose Your Location</h2>
-                <div id="location-options" class="grid grid-cols-2 gap-4">
-                    <!-- Location options will be loaded here -->
-                </div>
-                <div class="flex justify-between mt-6">
-                    <button class="action-btn" data-action="back">BACK</button>
-                    <button class="action-btn primary-btn" data-action="next">NEXT</button>
-                </div>
-            </div>
-
-            <!-- Step 3: Difficulty -->
-            <div id="setup-step-difficulty" class="setup-step hidden" data-step="difficulty">
-                <h2 class="text-xl font-heading mb-4 text-center">Step 3: Choose Difficulty</h2>
-                <div id="difficulty-options" class="grid grid-cols-2 gap-4">
-                    <!-- Difficulty options will be loaded here -->
-                </div>
-                <div class="flex justify-between mt-6">
-                    <button class="action-btn" data-action="back">BACK</button>
-                    <button class="action-btn primary-btn" data-action="start">START ADVENTURE</button>
-                </div>
-            </div>
-        </div>
-        
-        <p class="text-center text-red-500 mt-4 hidden" id="error-message">Please select an option before proceeding.</p>
+<body>
+    <div style="text-align: center; margin-bottom: 1rem;">
+        <button id="responsive-toggle" style="background-color: var(--color-surface); color: var(--color-text-primary); border: 2px solid var(--color-border); padding: 0.5rem 1rem; cursor: pointer;">Mobile View (Click for Desktop)</button>
     </div>
 
-    <script>
-        const gameModeSelection = document.getElementById('game-mode-selection');
-        const gameSetupWizard = document.getElementById('game-setup-wizard');
-        const loadGameSection = document.getElementById('load-game-section');
-        const savedGamesList = document.getElementById('saved-games-list');
-        const errorMessage = document.getElementById('error-message');
-        let currentStep = 0;
-        const steps = ['theme', 'location', 'difficulty'];
-        let selectedOptions = {
-            theme: null,
-            location: null,
-            difficulty: null,
-            puzzle_type: null // Puzzle type will be auto-selected based on theme or a default
-        };
-        let gameOptions = {}; // To store fetched options
-        const PLAYER_ID = 'player_123'; // TODO: Implement actual player ID management
+    <div class="mockup-container">
+        <!-- Start Page -->
+        <div id="start" class="mockup active">
+            <div class="mockup-header"><h2>Start Page</h2></div>
+            <div class="mockup-content">
+                <div class="game-screen start-screen">
+                    <div class="start-content">
+                        <h1>AI ESCAPE</h1>
+                        <p>Embark on a unique, text-driven journey. Craft your own tale or let the AI forge your destiny.</p>
+                        <div class="start-menu">
+                            <button>NEW GAME</button>
+                            <button>LOAD GAME</button>
+                            <button>SETTINGS</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        // --- Event Listeners ---
-        gameModeSelection.addEventListener('click', async (event) => {
-            const button = event.target.closest('.option-btn');
-            if (button) {
-                const mode = button.dataset.mode;
-                if (mode === 'design-your-own') {
-                    gameModeSelection.classList.add('hidden');
-                    gameSetupWizard.classList.remove('hidden');
-                    await loadGameOptions();
-                    showStep(steps[currentStep]);
-                } else if (mode === 'ai-driven') {
-                    alert('AI-Driven mode is not yet implemented. Please choose "Design Your Own".');
-                    // In a real app, this would lead to an AI prompt screen
-                } else if (mode === 'load-game') {
-                    showLoadGameSection();
-                }
-            }
-        });
+        <!-- Game Mode Selection Page -->
+        <div id="game-mode" class="mockup">
+            <div class="mockup-header">
+                <h2>Choose Your Path</h2>
+                <p>Will you craft your own adventure, or let the AI decide your fate?</p>
+            </div>
+            <div class="mockup-content">
+                <div class="game-screen design-screen">
+                    <div class="design-content">
+                        <div class="design-options" style="flex-direction: column; gap: 2rem;">
+                            <button class="option-btn large">
+                                <h3>DESIGN YOUR OWN</h3>
+                                <p>Hand-pick the ambiance, location, and difficulty to meticulously craft your personalized adventure.</p>
+                            </button>
+                            <button class="option-btn large">
+                                <h3>AI-DRIVEN</h3>
+                                <p>Surrender to the unknown. Allow the AI to intricately weave a unique and unpredictable challenge for you.</p>
+                            </button>
+                        </div>
+                        <div class="warning-text">
+                            <p><strong>Warning:</strong> The AI-driven experience is experimental, may be unpredictable, and will take a moment to generate.</p>
+                        </div>
+                        <div class="design-actions">
+                            <button class="action-btn">BACK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        gameSetupWizard.addEventListener('click', async (event) => {
-            const button = event.target.closest('.action-btn');
-            if (button) {
-                const action = button.dataset.action;
-                if (action === 'next') {
-                    if (validateSelection(steps[currentStep])) {
-                        currentStep++;
-                        showError(false);
-                        if (currentStep < steps.length) {
-                            showStep(steps[currentStep]);
-                        }
-                    } else {
-                        showError(true);
-                    }
-                } else if (action === 'back') {
-                    currentStep--;
-                    showError(false);
-                    if (currentStep >= 0) {
-                        showStep(steps[currentStep]);
-                    } else {
-                        // Go back to game mode selection
-                        gameSetupWizard.classList.add('hidden');
-                        gameModeSelection.classList.remove('hidden');
-                        currentStep = 0; // Reset step
-                        resetSelectedOptions();
-                    }
-                } else if (action === 'start') {
-                    if (validateSelection(steps[currentStep])) {
-                        showError(false);
-                        await startGame();
-                    } else {
-                        showError(true);
-                    }
-                }
-            } else {
-                // Option button click handler for game setup wizard
-                const optionBtn = event.target.closest('.option-btn');
-                if (optionBtn && optionBtn.dataset.type) {
-                    const type = optionBtn.dataset.type;
-                    const id = optionBtn.dataset.id;
-                    selectedOptions[type] = id;
-                    // Visually mark selected option
-                    document.querySelectorAll(`#${type}-options .option-btn`).forEach(btn => {
-                        btn.classList.remove('active');
-                    });
-                    optionBtn.classList.add('active');
-                }
-            }
-        });
+        <!-- AI Prompt Page -->
+        <div id="ai-prompt" class="mockup">
+            <div class="mockup-header">
+                <h2>Describe Your Adventure</h2>
+                <p>Tell the AI what kind of game you want to play. Be as specific or as vague as you like.</p>
+            </div>
+            <div class="mockup-content">
+                <div class="game-screen design-screen">
+                    <div class="design-content">
+                        <textarea id="ai-prompt-input" placeholder="e.g., 'A cyberpunk detective story in a rainy city' or 'A fantasy quest to find a lost artifact'" style="width: 100%; height: 150px; font-family: var(--font-family-body); background: rgba(73, 80, 87, 0.9); color: var(--color-text-primary); border: 1px solid var(--color-border); padding: 1rem; font-size: 1.1rem; resize: none;"></textarea>
+                        <div class="design-actions">
+                            <button class="action-btn">BACK</button>
+                            <button class="action-btn primary">GENERATE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        loadGameSection.addEventListener('click', async (event) => {
-            const button = event.target.closest('.action-btn');
-            if (button && button.dataset.action === 'back-to-main') {
-                loadGameSection.classList.add('hidden');
-                gameModeSelection.classList.remove('hidden');
-            } else {
-                const savedGameBtn = event.target.closest('.saved-game-btn');
-                if (savedGameBtn) {
-                    const savedGameId = savedGameBtn.dataset.id;
-                    await loadSelectedGame(savedGameId);
-                }
-            }
-        });
+        <!-- Design Page -->
+        <div id="design" class="mockup">
+            <div class="mockup-header"><h2>Design Your Adventure</h2></div>
+            <div class="mockup-content">
+                <div class="game-screen design-screen">
+                    <div class="design-content">
+                        <div id="design-step-1" class="design-step active">
+                            <h3><span class="step-counter">1/3</span> CHOOSE AN AMBIANCE</h3>
+                            <div class="design-options">
+                                <button class="option-btn">SCARY</button>
+                                <button class="option-btn">FUNNY</button>
+                                <button class="option-btn active">MYSTERIOUS</button>
+                            </div>
+                            <div class="design-actions">
+                                <button class="action-btn">BACK</button>
+                                <button class="action-btn primary">NEXT</button>
+                            </div>
+                        </div>
+                        <div id="design-step-2" class="design-step">
+                            <h3><span class="step-counter">2/3</span> CHOOSE A LOCATION</h3>
+                            <div id="locations-scary" class="location-options design-options">
+                                <div class="option-btn" style="background-image: url('images/Abandiond Mansion.jpg');"><h4>HAUNTED MANSION</h4></div>
+                                <div class="option-btn" style="background-image: url('images/Asylum.jpg');"><h4>ABANDONED ASYLUM</h4></div>
+                                <div class="option-btn" style="background-image: url('images/Spaceship.jpg');"><h4>DERELICT SPACESHIP</h4></div>
+                            </div>
+                            <div id="locations-funny" class="location-options design-options" style="display:none;">
+                                <div class="option-btn" style="background-image: url('images/Clown Funhouse.jpg');"><h4>CLOWN'S FUNHOUSE</h4></div>
+                                <div class="option-btn" style="background-image: url('images/kids room.jpg');"><h4>THE OVERSIZED PLAYROOM</h4></div>
+                                <div class="option-btn" style="background-image: url('images/Candy Wonderland'.jpg');"><h4>CANDY WONDERLAND</h4></div>
+                            </div>
+                            <div id="locations-mysterious" class="location-options design-options" style="display:none;">
+                                <div class="option-btn" style="background-image: url('images/ancient Tomb.jpg');"><h4>ANCIENT TOMB</h4></div>
+                                <div class="option-btn" style="background-image: url('images/Forgotten Library.jpg');"><h4>FORGOTTEN LIBRARY</h4></div>
+                                <div class="option-btn" style="background-image: url('images/Steampunk Airship.jpg');"><h4>STEAMPUNK AIRSHIP</h4></div>
+                            </div>
+                            <div class="design-actions">
+                                <button class="action-btn">BACK</button>
+                                <button class="action-btn primary">NEXT</button>
+                            </div>
+                        </div>
+                        <div id="design-step-3" class="design-step">
+                            <h3><span class="step-counter">3/3</span> SELECT DIFFICULTY</h3>
+                            <div class="design-options">
+                                <button class="option-btn">EASY</button>
+                                <button class="option-btn active">NORMAL</button>
+                                <button class="option-btn">HARD</button>
+                            </div>
+                            <div class="design-actions">
+                                <button class="action-btn">BACK</button>
+                                <button class="action-btn primary">START ADVENTURE</button>
+                            </div>
+                        </div>
 
-        // --- Functions ---
-        function showStep(stepName) {
-            document.querySelectorAll('.setup-step').forEach(stepDiv => {
-                stepDiv.classList.add('hidden');
-            });
-            document.getElementById(`setup-step-${stepName}`).classList.remove('hidden');
-        }
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        async function loadGameOptions() {
-            try {
-                const response = await fetch('/game_setup_options');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                gameOptions = await response.json();
-                renderOptions('themes', 'theme-options'); // Changed from 'theme' to 'themes'
-                renderOptions('locations', 'location-options'); // Changed from 'location' to 'locations'
-                renderOptions('difficulty_levels', 'difficulty-options');
-            } catch (error) {
-                console.error('Failed to load game options:', error);
-                alert('Failed to load game options. Please try again later.');
-            }
-        }
+        <!-- Loading Page -->
+        <div id="loading" class="mockup">
+            <div class="mockup-header"><h2>Loading...</h2></div>
+            <div class="mockup-content">
+                <div class="game-screen loading-screen">
+                    <div class="loading-icon">AI ESCAPE</div>
+                    <div class="loading-text" id="loading-text">Calibrating puzzle matrix...</div>
+                </div>
+            </div>
+        </div>
 
-        function renderOptions(type, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = ''; // Clear previous options
-            const options = gameOptions[type]; // Use the 'type' to get the array from gameOptions
-            options.forEach(option => {
-                const button = document.createElement('button');
-                button.classList.add('option-btn', 'primary-btn');
-                button.dataset.type = type; // Store the category type
-                button.dataset.id = option.id;
-                button.innerHTML = `
-                    <span class="font-heading text-base">${option.name}</span>
-                    <span class="font-body text-xs text-text-secondary">${option.description}</span>
-                `;
-                container.appendChild(button);
-            });
-            // Auto-select first option if none is selected and it's the first render
-            if (!selectedOptions[type] && options.length > 0) {
-                selectedOptions[type] = options[0].id;
-                container.querySelector(`.option-btn[data-id="${options[0].id}"]`).classList.add('active');
-            } else if (selectedOptions[type]) {
-                 // Re-apply active class if an option was already selected (e.g., after going 'back')
-                const activeBtn = container.querySelector(`.option-btn[data-id="${selectedOptions[type]}"]`);
-                if (activeBtn) {
-                    activeBtn.classList.add('active');
-                }
-            }
-        }
+        <!-- Settings Page -->
+        <div id="settings" class="mockup">
+            <div class="mockup-header"><h2>Settings</h2></div>
+            <div class="mockup-content">
+                <div class="game-screen start-screen"> <!-- Using start-screen for background -->
+                    <div class="start-content"> <!-- Using start-content for the box styling -->
+                        <div class="settings-section">
+                            <label for="music-toggle">Music</label>
+                            <button id="music-toggle" class="toggle-btn active">ON</button>
+                        </div>
+                        <div class="settings-section">
+                            <label for="sfx-toggle">Sound Effects</label>
+                            <button id="sfx-toggle" class="toggle-btn active">ON</button>
+                        </div>
+                        <div class="settings-section">
+                            <label for="volume-slider">Volume</label>
+                            <input type="range" id="volume-slider" min="0" max="100" value="80">
+                        </div>
+                        <div class="settings-section">
+                            <label for="language-select">Language</label>
+                            <select id="language-select">
+                                <option>English</option>
+                                <option>Spanish</option>
+                                <option>Norwegian</option>
+                                <option>French</option>
+                                <option>Italian</option>
+                            </select>
+                        </div>
+                        <div class="design-actions">
+                            <button class="action-btn primary">CLOSE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        function validateSelection(stepName) {
-            // Updated to use the correct key from gameOptions
-            const type = (stepName === 'theme') ? 'themes' : 
-                         (stepName === 'location') ? 'locations' : 
-                         (stepName === 'difficulty') ? 'difficulty_levels' : stepName;
-            if (type === 'puzzle_type') return true; // Puzzle type is not directly selectable in this flow
-            return selectedOptions[type] !== null;
-        }
+        <!-- Load Game Page -->
+        <div id="load-game" class="mockup">
+            <div class="mockup-header"><h2>Load Game</h2></div>
+            <div class="mockup-content">
+                <div class="game-screen load-game-screen">
+                    <div class="saved-games-list">
+                        <div class="saved-game-item">
+                            <p>Save Slot 1 - Haunted Mansion</p>
+                            <small>Date: 2025-11-20 | Time: 01:23:45</small>
+                        </div>
+                        <div class="saved-game-item">
+                            <p>Save Slot 2 - Ancient Tomb</p>
+                            <small>Date: 2025-11-19 | Time: 00:45:12</small>
+                        </div>
+                        <div class="design-actions">
+                            <button class="action-btn">BACK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        async function startGame() {
-            // Default puzzle_type for now. In a more complex app, this might be theme-dependent.
-            selectedOptions.puzzle_type = gameOptions.puzzle_types[0].id; // Taking the first puzzle type as default
+        <!-- Game Page -->
+        <div id="immersive" class="mockup">
+            <div class="mockup-header"><h2>Immersive Adventure</h2></div>
+            <div class="mockup-content">
+                <div class="game-screen immersive-screen">
+                    <div class="immersive-main">
+                                                    <div class="immersive-text-box">
+                                                        <h3>The Cold Embrace of Starlight</h3>
+                                                        <p>A frigid, metallic tang invades your senses as your vision flickers into reluctant focus. You're confined within a damaged cryo-pod, its low hum now punctuated by the urgent, crimson flash of a warning light. A synthetic voice, eerily calm, intones: "System integrity compromised. Emergency protocols initiated." The air, thick with ozone and the chill of deep space, clings to your skin. Before you, a reinforced hatch, your only exit, remains stubbornly dark and unresponsive.</p>                            <div class="immersive-options">
+                                <div class="immersive-option" data-action="updateObjective" data-value="Find a way to power the door.">1. Check the cryo-pod's diagnostic screen.</div>
+                                <div class="immersive-option" data-action="addItem" data-value="ID-Card">2. Try to override the door controls.</div>
+                                <div class="immersive-option" data-action="removeItem" data-value="Rusty Key">3. Search the nearby storage locker.</div>
+                                <div class="immersive-option">4. Wait for help.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="immersive-sidebar">
+                        <h3>GAME STATUS</h3>
+                        <p class="game-timer">TIME: 00:12:34</p>
+                        <p class="current-location-subtext">Current Location: The Forgotten Crypt</p>
+                        <div class="status-box">
+                            <h4>OBJECTIVE</h4>
+                            <p id="objective-text"></p>
+                        </div>
+                        <div class="status-box">
+                            <h4>INVENTORY</h4>
+                            <ul id="inventory-list"></ul>
+                        </div>
+                        <div id="hint-box" class="status-box">
+                            <h4>HINT <span id="hint-budget"></span></h4>
+                            <p id="hint-text">Click for a hint</p>
+                            <div id="hint-cooldown"></div>
+                        </div>
+                        <div class="retro-actions">
+                            <button data-action="showPage" data-value="settings">SETTINGS</button>
+                            <button data-action="saveGame">SAVE</button>
+                            <button data-action="showPage" data-value="start">QUIT</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            try {
-                const response = await fetch('/start_game', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        player_id: PLAYER_ID,
-                        theme: selectedOptions.themes, // Use selectedOptions.themes
-                        location: selectedOptions.locations, // Use selectedOptions.locations
-                        difficulty: selectedOptions.difficulty_levels, // Use selectedOptions.difficulty_levels
-                        // puzzle_type: selectedOptions.puzzle_type // Currently not passed to start_game backend
-                    }),
-                });
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                }
-
-                const gameData = await response.json();
-                window.location.href = `/game/${gameData.id}`; // Redirect to the game page
-            } catch (error) {
-                console.error('Failed to start game:', error);
-                alert('Failed to start game: ' + error.message);
-            }
-        }
-
-        function showError(show) {
-            if (show) {
-                errorMessage.classList.remove('hidden');
-            } else {
-                errorMessage.classList.add('hidden');
-            }
-        }
-
-        function resetSelectedOptions() {
-            selectedOptions = {
-                theme: null,
-                location: null,
-                difficulty: null,
-                puzzle_type: null
-            };
-            document.querySelectorAll('.option-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-        }
-
-        async function showLoadGameSection() {
-            gameModeSelection.classList.add('hidden');
-            gameSetupWizard.classList.add('hidden'); // Ensure wizard is hidden
-            loadGameSection.classList.remove('hidden');
-            await fetchSavedGames(PLAYER_ID);
-        }
-
-        async function fetchSavedGames(playerId) {
-            try {
-                const response = await fetch(`/saved_games?player_id=${playerId}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const savedGames = await response.json();
-                renderSavedGames(savedGames);
-            } catch (error) {
-                console.error('Failed to fetch saved games:', error);
-                savedGamesList.innerHTML = `<p class="text-red-500 text-center">Failed to load saved games.</p>`;
-            }
-        }
-
-        function renderSavedGames(savedGames) {
-            savedGamesList.innerHTML = ''; // Clear previous list
-            if (savedGames.length === 0) {
-                savedGamesList.innerHTML = `<p class="text-text-secondary text-center">No saved games found.</p>`;
-                return;
-            }
-
-            savedGames.forEach(game => {
-                const savedAt = new Date(game.saved_at).toLocaleString();
-                const button = document.createElement('button');
-                button.classList.add('saved-game-btn', 'option-btn', 'primary-btn', 'text-left');
-                button.dataset.id = game.id;
-                button.innerHTML = `
-                    <span class="font-heading text-lg">${game.save_name}</span>
-                    <span class="font-body text-xs text-text-secondary">Saved: ${savedAt}</span>
-                `;
-                savedGamesList.appendChild(button);
-            });
-        }
-
-        async function loadSelectedGame(savedGameId) {
-            try {
-                const response = await fetch(`/load_game/${savedGameId}`);
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                }
-                const loadedGameData = await response.json();
-                window.location.href = `/game/${loadedGameData.id}`; // Redirect to the game page with the loaded session ID
-            } catch (error) {
-                console.error('Failed to load game:', error);
-                alert('Failed to load game: ' + error.message);
-            }
-        }
-    </script>
 </body>
 </html>
+
+
