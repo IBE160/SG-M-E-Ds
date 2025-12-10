@@ -1,10 +1,11 @@
 import pytest
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
+import os
 
 
 def test_room_data_structure():
     assert isinstance(ROOM_DATA, dict)
-    assert len(ROOM_DATA) == 5
+    assert len(ROOM_DATA) == 7
 
     for room_id, room_info in ROOM_DATA.items():
         assert "name" in room_info
@@ -75,3 +76,21 @@ def test_specific_room_images():
     assert ROOM_DATA["escape_chamber"]["image"] == "escape_chamber.jpg"
     assert ROOM_DATA["sci-fi_hangar"]["image"] == "scifi_hangar.jpg"
     assert ROOM_DATA["underwater_lab"]["image"] == "underwater_lab.jpg"
+
+# Helper to check if an image file exists in the static/images directory
+def image_file_exists(image_filename):
+    script_dir = os.path.dirname(__file__)
+    # Go up two directories from tests/unit to ai-escape-app/
+    app_root_dir = os.path.abspath(os.path.join(script_dir, '..'))
+    image_path = os.path.join(app_root_dir, 'static', 'images', image_filename)
+    return os.path.exists(image_path)
+
+def test_room_images_are_present_on_disk():
+    """
+    Verify that all image files referenced in ROOM_DATA actually exist on disk.
+    """
+    for room_id, room_info in ROOM_DATA.items():
+        image_filename = room_info.get("image")
+        if image_filename:
+            assert image_file_exists(image_filename), \
+                f"Image file '{image_filename}' for room '{room_id}' does not exist on disk."

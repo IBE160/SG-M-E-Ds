@@ -57,6 +57,32 @@ ROOM_DATA = {
             }
         },
         "exits": {"west": "sci-fi_hangar"}
+    },
+    "abandoned_mansion": {
+        "name": "Abandoned Mansion",
+        "description": "Dust motes dance in sunbeams piercing the grimy windows of a once-grand hall. Cobwebs drape from chandeliers like tattered lace.",
+        "image": "Abandiond Mansion.jpg", # Corrected image name
+        "puzzles": {
+            "mansion_riddle": {
+                "description": "I have a heart, but cannot love. I have a mouth, but cannot speak. I have a house, but cannot live. What am I?",
+                "solution": "bell",
+                "solved": False
+            }
+        },
+        "exits": {"north": "hidden_attic"} # Placeholder exit
+    },
+    "ancient_tomb": {
+        "name": "Ancient Tomb",
+        "description": "Hieroglyphs cover every inch of the cold stone walls. The air is dry and smells of dust and ancient rituals. A massive sarcophagus dominates the center.",
+        "image": "ancient Tomb.jpg", # Corrected image name
+        "puzzles": {
+            "hieroglyph_puzzle": {
+                "description": "Arrange the ancient tiles to reveal the name of the forgotten pharaoh.",
+                "solution": "RAMSES",
+                "solved": False
+            }
+        },
+        "exits": {"south": "oasis_ruins"} # Placeholder exit
     }
 }
 
@@ -64,6 +90,8 @@ ROOM_DATA = {
 PUZZLE_SOLUTIONS = {
     "observation_puzzle": "3",
     "riddle_puzzle": "map",
-    "console_puzzle": "ALPHA7", # New puzzle solution
-    "pressure_puzzle": "528",    # New puzzle solution
+    "console_puzzle": "ALPHA7",
+    "pressure_puzzle": "528",
+    "mansion_riddle": "bell",
+    "hieroglyph_puzzle": "RAMSES",
 }
