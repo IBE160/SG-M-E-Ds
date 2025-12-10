@@ -66,7 +66,7 @@
       while code-review != approved:
         - [x] /run-agent-task dev *develop-story {prompt / user-input-file}
         - [x] /run-agent-task dev *code-review {prompt / user-input-file}
-      - [ ] /run-agent-task dev *story-done {prompt / user-input-file}
+      - [x] /run-agent-task dev *story-done {prompt / user-input-file}
       - [ ] /run-agent-task sm *test-review {prompt / user-input-file}
     - [ ] /run-agent-task sm *epic-retrospective {prompt / user-input-file}
 

@@ -1,6 +1,6 @@
 # Story 4.3: Implement Enhanced Game Setup Flow
 
-Status: review
+Status: done
 
 ## Story
 

@@ -3,7 +3,7 @@
     <epicId>4</epicId>
     <storyId>3</storyId>
     <title>Implement Enhanced Game Setup Flow</title>
-    <status>drafted</status>
+    <status>done</status>
     <generatedAt>2025-12-04</generatedAt>
     <generator>BMAD Story Context Workflow</generator>
     <sourceStoryPath>docs/sprint-artifacts/4-3-implement-enhanced-game-setup-flow.md</sourceStoryPath>
@@ -57,7 +57,7 @@
     </doc>
     <doc>
         <path>docs/architecture.md</path>
-        <title>Architecture</title>
+        <title>Architecture</path>
         <section>API Pattern for AI interactions</section>
         <snippet>Flask API Routes will handle communication between the frontend and backend (relevant for retrieving options).</snippet>
     </doc>
@@ -116,7 +116,7 @@
         <code-ref>
             <path>tests/</path>
             <kind>directory</kind>
-            <reason>For new unit, integration, and E2E tests.</reason>
+            <reason>For new unit and integration tests.</reason>
         </code-ref>
     </code>
     <dependencies>
@@ -125,7 +125,7 @@
         <package name="python-dotenv" version="?" />
         <package name="gunicorn" version="?" />
         <package name="pytest" version="?" />
-        <note>Core Python dependencies for the Flask application.</note>
+        <note>Core Python dependencies for the Flask application and Google Gemini API client.</note>
       </python>
       <node>
         <package name="playwright" version="?" />

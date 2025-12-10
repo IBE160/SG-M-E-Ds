@@ -1,6 +1,6 @@
 # Story 4.2: Expand Library of Visual Assets and Themes
 
-Status: review
+Status: done
 
 ## Story
 
@@ -23,7 +23,7 @@ So that players have more diverse and immersive choices for their escape rooms.
 - [x] AC 1: Implement unit and integration tests.
   - [x] Subtask: Write unit tests to verify the new image assets are correctly located and mapped to themes.
   - [x] Subtask: Write unit tests for `services/ai_service.py` functions, mocking the Gemini API to verify prompt construction for new themes.
-  - [ ] Subtask: Manual/Exploratory testing to assess the visual consistency of AI-generated content with new themes.
+  - [x] Subtask: Manual/Exploratory testing to assess the visual consistency of AI-generated content with new themes.
 
 ## Dev Notes
 
