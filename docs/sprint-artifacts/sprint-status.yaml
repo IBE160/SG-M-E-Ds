@@ -47,12 +47,12 @@ development_status:
   epic-2: contexted
   2-1-integrate-ai-narrative-generation-service: done
   2-2-dynamic-room-description-generation: done
-  2-3-implement-narrative-archetypes-for-coherence: in-progress
+  2-3-implement-narrative-archetypes-for-coherence: review
   2-4-dynamic-theme-and-location-integration: in-progress
   epic-2-retrospective: optional
 
   epic-3: contexted
-  3-1-integrate-ai-puzzle-generation-service: ready-for-dev
+  3-1-integrate-ai-puzzle-generation-service: done
   3-2-implement-dynamic-puzzle-adaptation: ready-for-dev
   3-3-implement-puzzle-dependency-chains: ready-for-dev
   3-4-integrate-player-puzzle-interaction: review

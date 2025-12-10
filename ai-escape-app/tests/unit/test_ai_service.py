@@ -91,9 +91,9 @@ def test_generate_narrative_with_theme_and_location(mock_genai):
 
     mock_genai.GenerativeModel.return_value.generate_content.assert_called_once()
     prompt = mock_genai.GenerativeModel.return_value.generate_content.call_args[0][0]
-    assert "A prompt for the story." in prompt
-    assert "Theme: space" in prompt
-    assert "Location: mars colony" in prompt
+    assert "<user_prompt>A prompt for the story.</user_prompt>" in prompt
+    assert "<theme>space</theme>" in prompt
+    assert "<location>mars colony</location>" in prompt
 
 @patch('services.ai_service.genai')
 def test_generate_puzzle_success(mock_genai):
@@ -122,14 +122,35 @@ def test_generate_puzzle_success(mock_genai):
     
     assert result == {"description": "What has an eye but cannot see?", "solution": "A needle"}
     
-    # Assert that the prompt contains the relevant information
+    # Assert that the prompt contains the relevant information with delimiters
     prompt = mock_genai.GenerativeModel.return_value.generate_content.call_args[0][0]
     assert "Generate an escape room puzzle" in prompt
-    assert f"Difficulty: {difficulty}" in prompt
-    assert f"Theme: {theme}" in prompt
-    assert f"Location: {location}" in prompt
+    assert f"<difficulty>{difficulty}</difficulty>" in prompt
+    assert f"<theme>{theme}</theme>" in prompt
+    assert f"<location>{location}</location>" in prompt
     assert f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}" in prompt
-    assert f"Additional context: {puzzle_context}" in prompt
+    assert f"<additional_context_json>{json.dumps(puzzle_context)}</additional_context_json>" in prompt
+
+@patch('services.ai_service.genai')
+def test_generate_puzzle_with_sanitization(mock_genai):
+    mock_response = MagicMock()
+    mock_response.text = '{"description": " sanitized ", "solution": " sanitized "}'
+    mock_genai.GenerativeModel.return_value.generate_content.return_value = mock_response
+
+    # Malicious input
+    puzzle_type = "Riddle with {injection}"
+
+    generate_puzzle(
+        puzzle_type=puzzle_type,
+        difficulty="easy",
+        theme="fantasy",
+        location="forest"
+    )
+    
+    prompt = mock_genai.GenerativeModel.return_value.generate_content.call_args[0][0]
+    # Check that the injection was escaped
+    assert "<puzzle_type>Riddle with {{injection}}</puzzle_type>" in prompt
+    assert "Riddle with {injection}" not in prompt
 
 @patch('services.ai_service.genai')
 def test_generate_puzzle_api_error(mock_genai):
@@ -241,14 +262,14 @@ def test_evaluate_and_adapt_puzzle_prompt_content(mock_genai):
     call_args, _ = mock_genai.GenerativeModel.return_value.generate_content.call_args
     prompt = call_args[0]
 
-    assert f"Puzzle ID: {puzzle_id}" in prompt
-    assert f"Correct Solution: {puzzle_solution}" in prompt
-    assert f"Player's Attempt: {player_attempt}" in prompt
-    assert f"Current Puzzle State: {current_puzzle_state}" in prompt
-    assert f"Current Puzzle Description: {current_puzzle_description}" in prompt
-    assert f"Theme: {theme}" in prompt
-    assert f"Location: {location}" in prompt
-    assert f"Difficulty: {difficulty}" in prompt
+    assert f"<puzzle_id>{puzzle_id}</puzzle_id>" in prompt
+    assert f"<puzzle_solution>{puzzle_solution}</puzzle_solution>" in prompt
+    assert f"<player_attempt>{player_attempt}</player_attempt>" in prompt
+    assert f"<puzzle_state>{json.dumps(current_puzzle_state)}</puzzle_state>" in prompt
+    assert f"<puzzle_description>{current_puzzle_description}</puzzle_description>" in prompt
+    assert f"<theme>{theme}</theme>" in prompt
+    assert f"<location>{location}</location>" in prompt
+    assert f"<difficulty>{difficulty}</difficulty>" in prompt
     assert f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}" in prompt
     assert "Evaluate their attempt and provide feedback" in prompt
     assert '"is_correct": boolean' in prompt
@@ -315,12 +336,10 @@ def test_adjust_difficulty_based_on_performance_prompt_content(mock_genai):
     prompt = call_args[0]
 
     assert "Player Performance Metrics (puzzle_state):" in prompt
-    assert f'"puzzle1": {{' in prompt # Check for start of puzzle1 metrics
-    assert f'"attempts": 1' in prompt
-    assert f'"hints_used": 0' in prompt
-    assert f"Theme: {theme}" in prompt
-    assert f"Location: {location}" in prompt
-    assert f"Overall Difficulty: {overall_difficulty}" in prompt
+    assert f"<player_performance>{json.dumps(puzzle_state, indent=2)}</player_performance>" in prompt
+    assert f"<theme>{theme}</theme>" in prompt
+    assert f"<location>{location}</location>" in prompt
+    assert f"<difficulty>{overall_difficulty}</difficulty>" in prompt
     assert f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}" in prompt
     assert "recommend a subtle adjustment to the difficulty" in prompt
     assert '"difficulty_adjustment": string' in prompt

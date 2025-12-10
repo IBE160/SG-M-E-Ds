@@ -3,6 +3,11 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from data.narrative_archetypes import NARRATIVE_ARCHETYPES
 import json # New import
+import logging # Added for structured logging
+
+# Basic logging configuration
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 load_dotenv() # Load environment variables from .env file
 
@@ -13,37 +18,53 @@ if not GEMINI_API_KEY:
 
 genai.configure(api_key=GEMINI_API_KEY)
 
+def _sanitize_input(text: str) -> str:
+    """
+    A basic sanitizer to prevent simple prompt injection by escaping characters
+    that might be used to manipulate structured prompts (e.g., f-string syntax).
+    A more robust solution for production might involve more complex validation
+    or allow-listing of inputs.
+    """
+    if not isinstance(text, str):
+        return text
+    return text.replace('{', '{{').replace('}', '}}')
+
+
+
 def generate_narrative(prompt: str, narrative_archetype: str = None, theme: str = None, location: str = None) -> str:
     """
     Sends a prompt to the Gemini API and returns the generated narrative text.
     If a narrative_archetype is provided, it will be used to structure the story.
     """
+    # Sanitize main prompt
+    safe_prompt = _sanitize_input(prompt)
+
     if narrative_archetype and narrative_archetype in NARRATIVE_ARCHETYPES:
         archetype_beats = NARRATIVE_ARCHETYPES[narrative_archetype]["beats"]
-        prompt = f"""
-        {prompt}
+        safe_prompt = f"""
+        <user_prompt>{safe_prompt}</user_prompt>
 
         Please structure the story according to the following narrative beats:
-        {archetype_beats}
+        <narrative_beats>{_sanitize_input(archetype_beats)}</narrative_beats>
         """
     
     if theme and location:
-        prompt = f"""
-        {prompt}
+        safe_prompt = f"""
+        <user_prompt>{safe_prompt}</user_prompt>
 
         The story should be consistent with the following theme and location:
-        Theme: {theme}
-        Location: {location}
+        Theme: <theme>{_sanitize_input(theme)}</theme>
+        Location: <location>{_sanitize_input(location)}</location>
         """
 
     try:
         model = genai.GenerativeModel('gemini-pro')
-        response = model.generate_content(prompt)
+        response = model.generate_content(safe_prompt)
         # Assuming the narrative is directly in the text attribute of the response
         return response.text
     except Exception as e:
         # Basic error handling
-        print(f"Error generating narrative: {e}")
+        logging.error(f"Error generating narrative: {e}")
         return f"Error: Could not generate narrative. {e}"
 
 def generate_room_description(theme: str, location: str, narrative_state: str, room_context: dict, current_room_id: str, narrative_archetype: str = None) -> str:
@@ -53,10 +74,10 @@ def generate_room_description(theme: str, location: str, narrative_state: str, r
     """
     archetype_info = ""
     if narrative_archetype and narrative_archetype in NARRATIVE_ARCHETYPES:
-        archetype_info = f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}"
+        archetype_info = f"Narrative Archetype: {_sanitize_input(NARRATIVE_ARCHETYPES[narrative_archetype]['name'])}"
 
     prompt = f"""
-    Generate a unique and descriptive room description for the room identified as '{current_room_id}' in an escape room game.
+    Generate a unique and descriptive room description for the room identified as '{_sanitize_input(current_room_id)}' in an escape room game.
     The description should be consistent with the provided theme, location, narrative, and room context.
     The available themes include 'classic mystery' (e.g., ancient library, mysterious observatory),
     'sci-fi' (e.g., sci-fi hangar, derelict spaceship), and 'underwater' (e.g., underwater laboratory).
@@ -64,10 +85,10 @@ def generate_room_description(theme: str, location: str, narrative_state: str, r
 
     {archetype_info}
 
-    Theme: {theme}
-    Location: {location}
-    Narrative so far: {narrative_state}
-    Current Room Context: {room_context}
+    Theme: <theme>{_sanitize_input(theme)}</theme>
+    Location: <location>{_sanitize_input(location)}</location>
+    Narrative so far: <narrative_state>{_sanitize_input(narrative_state)}</narrative_state>
+    Current Room Context: <room_context>{json.dumps(room_context)}</room_context>
 
     Description:
     """
@@ -76,7 +97,7 @@ def generate_room_description(theme: str, location: str, narrative_state: str, r
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
-        print(f"Error generating room description: {e}")
+        logging.error(f"Error generating room description: {e}")
         return f"Error: Could not generate room description. {e}"
 
 
@@ -88,26 +109,26 @@ def generate_puzzle(puzzle_type: str, difficulty: str, theme: str, location: str
     """
     archetype_info = ""
     if narrative_archetype and narrative_archetype in NARRATIVE_ARCHETYPES:
-        archetype_info = f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}"
+        archetype_info = f"Narrative Archetype: {_sanitize_input(NARRATIVE_ARCHETYPES[narrative_archetype]['name'])}"
 
     context_info = ""
     if puzzle_context:
-        context_info = f"Additional context: {puzzle_context}"
+        context_info = f"<additional_context_json>{json.dumps(puzzle_context)}</additional_context_json>"
 
     prerequisites_info = ""
     if prerequisites:
-        prerequisites_info = f"Prerequisites: {prerequisites}. The puzzle should only be solvable if these are met."
+        prerequisites_info = f"Prerequisites: {json.dumps(prerequisites)}. The puzzle should only be solvable if these are met."
 
     outcomes_info = ""
     if outcomes:
-        outcomes_info = f"Outcomes: {outcomes}. Solving this puzzle should lead to these outcomes."
+        outcomes_info = f"Outcomes: {json.dumps(outcomes)}. Solving this puzzle should lead to these outcomes."
 
     prompt = f"""
-    Generate an escape room puzzle. The puzzle should be a {puzzle_type} and match the following criteria:
+    Generate an escape room puzzle. The puzzle should be of type <puzzle_type>{_sanitize_input(puzzle_type)}</puzzle_type> and match the following criteria:
 
-    Difficulty: {difficulty}
-    Theme: {theme}
-    Location: {location}
+    Difficulty: <difficulty>{_sanitize_input(difficulty)}</difficulty>
+    Theme: <theme>{_sanitize_input(theme)}</theme>
+    Location: <location>{_sanitize_input(location)}</location>
     The available themes include 'classic mystery' (e.g., ancient library, mysterious observatory),
     'sci-fi' (e.g., sci-fi hangar, derelict spaceship), and 'underwater' (e.g., underwater laboratory).
     Ensure the puzzle's style and content matches the selected theme.
@@ -133,10 +154,10 @@ def generate_puzzle(puzzle_type: str, difficulty: str, theme: str, location: str
         model = genai.GenerativeModel('gemini-pro')
         response = model.generate_content(prompt)
         # Attempt to parse the response as JSON
-        import json
+        # No need to import json again if it's at the top level
         return json.loads(response.text)
     except Exception as e:
-        print(f"Error generating puzzle: {e}")
+        logging.error(f"Error generating puzzle: {e}")
         return {"error": f"Could not generate puzzle. {e}"}
 
 
@@ -153,42 +174,27 @@ def evaluate_and_adapt_puzzle(
 ) -> dict:
     """
     Evaluates a player's puzzle attempt and requests adaptation (hint/difficulty adjustment) from Gemini API.
-
-    Args:
-        puzzle_id: Identifier for the puzzle.
-        player_attempt: The player's submitted solution.
-        puzzle_solution: The correct solution to the puzzle.
-        current_puzzle_state: The current state of the puzzle within GameSession.puzzle_state.
-        current_puzzle_description: The description of the puzzle.
-        theme: The overall theme of the game.
-        location: The current location in the game.
-        difficulty: The current difficulty of the game.
-        narrative_archetype: The selected narrative archetype, if any.
-
-    Returns:
-        A dictionary containing evaluation feedback, hints, or difficulty adjustments from the AI.
-        Example: {'is_correct': False, 'feedback': 'That's not quite right. Think about...', 'hint': 'Consider the shadows.'}
     """
     archetype_info = ""
     if narrative_archetype and narrative_archetype in NARRATIVE_ARCHETYPES:
-        archetype_info = f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}"
+        archetype_info = f"Narrative Archetype: {_sanitize_input(NARRATIVE_ARCHETYPES[narrative_archetype]['name'])}"
 
     prompt = f"""
     A player attempted to solve a puzzle in an escape room. Evaluate their attempt and provide feedback,
     and optionally a hint or suggestion for adapting the puzzle's difficulty.
 
     Game Context:
-    Theme: {theme}
-    Location: {location}
-    Difficulty: {difficulty}
+    Theme: <theme>{_sanitize_input(theme)}</theme>
+    Location: <location>{_sanitize_input(location)}</location>
+    Difficulty: <difficulty>{_sanitize_input(difficulty)}</difficulty>
     {archetype_info}
 
     Puzzle Details:
-    Puzzle ID: {puzzle_id}
-    Correct Solution: {puzzle_solution}
-    Player's Attempt: {player_attempt}
-    Current Puzzle State: {current_puzzle_state}
-    Current Puzzle Description: {current_puzzle_description} # New addition to prompt
+    Puzzle ID: <puzzle_id>{_sanitize_input(puzzle_id)}</puzzle_id>
+    Correct Solution: <puzzle_solution>{_sanitize_input(puzzle_solution)}</puzzle_solution>
+    Player's Attempt: <player_attempt>{_sanitize_input(player_attempt)}</player_attempt>
+    Current Puzzle State: <puzzle_state>{json.dumps(current_puzzle_state)}</puzzle_state>
+    Current Puzzle Description: <puzzle_description>{_sanitize_input(current_puzzle_description)}</puzzle_description>
 
     Based on the player's attempt and the correct solution, provide the following in JSON format:
     - "is_correct": boolean (True if attempt matches solution, False otherwise)
@@ -209,10 +215,9 @@ def evaluate_and_adapt_puzzle(
     try:
         model = genai.GenerativeModel('gemini-pro')
         response = model.generate_content(prompt)
-        # import json
         return json.loads(response.text)
     except Exception as e:
-        print(f"Error evaluating and adapting puzzle: {e}")
+        logging.error(f"Error evaluating and adapting puzzle: {e}")
         return {"error": f"Could not evaluate and adapt puzzle. {e}"}
 
 def adjust_difficulty_based_on_performance(
@@ -225,37 +230,22 @@ def adjust_difficulty_based_on_performance(
     """
     Formulates a prompt for the Gemini API to recommend difficulty adjustments
     based on player performance metrics.
-
-    Args:
-        puzzle_state: A dictionary containing metrics for each puzzle (e.g., attempts, hints_used).
-        theme: The overall theme of the escape room.
-        location: The current location in the game.
-        overall_difficulty: The current overall difficulty setting of the game.
-        narrative_archetype: The selected narrative archetype, if any.
-
-    Returns:
-        A dictionary containing AI's suggestion for difficulty adjustment and new puzzle parameters.
-        Example: {
-            "difficulty_adjustment": "easier",
-            "reasoning": "Player struggled with previous puzzle, suggest simpler mechanics.",
-            "suggested_puzzle_parameters": {"complexity": "low", "hint_frequency": "high"}
-        }
     """
     archetype_info = ""
     if narrative_archetype and narrative_archetype in NARRATIVE_ARCHETYPES:
-        archetype_info = f"Narrative Archetype: {NARRATIVE_ARCHETYPES[narrative_archetype]['name']}"
+        archetype_info = f"Narrative Archetype: {_sanitize_input(NARRATIVE_ARCHETYPES[narrative_archetype]['name'])}"
 
     prompt = f"""
     A player is progressing through an escape room game. Based on their performance
     in past puzzles, recommend a subtle adjustment to the difficulty for future puzzles.
 
     Player Performance Metrics (puzzle_state):
-    {json.dumps(puzzle_state, indent=2)}
+    <player_performance>{json.dumps(puzzle_state, indent=2)}</player_performance>
 
     Game Context:
-    Theme: {theme}
-    Location: {location}
-    Overall Difficulty: {overall_difficulty}
+    Theme: <theme>{_sanitize_input(theme)}</theme>
+    Location: <location>{_sanitize_input(location)}</location>
+    Overall Difficulty: <difficulty>{_sanitize_input(overall_difficulty)}</difficulty>
     {archetype_info}
 
     Provide your recommendation in JSON format, including:
@@ -275,8 +265,7 @@ def adjust_difficulty_based_on_performance(
     try:
         model = genai.GenerativeModel('gemini-pro')
         response = model.generate_content(prompt)
-        # import json
         return json.loads(response.text)
     except Exception as e:
-        print(f"Error adjusting difficulty: {e}")
+        logging.error(f"Error adjusting difficulty: {e}")
         return {"error": f"Could not adjust difficulty. {e}"}

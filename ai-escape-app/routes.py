@@ -15,6 +15,7 @@ from services.ai_service import generate_narrative, generate_room_description, g
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
 from data.game_options import GAME_SETUP_OPTIONS
 from data.help_content import HELP_CONTENT # New import
+import logging
 from data.game_settings import GAME_SETTINGS # New import
 
 bp = Blueprint("main", __name__)
@@ -309,22 +310,27 @@ def solve_puzzle_route(session_id):
 @bp.route("/generate_narrative", methods=["POST"])
 def generate_narrative_route():
     data = request.get_json()
+    logging.info(f"Received request to /generate_narrative with data: {data}")
     prompt = data.get("prompt")
     narrative_archetype = data.get("narrative_archetype")
 
     if not prompt:
+        logging.warning("generate_narrative_route: Missing prompt.")
         return jsonify({"error": "Prompt is required"}), 400
 
     narrative = generate_narrative(prompt, narrative_archetype=narrative_archetype)
 
     if narrative.startswith("Error:"):
+        logging.error(f"AI service failed to generate narrative. Error: {narrative}")
         return jsonify({"error": narrative}), 500
     
+    logging.info("Successfully generated narrative.")
     return jsonify({"narrative": narrative}), 200
 
 @bp.route("/generate_room_description", methods=["POST"])
 def generate_room_description_route():
     data = request.get_json()
+    logging.info(f"Received request to /generate_room_description with data: {data}")
     theme = data.get("theme")
     location = data.get("location")
     narrative_state = data.get("narrative_state")
@@ -333,6 +339,7 @@ def generate_room_description_route():
     narrative_archetype = data.get("narrative_archetype")
 
     if not all([theme, location, narrative_state, room_context, current_room_id]): # Added current_room_id to check
+        logging.warning("generate_room_description_route: Missing required parameters.")
         return jsonify({"error": "Theme, location, narrative_state, room_context, and current_room_id are required"}), 400
 
     description = generate_room_description(
@@ -340,13 +347,16 @@ def generate_room_description_route():
     )
 
     if description.startswith("Error:"):
+        logging.error(f"AI service failed to generate room description. Error: {description}")
         return jsonify({"error": description}), 500
 
+    logging.info(f"Successfully generated room description for room: {current_room_id}")
     return jsonify({"description": description}), 200
 
 @bp.route("/generate_puzzle", methods=["POST"])
 def generate_puzzle_route():
     data = request.get_json()
+    logging.info(f"Received request to /generate_puzzle with data: {data}")
     puzzle_type = data.get("puzzle_type")
     difficulty = data.get("difficulty")
     theme = data.get("theme")
@@ -355,6 +365,7 @@ def generate_puzzle_route():
     puzzle_context = data.get("puzzle_context")
 
     if not all([puzzle_type, difficulty, theme, location]):
+        logging.warning("generate_puzzle_route: Missing required parameters.")
         return jsonify({"error": "Puzzle type, difficulty, theme, and location are required"}), 400
 
     puzzle = generate_puzzle(
@@ -367,8 +378,10 @@ def generate_puzzle_route():
     )
 
     if "error" in puzzle:
+        logging.error(f"AI service failed to generate puzzle. Error: {puzzle['error']}")
         return jsonify({"error": puzzle["error"]}), 500
 
+    logging.info(f"Successfully generated puzzle for theme: {theme}, location: {location}")
     return jsonify(puzzle), 200
 
 @bp.route("/evaluate_puzzle_solution", methods=["POST"])
