@@ -13,6 +13,7 @@ from services.game_logic import (
     update_player_inventory,
     solve_puzzle,
     get_contextual_options,
+    verify_puzzle_solvability, # Added for tests
 )
 
 

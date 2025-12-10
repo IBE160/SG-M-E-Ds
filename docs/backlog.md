@@ -19,3 +19,4 @@ Routing guidance:
 | 2025-12-10 | 3.1 | 3 | Observability | Medium | TBD | Open | Implement structured JSON logging for requests/errors in `routes.py::generate_puzzle_route`. [file: `ai-escape-app/routes.py` lines: 331-352] |
 | 2025-12-10 | 3.1 | 3 | Refactor | Low | TBD | Open | Consider more granular exception handling in `ai_service.py` functions. |
 | 2025-12-10 | 3.1 | 3 | Refactor | Low | TBD | Open | Consider basic internal input validation within `ai_service.py::generate_puzzle` parameters. |
+| 2025-12-10 | 3.3 | 3 | Test | Medium | TBD | Open | Add dedicated unit tests for the `verify_puzzle_solvability` function in `ai-escape-app/services/game_logic.py`. [file: `ai-escape-app/tests/test_game_logic.py`] |
