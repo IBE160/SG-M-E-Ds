@@ -53,7 +53,7 @@ development_status:
 
   epic-3: contexted
   3-1-integrate-ai-puzzle-generation-service: done
-  3-2-implement-dynamic-puzzle-adaptation: ready-for-dev
+  3-2-implement-dynamic-puzzle-adaptation: done
   3-3-implement-puzzle-dependency-chains: ready-for-dev
   3-4-integrate-player-puzzle-interaction: review
   epic-3-retrospective: optional

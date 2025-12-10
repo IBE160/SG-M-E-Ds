@@ -291,10 +291,12 @@ def handle_inventory(session_id):
 @bp.route("/game_session/<int:session_id>/solve_puzzle", methods=["POST"])
 def solve_puzzle_route(session_id):
     data = request.get_json()
+    logging.info(f"Received request to /solve_puzzle/{session_id} with data: {data}")
     puzzle_id = data.get("puzzle_id")
     solution_attempt = data.get("solution_attempt") # This will now be passed directly
 
     if not puzzle_id or not solution_attempt:
+        logging.warning(f"solve_puzzle_route: Missing puzzle_id or solution_attempt for session {session_id}")
         return jsonify({"error": "Puzzle ID and solution attempt are required"}), 400
 
     is_solved, message, updated_session, ai_evaluation = solve_puzzle(
@@ -302,8 +304,13 @@ def solve_puzzle_route(session_id):
     )
 
     if updated_session is None: # Game session not found case
+        logging.error(f"solve_puzzle_route: Game session {session_id} not found.")
         return jsonify({"error": message}), 404
     
+    if "error" in ai_evaluation:
+        logging.error(f"AI service failed to evaluate puzzle for session {session_id}. Error: {ai_evaluation['error']}")
+    
+    logging.info(f"Puzzle solution attempt for session {session_id} processed. Solved: {is_solved}")
     # The AI evaluation will now contain the actual "is_correct" and "feedback"
     return jsonify({"is_solved": is_solved, "message": message, "session_id": updated_session.id, "ai_evaluation": ai_evaluation}), 200
 
@@ -387,6 +394,7 @@ def generate_puzzle_route():
 @bp.route("/evaluate_puzzle_solution", methods=["POST"])
 def evaluate_puzzle_solution_route():
     data = request.get_json()
+    logging.info(f"Received request to /evaluate_puzzle_solution with data: {data}")
     puzzle_id = data.get("puzzle_id")
     player_attempt = data.get("player_attempt")
     puzzle_solution = data.get("puzzle_solution")
@@ -398,6 +406,7 @@ def evaluate_puzzle_solution_route():
 
     required_params = [puzzle_id, player_attempt, puzzle_solution, current_puzzle_state, theme, location, difficulty]
     if not all(param is not None for param in required_params):
+        logging.warning("evaluate_puzzle_solution_route: Missing required parameters.")
         return jsonify({"error": "Missing required parameters for puzzle evaluation"}), 400
 
     current_puzzle_description = "Unknown puzzle description."
@@ -419,8 +428,10 @@ def evaluate_puzzle_solution_route():
     )
 
     if "error" in evaluation:
+        logging.error(f"AI service failed to evaluate puzzle solution. Error: {evaluation['error']}")
         return jsonify({"error": evaluation["error"]}), 500
 
+    logging.info(f"Successfully evaluated puzzle solution for puzzle: {puzzle_id}")
     return jsonify(evaluation), 200
 
 @bp.route("/adjust_difficulty", methods=["POST"])
