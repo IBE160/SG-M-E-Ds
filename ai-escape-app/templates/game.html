@@ -3,281 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Escape Room</title>
+    <title>AI Escape - Immersive Adventure</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body style="height: 100vh; margin: 0;">
-    <div id="background-image-container"></div>
-    <h1>AI Escape Room</h1>
-    <button id="save-game-btn">Save Game</button>
-    <button id="help-btn">Help</button>
-    <button id="options-btn">Options</button>
-
-    <h2>{{ room_name }}</h2>
-    <p id="room-description">{{ room_description }}</p>
-
-    <div id="game-options">
-        <!-- Options will be populated by JavaScript -->
-    </div>
-
-    <!-- Help Modal -->
-    <div id="help-modal" style="display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-        <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%;">
-            <span id="close-help-modal" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-            <h2>Help & Information</h2>
-            <div id="help-content-display">
-                <!-- Help content will be loaded here -->
+<body>
+    <div class="mockup-container">
+        <!-- Game Page -->
+        <div id="immersive" class="mockup active">
+            <div class="mockup-header"><h2>Immersive Adventure</h2></div>
+            <div class="mockup-content">
+                <div class="game-screen immersive-screen">
+                    <div class="immersive-main">
+                        <div class="immersive-text-box">
+                            <h3>The Cold Embrace of Starlight</h3>
+                            <p>A frigid, metallic tang invades your senses as your vision flickers into reluctant focus. You're confined within a damaged cryo-pod, its low hum now punctuated by the urgent, crimson flash of a warning light. A synthetic voice, eerily calm, intones: "System integrity compromised. Emergency protocols initiated." The air, thick with ozone and the chill of deep space, clings to your skin. Before you, a reinforced hatch, your only exit, remains stubbornly dark and unresponsive.</p>
+                            <div class="immersive-options">
+                                <div class="immersive-option" data-action="updateObjective" data-value="Find a way to power the door.">1. Check the cryo-pod's diagnostic screen.</div>
+                                <div class="immersive-option" data-action="addItem" data-value="ID-Card">2. Try to override the door controls.</div>
+                                <div class="immersive-option" data-action="removeItem" data-value="Rusty Key">3. Search the nearby storage locker.</div>
+                                <div class="immersive-option">4. Wait for help.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="immersive-sidebar">
+                        <h3>GAME STATUS</h3>
+                        <p class="game-timer">TIME: 00:12:34</p>
+                        <p class="current-location-subtext">Current Location: The Forgotten Crypt</p>
+                        <div class="status-box">
+                            <h4>OBJECTIVE</h4>
+                            <p id="objective-text"></p>
+                        </div>
+                        <div class="status-box">
+                            <h4>INVENTORY</h4>
+                            <ul id="inventory-list"></ul>
+                        </div>
+                        <div id="hint-box" class="status-box">
+                            <h4>HINT <span id="hint-budget"></span></h4>
+                            <p id="hint-text">Click for a hint</p>
+                            <div id="hint-cooldown"></div>
+                        </div>
+                        <div class="retro-actions">
+                            <button data-action="showPage" data-value="settings">SETTINGS</button>
+                            <button data-action="saveGame">SAVE</button>
+                            <button data-action="showPage" data-value="start">QUIT</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Options Modal -->
-    <div id="options-modal" style="display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-        <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%;">
-            <span id="close-options-modal" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-            <h2>Game Options</h2>
-            <div id="options-content-display">
-                <!-- Options will be loaded here -->
-            </div>
-            <button id="save-options-btn">Save Settings</button>
         </div>
     </div>
 
     <script>
-        const sessionId = {{ session_id }};
-        const saveGameBtn = document.getElementById('save-game-btn');
-        const helpBtn = document.getElementById('help-btn');
-        const optionsBtn = document.getElementById('options-btn'); // New
-        const helpModal = document.getElementById('help-modal');
-        const closeHelpModalBtn = document.getElementById('close-help-modal');
-        const helpContentDisplay = document.getElementById('help-content-display');
-        const optionsModal = document.getElementById('options-modal'); // New
-        const closeOptionsModalBtn = document.getElementById('close-options-modal'); // New
-        const optionsContentDisplay = document.getElementById('options-content-display'); // New
-        const saveOptionsBtn = document.getElementById('save-options-btn'); // New
-
-        let currentSettings = {}; // To store current settings, loaded from backend
-        const PLAYER_ID = 'test_e2e_player'; // Standardize PLAYER_ID for E2E tests
-
-        async function fetchGameState() {
-            const response = await fetch(`/game_session/${sessionId}`);
-            const data = await response.json();
-            
-            document.querySelector('h2').textContent = data.current_room_name;
-            document.getElementById('room-description').textContent = data.current_room_description;
-            // Dynamically update background image
-            const bgContainer = document.getElementById('background-image-container');
-            if (data.current_room_image) {
-                bgContainer.style.backgroundImage = `url(${data.current_room_image})`;
-            } else {
-                bgContainer.style.backgroundImage = ''; // Clear if no image
-            }
-
-            const optionsContainer = document.getElementById('game-options');
-            optionsContainer.innerHTML = '';
-            data.contextual_options.forEach((option, index) => {
-                const button = document.createElement('button');
-                button.textContent = option;
-                button.onclick = () => handleInteraction(index);
-                optionsContainer.appendChild(button);
-            });
-        }
-
-        async function handleInteraction(optionIndex) {
-            await fetch(`/game_session/${sessionId}/interact`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ option_index: optionIndex }),
-            });
-            fetchGameState(); // Refresh game state after interaction
-        }
-
-        async function saveCurrentGame() {
-            const saveName = prompt("Enter a name for your saved game:");
-            if (!saveName) {
-                alert("Save operation cancelled.");
-                return;
-            }
-
-            try {
-                const response = await fetch('/save_game', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ session_id: sessionId, save_name: saveName }),
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                }
-
-                alert(`Game saved successfully as "${saveName}"!`);
-            } catch (error) {
-                console.error('Failed to save game:', error);
-                alert('Failed to save game: ' + error.message);
-            }
-        }
-
-        async function fetchHelpContent() {
-            try {
-                const response = await fetch('/help_content');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const helpData = await response.json();
-                renderHelpContent(helpData);
-            } catch (error) {
-                console.error('Failed to fetch help content:', error);
-                helpContentDisplay.innerHTML = `<p style="color: red;">Failed to load help content.</p>`;
-            }
-        }
-
-        function renderHelpContent(helpData) {
-            helpContentDisplay.innerHTML = '';
-            for (const key in helpData) {
-                if (helpData.hasOwnProperty(key)) {
-                    const section = helpData[key];
-                    const sectionDiv = document.createElement('div');
-                    sectionDiv.innerHTML = `<h3>${section.title}</h3>` + 
-                                           section.content.map(p => `<p>${p}</p>`).join('');
-                    helpContentDisplay.appendChild(sectionDiv);
-                }
-            }
-        }
-
-        async function fetchGameSettings() {
-            try {
-                // Fetch general settings structure and defaults
-                const generalSettingsResponse = await fetch('/game_settings');
-                if (!generalSettingsResponse.ok) {
-                    throw new Error(`HTTP error! status: ${generalSettingsResponse.status}`);
-                }
-                const generalSettings = await generalSettingsResponse.json();
-
-                // Fetch player-specific settings
-                const playerSettingsResponse = await fetch(`/player_settings/${PLAYER_ID}`);
-                if (!playerSettingsResponse.ok) {
-                    throw new Error(`HTTP error! status: ${playerSettingsResponse.status}`);
-                }
-                const playerSettings = await playerSettingsResponse.json();
-
-                // Merge: player-specific settings override general defaults
-                currentSettings = { ...generalSettings, ...playerSettings.settings };
-                
-                renderGameSettings(generalSettings); // Render using general structure
-            } catch (error) {
-                console.error('Failed to fetch game settings:', error);
-                optionsContentDisplay.innerHTML = `<p style="color: red;">Failed to load game settings.</p>`;
-            }
-        }
-
-        function renderGameSettings(generalSettings) {
-            optionsContentDisplay.innerHTML = '';
-            for (const key in generalSettings) {
-                if (generalSettings.hasOwnProperty(key)) {
-                    const setting = generalSettings[key];
-                    const settingDiv = document.createElement('div');
-                    settingDiv.innerHTML = `<h4>${setting.title}</h4>`;
-                    let inputElement;
-
-                    if (setting.type === 'slider') {
-                        inputElement = document.createElement('input');
-                        inputElement.type = 'range';
-                        inputElement.min = setting.min;
-                        inputElement.max = setting.max;
-                        inputElement.step = setting.step;
-                        inputElement.value = currentSettings[key] || setting.default; // Use current or default
-                        inputElement.id = `setting-${key}`;
-                        inputElement.addEventListener('input', (event) => {
-                            currentSettings[key] = parseInt(event.target.value);
-                            // Optionally display current value next to slider
-                        });
-                    } else if (setting.type === 'select') {
-                        inputElement = document.createElement('select');
-                        inputElement.id = `setting-${key}`;
-                        setting.options.forEach(option => {
-                            const optionElement = document.createElement('option');
-                            optionElement.value = option.value;
-                            optionElement.textContent = option.label;
-                            if ((currentSettings[key] || setting.default) === option.value) {
-                                optionElement.selected = true;
-                            }
-                            inputElement.appendChild(optionElement);
-                        });
-                        inputElement.addEventListener('change', (event) => {
-                            currentSettings[key] = event.target.value;
-                        });
-                    }
-                    // Add other types as needed
-                    if (inputElement) {
-                        settingDiv.appendChild(inputElement);
-                    }
-                    optionsContentDisplay.appendChild(settingDiv);
-                }
-            }
-        }
-
-        async function saveGameSettings() {
-            try {
-                const response = await fetch('/update_options', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ player_id: PLAYER_ID, settings: currentSettings }), // Send player_id and all current settings
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                }
-
-                alert("Settings saved successfully!");
-                optionsModal.style.display = 'none'; // Close modal on success
-            } catch (error) {
-                console.error('Failed to save settings:', error);
-                alert('Failed to save settings: ' + error.message);
-            }
-        }
-
-
-        helpBtn.addEventListener('click', () => {
-            fetchHelpContent();
-            helpModal.style.display = 'block';
-        });
-
-        closeHelpModalBtn.addEventListener('click', () => {
-            helpModal.style.display = 'none';
-        });
-
-        optionsBtn.addEventListener('click', () => {
-            fetchGameSettings(); // Fetch current settings when opening
-            optionsModal.style.display = 'block';
-        });
-
-        closeOptionsModalBtn.addEventListener('click', () => {
-            optionsModal.style.display = 'none';
-        });
-
-        saveOptionsBtn.addEventListener('click', saveGameSettings);
-
-
-        // Close modal if user clicks outside of it
-        window.addEventListener('click', (event) => {
-            if (event.target == helpModal) {
-                helpModal.style.display = 'none';
-            }
-            if (event.target == optionsModal) {
-                optionsModal.style.display = 'none';
-            }
-        });
-
-
-        saveGameBtn.addEventListener('click', saveCurrentGame);
-
-        // Initial fetch
-        fetchGameState();
+        const currentSessionId = {{ session_id }};
     </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

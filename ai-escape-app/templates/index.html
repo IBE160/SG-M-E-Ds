@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Escape - Design Direction Showcase</title>
+    <title>AI Escape</title>
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div style="text-align: center; margin-bottom: 1rem;">
-        <button id="responsive-toggle" style="background-color: var(--color-surface); color: var(--color-text-primary); border: 2px solid var(--color-border); padding: 0.5rem 1rem; cursor: pointer;">Mobile View (Click for Desktop)</button>
-    </div>
+    <p style="color: red;">FLASK STATIC URL TEST: {{ url_for("static", filename="images/Start page.jpg") }}</p>
 
     <div class="mockup-container">
         <!-- Start Page -->
@@ -102,19 +100,19 @@
                         <div id="design-step-2" class="design-step">
                             <h3><span class="step-counter">2/3</span> CHOOSE A LOCATION</h3>
                             <div id="locations-scary" class="location-options design-options">
-                                <div class="option-btn" style="background-image: url('images/Abandiond Mansion.jpg');"><h4>HAUNTED MANSION</h4></div>
-                                <div class="option-btn" style="background-image: url('images/Asylum.jpg');"><h4>ABANDONED ASYLUM</h4></div>
-                                <div class="option-btn" style="background-image: url('images/Spaceship.jpg');"><h4>DERELICT SPACESHIP</h4></div>
+                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/Abandiond Mansion.jpg") }}');"><h4>HAUNTED MANSION</h4></div>
+                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/Asylum.jpg") }}');"><h4>ABANDONED ASYLUM</h4></div>
+                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/Spaceship.jpg") }}');"><h4>DERELICT SPACESHIP</h4></div>
                             </div>
                             <div id="locations-funny" class="location-options design-options" style="display:none;">
-                                <div class="option-btn" style="background-image: url('images/Clown Funhouse.jpg');"><h4>CLOWN'S FUNHOUSE</h4></div>
-                                <div class="option-btn" style="background-image: url('images/kids room.jpg');"><h4>THE OVERSIZED PLAYROOM</h4></div>
-                                <div class="option-btn" style="background-image: url('images/Candy Wonderland'.jpg');"><h4>CANDY WONDERLAND</h4></div>
+                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/Clown Funhouse.jpg") }}');"><h4>CLOWN'S FUNHOUSE</h4></div>
+                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/kids room.jpg") }}');"><h4>THE OVERSIZED PLAYROOM</h4></div>
+                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/Candy Wonderland".jpg") }}');"><h4>CANDY WONDERLAND</h4></div>
                             </div>
                             <div id="locations-mysterious" class="location-options design-options" style="display:none;">
-                                <div class="option-btn" style="background-image: url('images/ancient Tomb.jpg');"><h4>ANCIENT TOMB</h4></div>
-                                <div class="option-btn" style="background-image: url('images/Forgotten Library.jpg');"><h4>FORGOTTEN LIBRARY</h4></div>
-                                <div class="option-btn" style="background-image: url('images/Steampunk Airship.jpg');"><h4>STEAMPUNK AIRSHIP</h4></div>
+                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/ancient Tomb.jpg") }}');"><h4>ANCIENT TOMB</h4></div>
+                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/Forgotten Library.jpg") }}');"><h4>FORGOTTEN LIBRARY</h4></div>
+                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/Steampunk Airship.jpg") }}');"><h4>STEAMPUNK AIRSHIP</h4></div>
                             </div>
                             <div class="design-actions">
                                 <button class="action-btn">BACK</button>
@@ -208,15 +206,16 @@
             </div>
         </div>
 
-        <!-- Game Page -->
+        <!-- Immersive (Game) Page - This content will be moved to game.html -->
         <div id="immersive" class="mockup">
             <div class="mockup-header"><h2>Immersive Adventure</h2></div>
             <div class="mockup-content">
                 <div class="game-screen immersive-screen">
                     <div class="immersive-main">
-                                                    <div class="immersive-text-box">
-                                                        <h3>The Cold Embrace of Starlight</h3>
-                                                        <p>A frigid, metallic tang invades your senses as your vision flickers into reluctant focus. You're confined within a damaged cryo-pod, its low hum now punctuated by the urgent, crimson flash of a warning light. A synthetic voice, eerily calm, intones: "System integrity compromised. Emergency protocols initiated." The air, thick with ozone and the chill of deep space, clings to your skin. Before you, a reinforced hatch, your only exit, remains stubbornly dark and unresponsive.</p>                            <div class="immersive-options">
+                        <div class="immersive-text-box">
+                            <h3>The Cold Embrace of Starlight</h3>
+                            <p>A frigid, metallic tang invades your senses as your vision flickers into reluctant focus. You're confined within a damaged cryo-pod, its low hum now punctuated by the urgent, crimson flash of a warning light. A synthetic voice, eerily calm, intones: "System integrity compromised. Emergency protocols initiated." The air, thick with ozone and the chill of deep space, clings to your skin. Before you, a reinforced hatch, your only exit, remains stubbornly dark and unresponsive.</p>
+                            <div class="immersive-options">
                                 <div class="immersive-option" data-action="updateObjective" data-value="Find a way to power the door.">1. Check the cryo-pod's diagnostic screen.</div>
                                 <div class="immersive-option" data-action="addItem" data-value="ID-Card">2. Try to override the door controls.</div>
                                 <div class="immersive-option" data-action="removeItem" data-value="Rusty Key">3. Search the nearby storage locker.</div>
@@ -238,7 +237,7 @@
                         </div>
                         <div id="hint-box" class="status-box">
                             <h4>HINT <span id="hint-budget"></span></h4>
-                            <p id="hint-text">Click for a hint</p>
+                            <p id="hint-text"></p>
                             <div id="hint-cooldown"></div>
                         </div>
                         <div class="retro-actions">
@@ -257,5 +256,3 @@
 
 </body>
 </html>
-
-

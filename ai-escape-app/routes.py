@@ -126,34 +126,20 @@ def start_game():
     new_session = create_game_session(
         current_app.session, player_id, theme, location, difficulty
     )
-    return (
-        jsonify(
-            {
-                "id": new_session.id,
-                "player_id": new_session.player_id,
-                "current_room": new_session.current_room,
-                "inventory": new_session.inventory,
-            }
-        ),
-        201,
-    )
+    return jsonify({"session_id": new_session.id}), 201
+
+
+@bp.route("/")
+def index():
+    return render_template("index.html")
 
 @bp.route("/game/<int:session_id>")
 def game_view(session_id):
-    game_session = get_game_session(current_app.session, session_id)
-    if not game_session:
-        return "Game session not found", 404
+    # This route now simply renders the game.html template.
+    # The game logic and state will be handled by client-side JavaScript
+    # interacting with the /game_session API endpoints.
+    return render_template("game.html", session_id=session_id)
 
-    current_room_info = ROOM_DATA.get(game_session.current_room)
-    room_name = current_room_info.get("name") if current_room_info else "A mysterious place"
-    room_description = current_room_info.get("description") if current_room_info else "You find yourself in an unknown room."
-
-    return render_template(
-        "game.html",
-        session_id=session_id,
-        room_name=room_name,
-        room_description=room_description,
-    )
 
 
 @bp.route("/game_session/<int:session_id>", methods=["GET"])
