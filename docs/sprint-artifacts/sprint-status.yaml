@@ -66,6 +66,6 @@ development_status:
 
   epic-5: contexted
   5-1-implement-save-load-game-functionality: done
-  5-2-create-a-help-information-system: review
-  5-3-implement-an-options-menu: review
+  5-2-create-a-help-information-system: done
+  5-3-implement-an-options-menu: done
   epic-5-retrospective: optional
