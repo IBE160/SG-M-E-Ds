@@ -33,32 +33,42 @@ def save_game():
     data = request.get_json()
     session_id = data.get("session_id")
     save_name = data.get("save_name")
+    logging.info(f"Received request to save game for session_id: {session_id}, save_name: {save_name}")
 
     if not session_id or not save_name:
+        logging.warning("save_game: Missing session_id or save_name.")
         return jsonify({"error": "Session ID and save name are required"}), 400
 
     saved_game = save_game_state(current_app.session, session_id, save_name)
     if not saved_game:
+        logging.error(f"save_game: Game session {session_id} not found or failed to save.")
         return jsonify({"error": "Game session not found or failed to save"}), 404
     
+    logging.info(f"Game session {session_id} saved successfully as '{save_name}'.")
     return jsonify(saved_game.to_dict()), 201
 
 @bp.route("/load_game/<int:saved_game_id>", methods=["GET"])
 def load_game(saved_game_id):
+    logging.info(f"Received request to load game_id: {saved_game_id}")
     loaded_session = load_game_state(current_app.session, saved_game_id)
     if not loaded_session:
+        logging.warning(f"load_game: Saved game {saved_game_id} not found or failed to load.")
         return jsonify({"error": "Saved game not found or failed to load"}), 404
     
+    logging.info(f"Game loaded successfully for session_id: {loaded_session.id} from saved_game_id: {saved_game_id}.")
     # After loading, we return the details of the updated game session
     return jsonify(loaded_session.to_dict()), 200
 
 @bp.route("/saved_games", methods=["GET"])
 def list_saved_games():
     player_id = request.args.get("player_id")
+    logging.info(f"Received request to list saved games for player_id: {player_id}")
     if not player_id:
+        logging.warning("list_saved_games: Missing player_id query parameter.")
         return jsonify({"error": "Player ID is required as a query parameter"}), 400
     
     saved_games = get_saved_games(current_app.session, player_id)
+    logging.info(f"Successfully retrieved {len(saved_games)} saved games for player_id: {player_id}.")
     return jsonify([sg.to_dict() for sg in saved_games]), 200
 
 @bp.route("/help_content", methods=["GET"])
