@@ -1,12 +1,11 @@
 let lastPage = 'start';
-        let loadingInterval;
-        let hintCooldownInterval;
-        let selectedDifficulty = 'normal';
-        let selectedAmbianceText = 'mysterious'; // Default to mysterious
-        let selectedLocationText = ''; // To store the selected location name
-        const currentPlayerId = 'test_player_1'; // Placeholder for now
-        let currentSessionId = null; // New: To store the current game session ID
-
+let loadingInterval;
+let hintCooldownInterval;
+let selectedDifficulty = 'normal';
+let selectedAmbianceText = 'mysterious'; // Default to mysterious
+let selectedLocationText = ''; // To store the selected location name
+const currentPlayerId = 'test_player_1'; // Placeholder for now
+// New: To store the current game session ID (declared in game.html)
         const gameState = {
             hints: {
                 available: [
@@ -50,6 +49,7 @@ let lastPage = 'start';
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const gameData = await response.json();
+                console.log('Game data received:', gameData);
                 
                 // Update narrative and options
                 const immersiveTextBox = document.querySelector('.immersive-text-box');
@@ -328,20 +328,33 @@ let lastPage = 'start';
             console.log('DOMContentLoaded fired');
             // Check if currentSessionId is defined (meaning we are on the /game/<session_id> page)
             if (typeof currentSessionId !== 'undefined' && currentSessionId !== null) {
-                console.log('On immersive game page.');
+                console.log('On immersive game page. currentSessionId:', currentSessionId);
                 fetchAndRenderGameImmersive();
                 // Attach event listener for dynamic immersive options
                 document.querySelector('.immersive-options').addEventListener('click', async (e) => {
                     if (e.target.classList.contains('immersive-option')) {
                         console.log('Immersive option clicked');
                         const optionIndex = e.target.dataset.optionIndex;
+                        const chosenOptionText = e.target.textContent.substring(e.target.textContent.indexOf('.') + 2); // Extract option text without number
+                        let playerAttempt = "";
+
+                        if (chosenOptionText.startsWith("Solve ")) {
+                            playerAttempt = prompt("What is your solution to the puzzle?");
+                            if (playerAttempt === null) { // User cancelled the prompt
+                                return;
+                            }
+                        }
+
                         try {
                             const response = await fetch(`/game_session/${currentSessionId}/interact`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                 },
-                                body: JSON.stringify({ option_index: parseInt(optionIndex) }),
+                                body: JSON.stringify({ 
+                                    option_index: parseInt(optionIndex),
+                                    player_attempt: playerAttempt // Include player attempt
+                                }),
                             });
                             if (!response.ok) {
                                 const errorData = await response.json();
