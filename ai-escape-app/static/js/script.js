@@ -85,11 +85,11 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
                 }
 
                 // Update background image
-                const immersiveMain = document.querySelector('.immersive-main');
-                if (immersiveMain && gameData.current_room_image) {
-                    immersiveMain.style.backgroundImage = `url(${gameData.current_room_image})`;
-                } else if (immersiveMain) {
-                     immersiveMain.style.backgroundImage = "url('/static/images/Start page image (2).jpg')"; // Fallback
+                const backgroundContainer = document.getElementById('background-container');
+                if (backgroundContainer && gameData.current_room_image) {
+                    backgroundContainer.style.backgroundImage = `url(${gameData.current_room_image})`;
+                } else if (backgroundContainer) {
+                    backgroundContainer.style.backgroundImage = "url('/static/images/Start page image (2).jpg')"; // Fallback
                 }
                 
                 // Set initial client-side hint state based on backend difficulty
