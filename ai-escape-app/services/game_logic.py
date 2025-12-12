@@ -10,35 +10,58 @@ def create_game_session(
     db_session: Session,
     player_id: str,
     theme: str = "mystery",
-    location: str = "mansion",
+    location: str = "ancient_library", # This 'location' is actually the desired start_room_id
     difficulty: str = "medium",
 ) -> GameSession:
     """
     Initializes and stores a new GameSession in the database.
     """
-    first_room_id = next(iter(ROOM_DATA))  # Get the first room ID from ROOM_DATA
+    # Determine the actual theme based on the location if it's not explicitly provided
+    selected_theme_id = theme
+    if selected_theme_id not in ROOM_DATA:
+        # Fallback to a default theme if selected theme is invalid
+        selected_theme_id = "mystery" # Default theme
+
+    # Get the theme data from ROOM_DATA
+    theme_data = ROOM_DATA.get(selected_theme_id)
+    if not theme_data:
+        # This case should ideally not happen if ROOM_DATA is properly structured
+        return None # Or raise an error as appropriate
+
+    # Find the starting room within the selected theme
+    # The 'location' parameter passed here is actually the intended first_room_id
+    first_room_id = location
+    if first_room_id not in theme_data["rooms"]:
+        # Fallback to the theme's default start_room if the provided location is not in this theme
+        first_room_id = theme_data["start_room"]
+    
+    room_info = theme_data["rooms"].get(first_room_id)
+    if not room_info:
+        # Should not happen if start_room is correctly defined
+        return None # Or raise an error
+
     initial_room_description = generate_room_description(
-        theme=theme,
-        location=location,
+        theme=selected_theme_id, # Pass the resolved theme (e.g. "forgotten_library")
+        scenario_name_for_ai_prompt=room_info["name"], # Pass the human-readable name of the actual start room
         narrative_state={}, # Initial narrative state is empty
         room_context={
-            "name": ROOM_DATA[first_room_id]["name"],
-            "exits": list(ROOM_DATA[first_room_id]["exits"].keys()),
-            "puzzles": list(ROOM_DATA[first_room_id]["puzzles"].keys()),
-            "items": ROOM_DATA[first_room_id].get("items", []),
+            "name": room_info["name"],
+            "exits": list(room_info["exits"].keys()),
+            "puzzles": list(room_info["puzzles"].keys()),
+            "items": room_info.get("items", []),
         },
-        current_room_id=first_room_id, # New parameter
+        current_room_id=first_room_id,
     )
 
     if initial_room_description.startswith("Error:"):
         # Fallback to static description if AI generation fails
-        initial_room_description = ROOM_DATA[first_room_id]["description"]
+        initial_room_description = room_info["description"]
 
     new_session = GameSession(
         player_id=player_id,
-        current_room=first_room_id, # Set default to the first room in ROOM_DATA
-        theme=theme,
-        location=location,
+        current_room=first_room_id,
+        theme=selected_theme_id, # Store the actual theme used (e.g. "forgotten_library")
+        location=selected_theme_id, # Store the top-level scenario key (e.g. "forgotten_library")
         difficulty=difficulty,
         start_time=datetime.now(timezone.utc),
         current_room_description=initial_room_description, # Use dynamically generated description
@@ -49,7 +72,6 @@ def create_game_session(
     db_session.commit()
     db_session.refresh(new_session)
     return new_session
-
 
 def get_game_session(db_session: Session, session_id: int) -> GameSession | None:
     """
@@ -144,7 +166,13 @@ def solve_puzzle(
         return False, "Game session not found.", None, {"error": "Game session not found."}
 
     current_room_id = game_session.current_room
-    room_info = ROOM_DATA.get(current_room_id)
+    theme_id = game_session.theme # Get the theme ID from the game session
+    
+    theme_data = ROOM_DATA.get(theme_id)
+    if not theme_data:
+        return False, "Game theme data not found.", game_session, {"error": "Game theme data not found."}
+
+    room_info = theme_data["rooms"].get(current_room_id)
 
     if not room_info or puzzle_id not in room_info["puzzles"]:
         return False, "Puzzle not found in current room.", game_session, {"error": "Puzzle not found."}
@@ -218,18 +246,26 @@ def get_contextual_options(game_session: GameSession) -> list[str]:
     """
     options = []
     current_room_id = game_session.current_room
-    room_info = ROOM_DATA.get(current_room_id)
+    theme_id = game_session.theme # Get the theme ID from the game session
+    
+    theme_data = ROOM_DATA.get(theme_id)
+    if not theme_data:
+        return ["Error: Game theme data not found."]
+
+    room_info = theme_data["rooms"].get(current_room_id)
 
     if not room_info:
-        return ["Error: Room data not found."]
+        return ["Error: Room data not found in current theme."]
 
     # Default option
     options.append("Look around the room")
 
     # Exits
     for direction, next_room_id in room_info["exits"].items():
-        next_room_name = ROOM_DATA.get(next_room_id, {}).get("name", next_room_id)
-        options.append(f"Go {direction} to {next_room_name}")
+        # Ensure next_room_id is within the current theme before adding as an option
+        if next_room_id in theme_data["rooms"]:
+            next_room_name = theme_data["rooms"].get(next_room_id, {}).get("name", next_room_id)
+            options.append(f"Go {direction} to {next_room_name}")
 
     # Puzzles
     for puzzle_id, puzzle_details in room_info["puzzles"].items():
@@ -347,3 +383,65 @@ def get_saved_games(db_session: Session, player_id: str) -> list[SavedGame]:
     Retrieves all saved games for a given player.
     """
     return db_session.query(SavedGame).filter(SavedGame.player_id == player_id).order_by(SavedGame.saved_at.desc()).all()
+
+
+def get_a_hint(db_session: Session, session_id: int) -> tuple[str, GameSession | None]:
+    game_session = get_game_session(db_session, session_id)
+    if not game_session:
+        return "Game session not found.", None
+
+    current_room_id = game_session.current_room
+    theme_id = game_session.theme # Get the theme ID from the game session
+    
+    theme_data = ROOM_DATA.get(theme_id)
+    if not theme_data:
+        return "Game theme data not found.", None
+
+    room_info = theme_data["rooms"].get(current_room_id)
+    if not room_info or not room_info["puzzles"]:
+        return "No puzzles in this room to get a hint for.", game_session
+
+    # Find the first unsolved puzzle in the room
+    puzzle_id = None
+    for p_id, p_details in room_info["puzzles"].items():
+        if not game_session.puzzle_state.get(p_id, {}).get("solved", False):
+            puzzle_id = p_id
+            break
+
+    if not puzzle_id:
+        return "All puzzles in this room are solved.", game_session
+
+    puzzle_details_from_state = game_session.puzzle_state.get(puzzle_id, {})
+    correct_solution = room_info["puzzles"][puzzle_id]["solution"]
+    current_puzzle_description = room_info["puzzles"][puzzle_id]["description"]
+
+    # Use AI to get a hint
+    ai_evaluation = evaluate_and_adapt_puzzle(
+        puzzle_id=puzzle_id,
+        player_attempt="I need a hint", # Special phrase to request a hint
+        puzzle_solution=correct_solution,
+        current_puzzle_state=puzzle_details_from_state,
+        current_puzzle_description=current_puzzle_description,
+        theme=game_session.theme,
+        location=game_session.location,
+        difficulty=game_session.difficulty,
+        narrative_archetype=game_session.narrative_archetype,
+    )
+
+    if "error" in ai_evaluation:
+        return f"AI evaluation failed: {ai_evaluation['error']}", game_session
+
+    hint = ai_evaluation.get("hint", "No hint available from the AI.")
+
+    # Update puzzle state with hints_used
+    new_puzzle_state = game_session.puzzle_state.copy()
+    current_puzzle_details = new_puzzle_state.get(puzzle_id, {})
+    current_puzzle_details["hints_used"] = current_puzzle_details.get("hints_used", 0) + 1
+    new_puzzle_state[puzzle_id] = current_puzzle_details
+    game_session.puzzle_state = new_puzzle_state
+    flag_modified(game_session, "puzzle_state")
+
+    db_session.commit()
+    db_session.refresh(game_session)
+
+    return hint, game_session

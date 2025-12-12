@@ -93,7 +93,7 @@
 
         /* --- Start Page --- */
         .start-screen {
-            background-image: url('../images/Start page image (2).jpg');
+            background-image: url('../images/start_page_image_2.jpg');
             background-size: cover; /* Changed to cover to ensure it fills the space */
             background-repeat: no-repeat;
             background-position: center;
@@ -150,7 +150,7 @@
             justify-content: center;
             align-items: center;
             padding: 2rem;
-            background: url('../images/Design your own page.jpg');
+            background: url('../images/design_your_own_page.jpg');
             background-size: cover;
             background-position: center;
         }
@@ -205,7 +205,7 @@
             justify-content: flex-end;
             padding: 0;
             position: relative;
-            overflow: hidden;
+            /* overflow: hidden; */
         }
         .location-options .option-btn h4 {
             font-family: var(--font-family-heading);
@@ -328,7 +328,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: url('../images/Design your own page.jpg');
+            background: url('../images/design_your_own_page.jpg');
             background-size: cover;
             background-position: center;
         }
@@ -439,4 +439,4 @@
         .immersive-option:hover { background-color: var(--color-accent); color: var(--color-background); }
         .immersive-sidebar { background-color: rgba(0, 0, 0, 0.4); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; border-left: 2px solid var(--color-border); backdrop-filter: blur(5px); align-items: center; }
         .game-timer { font-family: var(--font-family-body); font-size: 1rem; color: var(--color-primary); margin: -1rem 0 0 0; text-align: center; width: 100%; }
-        .immersive-sidebar h3 { font-family: var(--font-family-heading); font-size: 1.2rem; color: var(--color-primary); margin-bottom: 0.5rem; }
+        .immersive-sidebar h3 { font-family: var(--font-family-heading); color: var(--color-accent); font-size: 1.2rem; margin-bottom: 0.5rem; }

@@ -18,7 +18,7 @@ GAME_SETUP_OPTIONS = {
         {"id": "sci_fi_hangar", "name": "Sci-Fi Hangar", "description": "A vast space for starships, humming with dormant power."},
         {"id": "underwater_lab", "name": "Underwater Laboratory", "description": "Deep blue light, complex machinery, and strange marine life."},
         {"id": "abandoned_mansion", "name": "Abandoned Mansion", "description": "A sprawling, decaying estate with secrets hidden in every shadow."},
-        {"id": "futuristic_cityscape", "name": "Futuristic Cityscape", "description": "Neon-lit skyscrapers and advanced technology hide a dark conspiracy."},
+
         {"id": "ancient_tomb", "name": "Ancient Tomb", "description": "Explore the forgotten burial grounds of an ancient civilization."}
     ],
     "puzzle_types": [

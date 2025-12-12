@@ -1,6 +1,7 @@
 let lastPage = 'start';
 let loadingInterval;
 let hintCooldownInterval;
+let gameTimerInterval;
 let selectedDifficulty = 'normal';
 let selectedAmbianceText = 'mysterious'; // Default to mysterious
 let selectedLocationText = ''; // To store the selected location name
@@ -8,17 +9,18 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
 // New: To store the current game session ID (declared in game.html)
         const gameState = {
             hints: {
-                available: [
-                    "The inscription on the sarcophagus seems important.",
-                    "Perhaps the torch can be used for something other than light.",
-                    "The key might not be for the door you think it is."
-                ],
                 used: [],
                 budget: 5,
                 cooldown: 15, // seconds
                 isOnCooldown: false
             }
         };
+
+        function formatTime(seconds) {
+            const d = new Date(null);
+            d.setSeconds(seconds);
+            return d.toISOString().substr(11, 8);
+        }
 
         // This initGame is for the immersive screen's client-side state (like hints)
         // Actual game state (rooms, inventory, objective) comes from the backend.
@@ -50,6 +52,17 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
                 }
                 const gameData = await response.json();
                 console.log('Game data received:', gameData);
+
+                if (gameTimerInterval) clearInterval(gameTimerInterval);
+                const timerInitialOffset = Date.now(); // Store the time when the timer actually starts running
+                gameTimerInterval = setInterval(() => {
+                    const nowMs = Date.now();
+                    const elapsedSeconds = Math.floor((nowMs - timerInitialOffset) / 1000); // Calculate elapsed from when this interval started
+                    const timerElement = document.querySelector('.game-timer');
+                    if (timerElement) {
+                        timerElement.textContent = `TIME: ${formatTime(elapsedSeconds)}`;
+                    }
+                }, 1000);
                 
                 // Update narrative and options
                 const immersiveTextBox = document.querySelector('.immersive-text-box');
@@ -69,6 +82,7 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
 
                 // Update game status (objective, inventory)
                 document.getElementById('objective-text').textContent = gameData.narrative_state.objective || "Explore and find clues.";
+                document.querySelector('.current-location-subtext').textContent = `Current Location: ${gameData.current_room_name}`;
                 
                 const inventoryList = document.getElementById('inventory-list');
                 if (inventoryList) {
@@ -89,7 +103,7 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
                 if (backgroundContainer && gameData.current_room_image) {
                     backgroundContainer.style.backgroundImage = `url(${gameData.current_room_image})`;
                 } else if (backgroundContainer) {
-                    backgroundContainer.style.backgroundImage = "url('/static/images/Start page image (2).jpg')"; // Fallback
+                    backgroundContainer.style.backgroundImage = "url('/static/images/start_page_image_2.jpg')"; // Fallback
                 }
                 
                 // Set initial client-side hint state based on backend difficulty
@@ -111,7 +125,6 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
 
             hintBudget.textContent = `x${gameState.hints.budget}`;
             hintCooldown.textContent = '';
-            hintText.textContent = 'Click for a hint';
             hintBox.classList.remove('disabled');
 
             if (gameState.hints.budget === 0) {
@@ -121,7 +134,11 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
 
             if (gameState.hints.isOnCooldown) {
                 hintBox.classList.add('disabled');
-                hintText.textContent = 'Hint on cooldown...';
+            } else if(hintText.textContent !== 'Click for a hint' && gameState.hints.used.includes(hintText.textContent)) {
+                // Do not reset text if a hint is being displayed
+            }
+            else {
+                hintText.textContent = 'Click for a hint';
             }
         }
 
@@ -130,21 +147,25 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
                 return; // Do nothing if on cooldown or no hints left
             }
 
-            const availableHints = gameState.hints.available;
-            if (availableHints.length > 0) {
-                const hint = availableHints.shift(); // Get the first available hint
-                gameState.hints.used.push(hint);
-                gameState.hints.budget--;
+            try {
+                const response = await fetch(`/game_session/${currentSessionId}/hint`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch hint.');
+                }
+                const data = await response.json();
                 
                 const hintText = document.getElementById('hint-text');
-                hintText.textContent = hint;
-
+                hintText.textContent = data.hint;
+                gameState.hints.used.push(data.hint);
+                gameState.hints.budget--;
                 startHintCooldown();
-            } else {
+
+            } catch (error) {
+                console.error('Failed to request hint:', error);
                 const hintText = document.getElementById('hint-text');
-                hintText.textContent = "No new hints at the moment.";
+                hintText.textContent = "Could not retrieve a hint at this time.";
             }
-            renderHint();
         }
 
         function startHintCooldown() {
@@ -162,6 +183,65 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
                 }
             }, 1000);
             renderHint();
+        }
+
+        async function fetchAndRenderSavedGames() {
+            const savedGamesList = document.querySelector('.saved-games-list');
+            savedGamesList.innerHTML = ''; // Clear existing items
+
+            try {
+                // Assuming currentPlayerId is available globally or passed appropriately
+                const response = await fetch(`/saved_games?player_id=${currentPlayerId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const savedGames = await response.json();
+
+                if (savedGames.length === 0) {
+                    savedGamesList.innerHTML = '<p>No saved games found.</p>';
+                } else {
+                    savedGames.forEach(game => {
+                        const gameItem = document.createElement('div');
+                        gameItem.classList.add('saved-game-item');
+                        gameItem.dataset.sessionId = game.session_id; // Store session_id for loading
+                        gameItem.dataset.saveId = game.id; // Store save_id for loading
+                        
+                        const savedDate = new Date(game.saved_at);
+                        const formattedDate = savedDate.toLocaleDateString();
+                        const formattedTime = savedDate.toLocaleTimeString();
+
+                        gameItem.innerHTML = `
+                            <p>${game.save_name} - ${game.game_state.location}</p>
+                            <small>Date: ${formattedDate} | Time: ${formattedTime}</small>
+                        `;
+                        gameItem.addEventListener('click', async () => {
+                            console.log('savedGameItem clicked directly:', gameItem);
+                            const saveId = gameItem.dataset.saveId;
+                            console.log('Loading game with saveId:', saveId);
+
+                            try {
+                                const response = await fetch(`/load_game/${saveId}`);
+                                console.log('Fetch response for /load_game:', response);
+                                if (!response.ok) {
+                                    const errorData = await response.json();
+                                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                                }
+                                const data = await response.json();
+                                const sessionId = data.id; // The loaded session's ID
+                                console.log('Game loaded, new session ID:', sessionId);
+                                window.location.href = `/game/${sessionId}`; // Redirect to the game page
+                            } catch (error) {
+                                console.error('Failed to load game:', error);
+                                alert('Failed to load game: ' + error.message);
+                            }
+                        });
+                        savedGamesList.appendChild(gameItem);
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to fetch saved games:', error);
+                savedGamesList.innerHTML = '<p>Error loading saved games.</p>';
+            }
         }
 
         function showPage(pageId) {
@@ -183,11 +263,17 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
                 if (initialAmbianceButton) {
                     selectAmbiance(initialAmbianceButton.textContent.toLowerCase(), initialAmbianceButton);
                 }
+            } else if (pageId === 'load-game') {
+                fetchAndRenderSavedGames(); // Call to load saved games
             }
         }
 
         function closeSettings() {
             showPage(lastPage);
+        }
+
+        function closeLoadGame() {
+            showPage('start');
         }
 
         async function startGame() {
@@ -251,7 +337,7 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
                 // Set the default selected location image for the ambiance
                 const firstLocation = locationContainer.querySelector('.option-btn');
                 if (firstLocation) {
-                    selectedLocationText = firstLocation.querySelector('h4').textContent; // Store default location text
+                    selectedLocationText = firstLocation.dataset.location; // Store default location key
                     // Also visually activate the first location
                     firstLocation.classList.add('active');
                 }
@@ -264,7 +350,7 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
             if (optionsContainer) {
                 optionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
                 locationElement.classList.add('active');
-                selectedLocationText = locationElement.querySelector('h4').textContent; // Store the location text
+                selectedLocationText = locationElement.dataset.location; // Store the location key
             }
         }
 
@@ -387,6 +473,7 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
                             } else {
                                 // This part might still be relevant for future in-game settings/load game modals
                                 // If they are meant to show actual mockups, we would call showPage(value);
+                                showPage(value);
                             }
                         } else if (action === 'saveGame') {
                             saveGame();
@@ -506,10 +593,6 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
             });
 
             // Load Game buttons
-            document.querySelectorAll('.saved-game-item').forEach(item => item.addEventListener('click', () => {
-                console.log('Saved game item clicked');
-                showPage('immersive');
-            }));
             document.querySelector('#load-game .design-actions .action-btn').addEventListener('click', () => {
                 console.log('BACK button from load-game clicked');
                 showPage('start');

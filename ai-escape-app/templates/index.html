@@ -10,7 +10,7 @@
 </head>
 <body>
     <div id="background-container"></div>
-    <p style="color: red;">FLASK STATIC URL TEST: {{ url_for("static", filename="images/Start page.jpg") }}</p>
+    <p style="color: red;">FLASK STATIC URL TEST: {{ url_for("static", filename="images/start_page_image.jpg") }}</p>
 
     <div class="mockup-container">
         <!-- Start Page -->
@@ -101,19 +101,20 @@
                         <div id="design-step-2" class="design-step">
                             <h3><span class="step-counter">2/3</span> CHOOSE A LOCATION</h3>
                             <div id="locations-scary" class="location-options design-options">
-                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/Abandiond Mansion.jpg") }}');"><h4>HAUNTED MANSION</h4></div>
-                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/Asylum.jpg") }}');"><h4>ABANDONED ASYLUM</h4></div>
-                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/Spaceship.jpg") }}');"><h4>DERELICT SPACESHIP</h4></div>
+                                <div class="option-btn" data-location="abandoned_mansion" style="background-image: url('{{ url_for("static", filename="images/abandoned_mansion.jpg") }}');"><h4>HAUNTED MANSION</h4></div>
+                                <div class="option-btn" data-location="ancient_tomb" style="background-image: url('{{ url_for("static", filename="images/ancient_tomb.jpg") }}');"><h4>ANCIENT TOMB</h4></div>
+                                <div class="option-btn" data-location="asylum" style="background-image: url('{{ url_for("static", filename="images/asylum.jpg") }}');"><h4>ABANDONED ASYLUM</h4></div>
                             </div>
                             <div id="locations-funny" class="location-options design-options" style="display:none;">
-                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/Clown Funhouse.jpg") }}');"><h4>CLOWN'S FUNHOUSE</h4></div>
-                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/kids room.jpg") }}');"><h4>THE OVERSIZED PLAYROOM</h4></div>
-                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/Candy_Wonderland.jpg") }}');"><h4>CANDY WONDERLAND</h4></div>
+                                <div class="option-btn" data-location="clown_funhouse" style="background-image: url('{{ url_for("static", filename="images/clown_funhouse.jpg") }}');"><h4>CLOWN'S FUNHOUSE</h4></div>
+                                <div class="option-btn" data-location="kids_room" style="background-image: url('{{ url_for("static", filename="images/kids_room.jpg") }}');"><h4>THE OVERSIZED PLAYROOM</h4></div>
+                                <div class="option-btn" data-location="candy_wonderland" style="background-image: url('{{ url_for("static", filename="images/candy_wonderland.jpg") }}');"><h4>CANDY WONDERLAND</h4></div>
                             </div>
                             <div id="locations-mysterious" class="location-options design-options" style="display:none;">
-                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/ancient Tomb.jpg") }}');"><h4>ANCIENT TOMB</h4></div>
-                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/Forgotten Library.jpg") }}');"><h4>FORGOTTEN LIBRARY</h4></div>
-                                <div class="option-btn" style="background-image: url('{{ url_for("static", filename="images/Steampunk Airship.jpg") }}');"><h4>STEAMPUNK AIRSHIP</h4></div>
+                                <div class="option-btn" data-location="forgotten_library" style="background-image: url('{{ url_for("static", filename="images/forgotten_library.jpg") }}');"><h4>FORGOTTEN LIBRARY</h4></div>
+                                <div class="option-btn" data-location="sci_fi_hangar" style="background-image: url('{{ url_for("static", filename="images/scifi_hangar.jpg") }}');"><h4>SCI-FI HANGAR</h4></div>
+                                <div class="option-btn" data-location="underwater_lab" style="background-image: url('{{ url_for("static", filename="images/underwater_lab.jpg") }}');"><h4>UNDERWATER LABORATORY</h4></div>
+                                <div class="option-btn" data-location="spaceship" style="background-image: url('{{ url_for("static", filename="images/spaceship.jpg") }}');"><h4>DERELICT SPACESHIP</h4></div>
                             </div>
                             <div class="design-actions">
                                 <button class="action-btn">BACK</button>
@@ -149,6 +150,8 @@
             </div>
         </div>
 
+
+
         <!-- Settings Page -->
         <div id="settings" class="mockup">
             <div class="mockup-header"><h2>Settings</h2></div>
@@ -178,7 +181,7 @@
                             </select>
                         </div>
                         <div class="design-actions">
-                            <button class="action-btn primary">CLOSE</button>
+                            <button class="action-btn primary" onclick="closeSettings()">CLOSE</button>
                         </div>
                     </div>
                 </div>
