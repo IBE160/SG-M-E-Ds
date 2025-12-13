@@ -102,6 +102,15 @@ function applyTranslations() {
     // Translate direct text content
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
+        // Handle specific cases like game timer, current location subtext etc.
+        if (element.classList.contains('game-timer')) {
+            // Game timer text is dynamic, don't override here
+            return;
+        }
+        if (element.classList.contains('current-location-subtext')) {
+             // current location subtext is dynamic
+             return;
+        }
         element.textContent = tr(key);
     });
 
@@ -113,104 +122,23 @@ function applyTranslations() {
         }
     });
 
-    // Handle specific hardcoded elements that need translation
+    // Handle numbered immersive options
+    document.querySelectorAll('.immersive-options .immersive-option').forEach((element, index) => {
+        const key = element.getAttribute('data-i18n');
+        if (key) {
+            element.textContent = `${index + 1}. ${tr(key)}`;
+        }
+    });
+
+    // Translate document title (which doesn't have data-i18n)
     document.title = tr('app_title');
-    document.querySelector('.start-screen h1').textContent = tr('app_title');
-    document.querySelectorAll('.start-menu button')[0].textContent = tr('start_new_game');
-    document.querySelectorAll('.start-menu button')[1].textContent = tr('load_game');
-    document.querySelectorAll('.start-menu button')[2].textContent = tr('settings');
 
-    document.querySelector('#game-mode .mockup-header h2').textContent = tr('choose_your_path');
-    document.querySelector('#game-mode .mockup-header p').textContent = tr('will_you_craft_your_own');
-    document.querySelectorAll('#game-mode .design-options .option-btn')[0].querySelector('h3').textContent = tr('design_your_own');
-    document.querySelectorAll('#game-mode .design-options .option-btn')[0].querySelector('p').textContent = tr('design_your_own_description');
-    document.querySelectorAll('#game-mode .design-options .option-btn')[1].querySelector('h3').textContent = tr('ai_driven');
-    document.querySelectorAll('#game-mode .design-options .option-btn')[1].querySelector('p').textContent = tr('ai_driven_description');
-    document.querySelector('#game-mode .warning-text p').textContent = tr('warning_ai_experimental');
-    document.querySelector('#game-mode .design-actions .action-btn').textContent = tr('back');
+    // Ensure the music toggle button text is updated correctly after language change
+    updateMusicToggleButton();
 
-    document.querySelector('#ai-prompt .mockup-header h2').textContent = tr('describe_your_adventure');
-    document.querySelector('#ai-prompt .mockup-header p').textContent = tr('tell_ai_what_kind'); // This key is missing in en.json, will use key as fallback
-    document.getElementById('ai-prompt-input').placeholder = tr('ai_prompt_placeholder');
-    document.querySelector('#ai-prompt .design-actions .action-btn:nth-child(1)').textContent = tr('back');
-    document.querySelector('#ai-prompt .design-actions .action-btn.primary').textContent = tr('generate');
-
-    document.querySelector('#design .mockup-header h2').textContent = tr('design_your_adventure');
-
-    document.querySelector('#design-step-1 h3').textContent = tr('choose_an_ambiance');
-    document.querySelector('#design-step-1 .design-options .option-btn[data-ambiance-category="scary"]').textContent = tr('scary');
-    document.querySelector('#design-step-1 .design-options .option-btn[data-ambiance-category="funny"]').textContent = tr('funny');
-    document.querySelector('#design-step-1 .design-options .option-btn[data-ambiance-category="mysterious"]').textContent = tr('mysterious');
-    document.querySelector('#design-step-1 .design-actions .action-btn:nth-child(1)').textContent = tr('back');
-    document.querySelector('#design-step-1 .design-actions .action-btn.primary').textContent = tr('next');
-
-    document.querySelector('#design-step-2 h3').textContent = tr('choose_a_location');
-    document.querySelector('#locations-scary .option-btn[data-location="mansion_foyer"] h4').textContent = tr('haunted_mansion');
-    document.querySelector('#locations-scary .option-btn[data-location="tomb_entrance"] h4').textContent = tr('ancient_tomb');
-    document.querySelector('#locations-scary .option-btn[data-location="asylum_reception"] h4').textContent = tr('abandoned_asylum');
-    
-    document.querySelector('#locations-funny .option-btn[data-location="clown_funhouse_entrance"] h4').textContent = tr('clowns_funhouse');
-    document.querySelector('#locations-funny .option-btn[data-location="kids_room_play_area"] h4').textContent = tr('the_oversized_playroom');
-    document.querySelector('#locations-funny .option-btn[data-location="candy_wonderland_path"] h4').textContent = tr('candy_wonderland');
-    
-    document.querySelector('#locations-mysterious .option-btn[data-location="forgotten_library_entrance"] h4').textContent = tr('forgotten_library');
-    document.querySelector('#locations-mysterious .option-btn[data-location="sci-fi_hangar_main"] h4').textContent = tr('sci_fi_hangar');
-    document.querySelector('#locations-mysterious .option-btn[data-location="underwater_lab_entrance"] h4').textContent = tr('underwater_laboratory');
-    document.querySelector('#locations-mysterious .option-btn[data-location="spaceship_bridge"] h4').textContent = tr('derelict_spaceship');
-
-
-    document.querySelector('#design-step-2 .design-actions .action-btn:nth-child(1)').textContent = tr('back');
-    document.querySelector('#design-step-2 .design-actions .action-btn.primary').textContent = tr('next');
-
-    document.querySelector('#design-step-3 h3').textContent = tr('select_difficulty');
-    document.querySelectorAll('#design-step-3 .option-btn')[0].textContent = tr('easy');
-    document.querySelectorAll('#design-step-3 .option-btn')[1].textContent = tr('normal');
-    document.querySelectorAll('#design-step-3 .option-btn')[2].textContent = tr('hard');
-    document.querySelector('#design-step-3 .design-actions .action-btn:nth-child(1)').textContent = tr('back');
-    document.querySelector('#design-step-3 .design-actions .action-btn.primary').textContent = tr('start_adventure');
-
-    document.querySelector('#loading .mockup-header h2').textContent = tr('loading');
-    
-    // Settings Page
-    document.querySelector('#settings .mockup-header h2').textContent = tr('settings_title');
-    document.querySelector('.settings-section label[for="music-toggle"]').textContent = tr('music');
-    document.querySelector('.settings-section label[for="sfx-toggle"]').textContent = tr('sfx');
-    document.querySelector('.settings-section label[for="volume-slider"]').textContent = tr('volume');
-    document.querySelector('.settings-section label[for="language-select"]').textContent = tr('language');
-    // For toggle buttons, need to check their active state
-    if (document.getElementById('music-toggle')) {
-        document.getElementById('music-toggle').textContent = tr(document.getElementById('music-toggle').classList.contains('active') ? 'on' : 'off');
-    }
-    if (document.getElementById('sfx-toggle')) {
-        document.getElementById('sfx-toggle').textContent = tr(document.getElementById('sfx-toggle').classList.contains('active') ? 'on' : 'off');
-    }
-    document.querySelector('#settings .design-actions .action-btn.primary').textContent = tr('close');
-
-    // Load Game Page
-    document.querySelector('#load-game .mockup-header h2').textContent = tr('load_game');
-    document.querySelector('#load-game .design-actions .action-btn').textContent = tr('back');
-
-    // Immersive Page (game.html elements if loaded on index.html)
-    if (document.querySelector('.game-screen.immersive-screen')) {
-         document.querySelector('.immersive-sidebar h3').textContent = tr('game_status'); // This key is missing, will use 'game_status' as fallback
-         document.querySelector('.immersive-sidebar .status-box:nth-child(2) h4').textContent = tr('objective');
-         document.querySelector('.immersive-sidebar .status-box:nth-child(3) h4').textContent = tr('inventory');
-         document.querySelector('.immersive-sidebar #hint-box h4').textContent = tr('hint');
-         document.querySelector('.immersive-sidebar #hint-text').textContent = tr('click_for_hint');
-         document.querySelector('.retro-actions button[data-action="showPage"][data-value="settings"]').textContent = tr('settings');
-         document.querySelector('.retro-actions button[data-action="saveGame"]').textContent = tr('save_game');
-         document.querySelector('.retro-actions button[data-action="showPage"][data-value="start"]').textContent = tr('quit_game');
-
-        // Handle immersive options with numbering
-        document.querySelectorAll('.immersive-options .immersive-option').forEach((element, index) => {
-            const key = element.getAttribute('data-i18n');
-            if (key) {
-                element.textContent = `${index + 1}. ${tr(key)}`;
-            }
-        });
-    }
-
-    // Update messages arrays in startLoading - removed as startLoading now uses tr() directly
+    // The language select options themselves don't need translation,
+    // as their text content is static (English, Norsk, etc.) and
+    // the label for it is handled by data-i18n
 }
 // --- End Translation Functions ---
 
@@ -621,6 +549,12 @@ function applyTranslations() {
         document.addEventListener('DOMContentLoaded', async () => {
             await loadTranslations(currentLanguage); // Load translations first
             console.log('DOMContentLoaded fired.');
+
+            // Language Select Initialization
+            const languageSelect = document.getElementById('language-select');
+            if (languageSelect) {
+                languageSelect.value = currentLanguage;
+            }
 
             // --- Music & Volume Initialization ---
             backgroundMusic = document.getElementById('background-music'); // Assign to global backgroundMusic
