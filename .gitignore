@@ -1,3 +1,6 @@
 # Python specific
+*.pyc
+flask_error.log
+flask_output.log
 default.db
 list_models.py

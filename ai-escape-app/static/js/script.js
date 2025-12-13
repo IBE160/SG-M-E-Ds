@@ -6,6 +6,54 @@ let selectedDifficulty = 'normal';
 let selectedAmbianceText = 'mysterious'; // Default to mysterious
 let selectedLocationText = ''; // To store the selected location name
 const currentPlayerId = 'test_player_1'; // Placeholder for now
+
+// --- Music & Volume Globals ---
+let backgroundMusic; // Will be assigned in DOMContentLoaded
+let isMusicEnabled = (localStorage.getItem('isMusicEnabled') === 'true'); // Default to true if not set
+let gameVolume = parseFloat(localStorage.getItem('gameVolume')) || 0.5; // Default to 0.5 (50%)
+// --- End Music & Volume Globals ---
+
+// --- Music & Volume Functions ---
+function toggleMusic() {
+    isMusicEnabled = !isMusicEnabled;
+    if (backgroundMusic) { // Ensure backgroundMusic element exists
+        if (isMusicEnabled) {
+            backgroundMusic.play().catch(e => console.log("Music auto-play prevented:", e));
+        } else {
+            backgroundMusic.pause();
+        }
+    }
+    localStorage.setItem('isMusicEnabled', isMusicEnabled);
+    updateMusicToggleButton();
+}
+
+function setVolume(volumeLevel) { // volumeLevel is 0-100
+    gameVolume = parseFloat(volumeLevel) / 100; // Ensure float conversion
+    if (backgroundMusic) {
+        backgroundMusic.volume = gameVolume;
+    }
+    localStorage.setItem('gameVolume', gameVolume);
+}
+
+function updateMusicToggleButton() {
+    const musicToggleButton = document.getElementById('music-toggle');
+    if (musicToggleButton) {
+        if (isMusicEnabled) {
+            musicToggleButton.classList.add('active');
+            musicToggleButton.textContent = tr('on');
+        } else {
+            musicToggleButton.classList.remove('active');
+            musicToggleButton.textContent = tr('off');
+        }
+    }
+}
+// --- End Music & Volume Functions ---
+
+// --- Translation Globals ---
+let currentLanguage = localStorage.getItem('gameLanguage') || 'en'; // Default to 'en'
+let translations = {}; // Stores the loaded translations for the current language
+// --- End Translation Globals ---
+
 // New: To store the current game session ID (declared in game.html)
         const gameState = {
             hints: {
@@ -15,6 +63,156 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
                 isOnCooldown: false
             }
         };
+
+
+// --- Translation Functions ---
+async function loadTranslations(lang) {
+    try {
+        const response = await fetch(`/static/translations/${lang}.json`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        translations = await response.json();
+        console.log(`Translations loaded for ${lang}:`, translations);
+        currentLanguage = lang;
+        localStorage.setItem('gameLanguage', lang);
+        applyTranslations();
+    } catch (error) {
+        console.error(`Failed to load translations for ${lang}:`, error);
+        // Fallback to English if loading fails or requested lang is default
+        if (lang !== 'en') {
+            currentLanguage = 'en';
+            loadTranslations('en');
+        } else {
+            // If even English fails, set translations to empty to prevent errors
+            translations = {};
+        }
+    }
+}
+
+function tr(key, params = {}) {
+    let text = translations[key] || key; // Use key as fallback
+    for (const param in params) {
+        text = text.replace(`{${param}}`, params[param]);
+    }
+    return text;
+}
+
+function applyTranslations() {
+    // Translate direct text content
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        element.textContent = tr(key);
+    });
+
+    // Translate placeholder attributes
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        if (element.placeholder) {
+            element.placeholder = tr(key);
+        }
+    });
+
+    // Handle specific hardcoded elements that need translation
+    document.title = tr('app_title');
+    document.querySelector('.start-screen h1').textContent = tr('app_title');
+    document.querySelectorAll('.start-menu button')[0].textContent = tr('start_new_game');
+    document.querySelectorAll('.start-menu button')[1].textContent = tr('load_game');
+    document.querySelectorAll('.start-menu button')[2].textContent = tr('settings');
+
+    document.querySelector('#game-mode .mockup-header h2').textContent = tr('choose_your_path');
+    document.querySelector('#game-mode .mockup-header p').textContent = tr('will_you_craft_your_own');
+    document.querySelectorAll('#game-mode .design-options .option-btn')[0].querySelector('h3').textContent = tr('design_your_own');
+    document.querySelectorAll('#game-mode .design-options .option-btn')[0].querySelector('p').textContent = tr('design_your_own_description');
+    document.querySelectorAll('#game-mode .design-options .option-btn')[1].querySelector('h3').textContent = tr('ai_driven');
+    document.querySelectorAll('#game-mode .design-options .option-btn')[1].querySelector('p').textContent = tr('ai_driven_description');
+    document.querySelector('#game-mode .warning-text p').textContent = tr('warning_ai_experimental');
+    document.querySelector('#game-mode .design-actions .action-btn').textContent = tr('back');
+
+    document.querySelector('#ai-prompt .mockup-header h2').textContent = tr('describe_your_adventure');
+    document.querySelector('#ai-prompt .mockup-header p').textContent = tr('tell_ai_what_kind'); // This key is missing in en.json, will use key as fallback
+    document.getElementById('ai-prompt-input').placeholder = tr('ai_prompt_placeholder');
+    document.querySelector('#ai-prompt .design-actions .action-btn:nth-child(1)').textContent = tr('back');
+    document.querySelector('#ai-prompt .design-actions .action-btn.primary').textContent = tr('generate');
+
+    document.querySelector('#design .mockup-header h2').textContent = tr('design_your_adventure');
+
+    document.querySelector('#design-step-1 h3').textContent = tr('choose_an_ambiance');
+    document.querySelector('#design-step-1 .design-options .option-btn[data-ambiance-category="scary"]').textContent = tr('scary');
+    document.querySelector('#design-step-1 .design-options .option-btn[data-ambiance-category="funny"]').textContent = tr('funny');
+    document.querySelector('#design-step-1 .design-options .option-btn[data-ambiance-category="mysterious"]').textContent = tr('mysterious');
+    document.querySelector('#design-step-1 .design-actions .action-btn:nth-child(1)').textContent = tr('back');
+    document.querySelector('#design-step-1 .design-actions .action-btn.primary').textContent = tr('next');
+
+    document.querySelector('#design-step-2 h3').textContent = tr('choose_a_location');
+    document.querySelector('#locations-scary .option-btn[data-location="mansion_foyer"] h4').textContent = tr('haunted_mansion');
+    document.querySelector('#locations-scary .option-btn[data-location="tomb_entrance"] h4').textContent = tr('ancient_tomb');
+    document.querySelector('#locations-scary .option-btn[data-location="asylum_reception"] h4').textContent = tr('abandoned_asylum');
+    
+    document.querySelector('#locations-funny .option-btn[data-location="clown_funhouse_entrance"] h4').textContent = tr('clowns_funhouse');
+    document.querySelector('#locations-funny .option-btn[data-location="kids_room_play_area"] h4').textContent = tr('the_oversized_playroom');
+    document.querySelector('#locations-funny .option-btn[data-location="candy_wonderland_path"] h4').textContent = tr('candy_wonderland');
+    
+    document.querySelector('#locations-mysterious .option-btn[data-location="forgotten_library_entrance"] h4').textContent = tr('forgotten_library');
+    document.querySelector('#locations-mysterious .option-btn[data-location="sci-fi_hangar_main"] h4').textContent = tr('sci_fi_hangar');
+    document.querySelector('#locations-mysterious .option-btn[data-location="underwater_lab_entrance"] h4').textContent = tr('underwater_laboratory');
+    document.querySelector('#locations-mysterious .option-btn[data-location="spaceship_bridge"] h4').textContent = tr('derelict_spaceship');
+
+
+    document.querySelector('#design-step-2 .design-actions .action-btn:nth-child(1)').textContent = tr('back');
+    document.querySelector('#design-step-2 .design-actions .action-btn.primary').textContent = tr('next');
+
+    document.querySelector('#design-step-3 h3').textContent = tr('select_difficulty');
+    document.querySelectorAll('#design-step-3 .option-btn')[0].textContent = tr('easy');
+    document.querySelectorAll('#design-step-3 .option-btn')[1].textContent = tr('normal');
+    document.querySelectorAll('#design-step-3 .option-btn')[2].textContent = tr('hard');
+    document.querySelector('#design-step-3 .design-actions .action-btn:nth-child(1)').textContent = tr('back');
+    document.querySelector('#design-step-3 .design-actions .action-btn.primary').textContent = tr('start_adventure');
+
+    document.querySelector('#loading .mockup-header h2').textContent = tr('loading');
+    
+    // Settings Page
+    document.querySelector('#settings .mockup-header h2').textContent = tr('settings_title');
+    document.querySelector('.settings-section label[for="music-toggle"]').textContent = tr('music');
+    document.querySelector('.settings-section label[for="sfx-toggle"]').textContent = tr('sfx');
+    document.querySelector('.settings-section label[for="volume-slider"]').textContent = tr('volume');
+    document.querySelector('.settings-section label[for="language-select"]').textContent = tr('language');
+    // For toggle buttons, need to check their active state
+    if (document.getElementById('music-toggle')) {
+        document.getElementById('music-toggle').textContent = tr(document.getElementById('music-toggle').classList.contains('active') ? 'on' : 'off');
+    }
+    if (document.getElementById('sfx-toggle')) {
+        document.getElementById('sfx-toggle').textContent = tr(document.getElementById('sfx-toggle').classList.contains('active') ? 'on' : 'off');
+    }
+    document.querySelector('#settings .design-actions .action-btn.primary').textContent = tr('close');
+
+    // Load Game Page
+    document.querySelector('#load-game .mockup-header h2').textContent = tr('load_game');
+    document.querySelector('#load-game .design-actions .action-btn').textContent = tr('back');
+
+    // Immersive Page (game.html elements if loaded on index.html)
+    if (document.querySelector('.game-screen.immersive-screen')) {
+         document.querySelector('.immersive-sidebar h3').textContent = tr('game_status'); // This key is missing, will use 'game_status' as fallback
+         document.querySelector('.immersive-sidebar .status-box:nth-child(2) h4').textContent = tr('objective');
+         document.querySelector('.immersive-sidebar .status-box:nth-child(3) h4').textContent = tr('inventory');
+         document.querySelector('.immersive-sidebar #hint-box h4').textContent = tr('hint');
+         document.querySelector('.immersive-sidebar #hint-text').textContent = tr('click_for_hint');
+         document.querySelector('.retro-actions button[data-action="showPage"][data-value="settings"]').textContent = tr('settings');
+         document.querySelector('.retro-actions button[data-action="saveGame"]').textContent = tr('save_game');
+         document.querySelector('.retro-actions button[data-action="showPage"][data-value="start"]').textContent = tr('quit_game');
+
+        // Handle immersive options with numbering
+        document.querySelectorAll('.immersive-options .immersive-option').forEach((element, index) => {
+            const key = element.getAttribute('data-i18n');
+            if (key) {
+                element.textContent = `${index + 1}. ${tr(key)}`;
+            }
+        });
+    }
+
+    // Update messages arrays in startLoading - removed as startLoading now uses tr() directly
+}
+// --- End Translation Functions ---
 
         function formatTime(seconds) {
             const d = new Date(null);
@@ -74,15 +272,16 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
                     gameData.contextual_options.forEach((option, index) => {
                         const div = document.createElement('div');
                         div.classList.add('immersive-option');
-                        div.textContent = `${index + 1}. ${option}`;
+                        // Use tr() for options if they are translatable keys, otherwise display directly
+                        div.textContent = `${index + 1}. ${option}`; // Options are dynamic from backend, not directly translatable keys
                         div.dataset.optionIndex = index; // Store index for interaction
                         immersiveOptions.appendChild(div);
                     });
                 }
 
                 // Update game status (objective, inventory)
-                document.getElementById('objective-text').textContent = gameData.narrative_state.objective || "Explore and find clues.";
-                document.querySelector('.current-location-subtext').textContent = `Current Location: ${gameData.current_room_name}`;
+                document.getElementById('objective-text').textContent = gameData.narrative_state.objective || tr("explore_and_find_clues");
+                document.querySelector('.current-location-subtext').innerHTML = `${tr('current_location')}: ${gameData.current_room_name}`;
                 
                 const inventoryList = document.getElementById('inventory-list');
                 if (inventoryList) {
@@ -261,7 +460,7 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
                 // Ensure initial ambiance is selected for locations display
                 const initialAmbianceButton = document.querySelector('#design-step-1 .design-options .option-btn.active');
                 if (initialAmbianceButton) {
-                    selectAmbiance(initialAmbianceButton.textContent.toLowerCase(), initialAmbianceButton);
+                    selectAmbiance(initialAmbianceButton.dataset.theme, initialAmbianceButton.dataset.ambianceCategory, initialAmbianceButton);
                 }
             } else if (pageId === 'load-game') {
                 fetchAndRenderSavedGames(); // Call to load saved games
@@ -324,14 +523,14 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
             }
         }
 
-        function selectAmbiance(ambiance, buttonElement) {
-            console.log(`selectAmbiance called with: ${ambiance}`);
+        function selectAmbiance(themeId, ambianceCategory, buttonElement) {
+            console.log(`selectAmbiance called with: themeId=${themeId}, ambianceCategory=${ambianceCategory}`);
             const themeButtons = document.querySelector('#design-step-1 .design-options');
             themeButtons.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
             buttonElement.classList.add('active');
-            selectedAmbianceText = ambiance; // Store the ambiance text
+            selectedAmbianceText = themeId; // Store the ambiance theme ID
             document.querySelectorAll('.location-options').forEach(loc => loc.style.display = 'none');
-            const locationContainer = document.getElementById('locations-' + ambiance);
+            const locationContainer = document.getElementById('locations-' + ambianceCategory);
             if (locationContainer) {
                 locationContainer.style.display = 'flex';
                 // Set the default selected location image for the ambiance
@@ -351,6 +550,8 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
                 optionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
                 locationElement.classList.add('active');
                 selectedLocationText = locationElement.dataset.location; // Store the location key
+                // Update selectedAmbianceText based on the selected location's theme
+                selectedAmbianceText = locationElement.dataset.themeId;
             }
         }
 
@@ -364,7 +565,14 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
         function startLoading() {
             console.log('startLoading called');
             showPage('loading');
-            const messages = ["Reticulating splines...", "Generating narrative paradoxes...", "Hiding keys in obvious places...", "Polishing virtual dust...", "Teaching AI to count on its fingers...", "Finalizing your impending doom..."];
+            const messages = [
+                tr("reticulating_splines"),
+                tr("generating_narrative_paradoxes"),
+                tr("hiding_keys_in_obvious_places"),
+                tr("polishing_virtual_dust"),
+                tr("teaching_ai_to_count_on_its_fingers"),
+                tr("finalizing_your_impending_doom")
+            ];
             let index = 0;
             const el = document.getElementById('loading-text');
             el.textContent = messages[index];
@@ -410,8 +618,40 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOMContentLoaded fired');
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadTranslations(currentLanguage); // Load translations first
+            console.log('DOMContentLoaded fired.');
+
+            // --- Music & Volume Initialization ---
+            backgroundMusic = document.getElementById('background-music'); // Assign to global backgroundMusic
+            if (backgroundMusic) {
+                backgroundMusic.volume = gameVolume; // Set initial volume
+                if (isMusicEnabled) {
+                    backgroundMusic.play().catch(e => console.log("Music auto-play prevented:", e));
+                } else {
+                    backgroundMusic.pause();
+                }
+            }
+            // Update UI for music toggle and volume slider
+            updateMusicToggleButton();
+            const volumeSlider = document.getElementById('volume-slider');
+            if (volumeSlider) {
+                volumeSlider.value = gameVolume * 100; // Set slider position (0-100)
+                volumeSlider.addEventListener('input', (e) => setVolume(e.target.value));
+            }
+
+            const musicToggleButton = document.getElementById('music-toggle');
+            if (musicToggleButton) {
+                musicToggleButton.addEventListener('click', toggleMusic);
+            }
+            // --- End Music & Volume Initialization ---
+
+
+
+
+
+
+            
             // Check if currentSessionId is defined (meaning we are on the /game/<session_id> page)
             if (typeof currentSessionId !== 'undefined' && currentSessionId !== null) {
                 console.log('On immersive game page. currentSessionId:', currentSessionId);
@@ -491,18 +731,26 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
             showPage('start'); // Default to showing the start page initially.
 
             // Start Page buttons
-            document.querySelectorAll('.start-menu button')[0].addEventListener('click', () => {
-                console.log('NEW GAME button clicked');
-                showPage('game-mode');
-            });
-            document.querySelectorAll('.start-menu button')[1].addEventListener('click', () => {
-                console.log('LOAD GAME button clicked');
-                showPage('load-game');
-            });
-            document.querySelectorAll('.start-menu button')[2].addEventListener('click', () => {
-                console.log('SETTINGS button clicked');
-                showPage('settings');
-            });
+            console.log('Attempting to attach event listeners to start menu buttons.');
+            const startMenuButtons = document.querySelectorAll('.start-menu button');
+            if (startMenuButtons.length > 0) {
+                console.log(`Found ${startMenuButtons.length} start menu buttons.`);
+                startMenuButtons[0].addEventListener('click', () => {
+                    console.log('NEW GAME button clicked.');
+                    showPage('game-mode');
+                });
+                startMenuButtons[1].addEventListener('click', () => {
+                    console.log('LOAD GAME button clicked.');
+                    showPage('load-game');
+                });
+                startMenuButtons[2].addEventListener('click', () => {
+                    console.log('SETTINGS button clicked.');
+                    showPage('settings');
+                });
+                console.log('Start menu button event listeners attached.');
+            } else {
+                console.error('No start menu buttons found to attach listeners.');
+            }
 
             // Game Mode Selection buttons
             document.querySelectorAll('#game-mode .design-options .option-btn')[0].addEventListener('click', () => {
@@ -532,7 +780,7 @@ const currentPlayerId = 'test_player_1'; // Placeholder for now
             document.querySelectorAll('#design-step-1 .design-options .option-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
                     console.log(`Ambiance button clicked: ${e.target.textContent}`);
-                    selectAmbiance(e.target.textContent.toLowerCase(), e.target);
+                    selectAmbiance(e.target.dataset.theme, e.target.dataset.ambianceCategory, e.target);
                 });
             });
             document.querySelector('#design-step-1 .design-actions .action-btn:nth-child(1)').addEventListener('click', () => {

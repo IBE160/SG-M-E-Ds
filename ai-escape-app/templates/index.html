@@ -19,12 +19,12 @@
             <div class="mockup-content">
                 <div class="game-screen start-screen">
                     <div class="start-content">
-                        <h1>AI ESCAPE</h1>
-                        <p>Embark on a unique, text-driven journey. Craft your own tale or let the AI forge your destiny.</p>
+                        <h1 data-i18n="app_title">AI ESCAPE</h1>
+                        <p data-i18n="will_you_craft_your_own">Embark on a unique, text-driven journey. Craft your own tale or let the AI forge your destiny.</p>
                         <div class="start-menu">
-                            <button>NEW GAME</button>
-                            <button>LOAD GAME</button>
-                            <button>SETTINGS</button>
+                            <button data-i18n="start_new_game">NEW GAME</button>
+                            <button data-i18n="load_game">LOAD GAME</button>
+                            <button data-i18n="settings">SETTINGS</button>
                         </div>
                     </div>
                 </div>
@@ -34,27 +34,27 @@
         <!-- Game Mode Selection Page -->
         <div id="game-mode" class="mockup">
             <div class="mockup-header">
-                <h2>Choose Your Path</h2>
-                <p>Will you craft your own adventure, or let the AI decide your fate?</p>
+                <h2 data-i18n="choose_your_path">Choose Your Path</h2>
+                <p data-i18n="will_you_craft_your_own">Will you craft your own adventure, or let the AI decide your fate?</p>
             </div>
             <div class="mockup-content">
                 <div class="game-screen design-screen">
                     <div class="design-content">
                         <div class="design-options" style="flex-direction: column; gap: 2rem;">
                             <button class="option-btn large">
-                                <h3>DESIGN YOUR OWN</h3>
-                                <p>Hand-pick the ambiance, location, and difficulty to meticulously craft your personalized adventure.</p>
+                                <h3 data-i18n="design_your_own">DESIGN YOUR OWN</h3>
+                                <p data-i18n="design_your_own_description">Hand-pick the ambiance, location, and difficulty to meticulously craft your personalized adventure.</p>
                             </button>
                             <button class="option-btn large">
-                                <h3>AI-DRIVEN</h3>
-                                <p>Surrender to the unknown. Allow the AI to intricately weave a unique and unpredictable challenge for you.</p>
+                                <h3 data-i18n="ai_driven">AI-DRIVEN</h3>
+                                <p data-i18n="ai_driven_description">Surrender to the unknown. Allow the AI to intricately weave a unique and unpredictable challenge for you.</p>
                             </button>
                         </div>
                         <div class="warning-text">
-                            <p><strong>Warning:</strong> The AI-driven experience is experimental, may be unpredictable, and will take a moment to generate.</p>
+                            <p data-i18n="warning_ai_experimental"><strong>Warning:</strong> The AI-driven experience is experimental, may be unpredictable, and will take a moment to generate.</p>
                         </div>
                         <div class="design-actions">
-                            <button class="action-btn">BACK</button>
+                            <button class="action-btn" data-i18n="back">BACK</button>
                         </div>
                     </div>
                 </div>
@@ -64,75 +64,127 @@
         <!-- AI Prompt Page -->
         <div id="ai-prompt" class="mockup">
             <div class="mockup-header">
-                <h2>Describe Your Adventure</h2>
-                <p>Tell the AI what kind of game you want to play. Be as specific or as vague as you like.</p>
+                <h2 data-i18n="describe_your_adventure">Describe Your Adventure</h2>
+                <p data-i18n="tell_ai_what_kind">Tell the AI what kind of game you want to play. Be as specific or as vague as you like.</p>
             </div>
             <div class="mockup-content">
                 <div class="game-screen design-screen">
                     <div class="design-content">
-                        <textarea id="ai-prompt-input" placeholder="e.g., 'A cyberpunk detective story in a rainy city' or 'A fantasy quest to find a lost artifact'" style="width: 100%; height: 150px; font-family: var(--font-family-body); background: rgba(73, 80, 87, 0.9); color: var(--color-text-primary); border: 1px solid var(--color-border); padding: 1rem; font-size: 1.1rem; resize: none;"></textarea>
+                        <textarea id="ai-prompt-input" data-i18n-placeholder="ai_prompt_placeholder" style="width: 100%; height: 150px; font-family: var(--font-family-body); background: rgba(73, 80, 87, 0.9); color: var(--color-text-primary); border: 1px solid var(--color-border); padding: 1rem; font-size: 1.1rem; resize: none;"></textarea>
                         <div class="design-actions">
-                            <button class="action-btn">BACK</button>
-                            <button class="action-btn primary">GENERATE</button>
+                            <button class="action-btn" data-i18n="back">BACK</button>
+                            <button class="action-btn primary" data-i18n="generate">GENERATE</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Design Page -->
-        <div id="design" class="mockup">
-            <div class="mockup-header"><h2>Design Your Adventure</h2></div>
-            <div class="mockup-content">
-                <div class="game-screen design-screen">
-                    <div class="design-content">
-                        <div id="design-step-1" class="design-step active">
-                            <h3><span class="step-counter">1/3</span> CHOOSE AN AMBIANCE</h3>
-                            <div class="design-options">
-                                <button class="option-btn">SCARY</button>
-                                <button class="option-btn">FUNNY</button>
-                                <button class="option-btn active">MYSTERIOUS</button>
-                            </div>
-                            <div class="design-actions">
-                                <button class="action-btn">BACK</button>
-                                <button class="action-btn primary">NEXT</button>
-                            </div>
-                        </div>
-                        <div id="design-step-2" class="design-step">
-                            <h3><span class="step-counter">2/3</span> CHOOSE A LOCATION</h3>
-                            <div id="locations-scary" class="location-options design-options">
-                                <div class="option-btn" data-location="abandoned_mansion" style="background-image: url('{{ url_for("static", filename="images/abandoned_mansion.jpg") }}');"><h4>HAUNTED MANSION</h4></div>
-                                <div class="option-btn" data-location="ancient_tomb" style="background-image: url('{{ url_for("static", filename="images/ancient_tomb.jpg") }}');"><h4>ANCIENT TOMB</h4></div>
-                                <div class="option-btn" data-location="asylum" style="background-image: url('{{ url_for("static", filename="images/asylum.jpg") }}');"><h4>ABANDONED ASYLUM</h4></div>
-                            </div>
-                            <div id="locations-funny" class="location-options design-options" style="display:none;">
-                                <div class="option-btn" data-location="clown_funhouse" style="background-image: url('{{ url_for("static", filename="images/clown_funhouse.jpg") }}');"><h4>CLOWN'S FUNHOUSE</h4></div>
-                                <div class="option-btn" data-location="kids_room" style="background-image: url('{{ url_for("static", filename="images/kids_room.jpg") }}');"><h4>THE OVERSIZED PLAYROOM</h4></div>
-                                <div class="option-btn" data-location="candy_wonderland" style="background-image: url('{{ url_for("static", filename="images/candy_wonderland.jpg") }}');"><h4>CANDY WONDERLAND</h4></div>
-                            </div>
-                            <div id="locations-mysterious" class="location-options design-options" style="display:none;">
-                                <div class="option-btn" data-location="forgotten_library" style="background-image: url('{{ url_for("static", filename="images/forgotten_library.jpg") }}');"><h4>FORGOTTEN LIBRARY</h4></div>
-                                <div class="option-btn" data-location="sci_fi_hangar" style="background-image: url('{{ url_for("static", filename="images/scifi_hangar.jpg") }}');"><h4>SCI-FI HANGAR</h4></div>
-                                <div class="option-btn" data-location="underwater_lab" style="background-image: url('{{ url_for("static", filename="images/underwater_lab.jpg") }}');"><h4>UNDERWATER LABORATORY</h4></div>
-                                <div class="option-btn" data-location="spaceship" style="background-image: url('{{ url_for("static", filename="images/spaceship.jpg") }}');"><h4>DERELICT SPACESHIP</h4></div>
-                            </div>
-                            <div class="design-actions">
-                                <button class="action-btn">BACK</button>
-                                <button class="action-btn primary">NEXT</button>
-                            </div>
-                        </div>
-                        <div id="design-step-3" class="design-step">
-                            <h3><span class="step-counter">3/3</span> SELECT DIFFICULTY</h3>
-                            <div class="design-options">
-                                <button class="option-btn">EASY</button>
-                                <button class="option-btn active">NORMAL</button>
-                                <button class="option-btn">HARD</button>
-                            </div>
-                            <div class="design-actions">
-                                <button class="action-btn">BACK</button>
-                                <button class="action-btn primary">START ADVENTURE</button>
-                            </div>
-                        </div>
+                <!-- Design Page -->
+
+                <div id="design" class="mockup">
+
+                    <div class="mockup-header"><h2 data-i18n="design_your_adventure">Design Your Adventure</h2></div>
+
+                    <div class="mockup-content">
+
+                        <div class="game-screen design-screen">
+
+                            <div class="design-content">
+
+                                <div id="design-step-1" class="design-step active">
+
+                                    <h3 data-i18n="choose_an_ambiance"><span class="step-counter">1/3</span> CHOOSE AN AMBIANCE</h3>
+
+                                    <div class="design-options">
+
+                                        <button class="option-btn" data-theme="abandoned_mansion" data-ambiance-category="scary" data-i18n="scary">SCARY</button>
+
+                                        <button class="option-btn" data-theme="clown_funhouse" data-ambiance-category="funny" data-i18n="funny">FUNNY</button>
+
+                                        <button class="option-btn active" data-theme="forgotten_library" data-ambiance-category="mysterious" data-i18n="mysterious">MYSTERIOUS</button>
+
+                                    </div>
+
+                                    <div class="design-actions">
+
+                                        <button class="action-btn" data-i18n="back">BACK</button>
+
+                                        <button class="action-btn primary" data-i18n="next">NEXT</button>
+
+                                    </div>
+
+                                </div>
+
+                                <div id="design-step-2" class="design-step">
+
+                                    <h3 data-i18n="choose_a_location"><span class="step-counter">2/3</span> CHOOSE A LOCATION</h3>
+
+                                    <div id="locations-scary" class="location-options design-options">
+
+                                        <div class="option-btn" data-location="mansion_foyer" data-theme-id="abandoned_mansion" style="background-image: url('{{ url_for("static", filename="images/abandoned_mansion.jpg") }}');"><h4 data-i18n="haunted_mansion">HAUNTED MANSION</h4></div>
+
+                                        <div class="option-btn" data-location="tomb_entrance" data-theme-id="ancient_tomb" style="background-image: url('{{ url_for("static", filename="images/ancient_tomb.jpg") }}');"><h4 data-i18n="ancient_tomb">ANCIENT TOMB</h4></div>
+
+                                        <div class="option-btn" data-location="asylum_reception" data-theme-id="asylum" style="background-image: url('{{ url_for("static", filename="images/asylum.jpg") }}');"><h4 data-i18n="abandoned_asylum">ABANDONED ASYLUM</h4></div>
+
+                                    </div>
+
+                                    <div id="locations-funny" class="location-options design-options" style="display:none;">
+
+                                        <div class="option-btn" data-location="clown_funhouse_entrance" data-theme-id="clown_funhouse" style="background-image: url('{{ url_for("static", filename="images/clown_funhouse.jpg") }}');"><h4 data-i18n="clowns_funhouse">CLOWN'S FUNHOUSE</h4></div>
+
+                                        <div class="option-btn" data-location="kids_room_play_area" data-theme-id="kids_room" style="background-image: url('{{ url_for("static", filename="images/kids_room.jpg") }}');"><h4 data-i18n="the_oversized_playroom">THE OVERSIZED PLAYROOM</h4></div>
+
+                                        <div class="option-btn" data-location="candy_wonderland_path" data-theme-id="candy_wonderland" style="background-image: url('{{ url_for("static", filename="images/candy_wonderland.jpg") }}');"><h4 data-i18n="candy_wonderland">CANDY WONDERLAND</h4></div>
+
+                                    </div>
+
+                                    <div id="locations-mysterious" class="location-options design-options" style="display:none;">
+
+                                        <div class="option-btn" data-location="forgotten_library_entrance" data-theme-id="forgotten_library" style="background-image: url('{{ url_for("static", filename="images/forgotten_library.jpg") }}');"><h4 data-i18n="forgotten_library">FORGOTTEN LIBRARY</h4></div>
+
+                                        <div class="option-btn" data-location="sci-fi_hangar_main" data-theme-id="sci_fi_hangar" style="background-image: url('{{ url_for("static", filename="images/scifi_hangar.jpg") }}');"><h4 data-i18n="sci_fi_hangar">SCI-FI HANGAR</h4></div>
+
+                                        <div class="option-btn" data-location="underwater_lab_entrance" data-theme-id="underwater_lab" style="background-image: url('{{ url_for("static", filename="images/underwater_lab.jpg") }}');"><h4 data-i18n="underwater_laboratory">UNDERWATER LABORATORY</h4></div>
+
+                                        <div class="option-btn" data-location="spaceship_bridge" data-theme-id="spaceship" style="background-image: url('{{ url_for("static", filename="images/spaceship.jpg") }}');"><h4 data-i18n="derelict_spaceship">DERELICT SPACESHIP</h4></div>
+
+                                    </div>
+
+                                    <div class="design-actions">
+
+                                        <button class="action-btn" data-i18n="back">BACK</button>
+
+                                        <button class="action-btn primary" data-i18n="next">NEXT</button>
+
+                                    </div>
+
+                                </div>
+
+                                <div id="design-step-3" class="design-step">
+
+                                    <h3 data-i18n="select_difficulty"><span class="step-counter">3/3</span> SELECT DIFFICULTY</h3>
+
+                                    <div class="design-options">
+
+                                        <button class="option-btn" data-i18n="easy">EASY</button>
+
+                                        <button class="option-btn active" data-i18n="normal">NORMAL</button>
+
+                                        <button class="option-btn" data-i18n="hard">HARD</button>
+
+                                    </div>
+
+                                    <div class="design-actions">
+
+                                        <button class="action-btn" data-i18n="back">BACK</button>
+
+                                        <button class="action-btn primary" data-i18n="start_adventure">START ADVENTURE</button>
+
+                                    </div>
+
+                                </div>
 
                     </div>
                 </div>
@@ -141,10 +193,10 @@
 
         <!-- Loading Page -->
         <div id="loading" class="mockup">
-            <div class="mockup-header"><h2>Loading...</h2></div>
+            <div class="mockup-header"><h2 data-i18n="loading">Loading...</h2></div>
             <div class="mockup-content">
                 <div class="game-screen loading-screen">
-                    <div class="loading-icon">AI ESCAPE</div>
+                    <div class="loading-icon" data-i18n="app_title">AI ESCAPE</div>
                     <div class="loading-text" id="loading-text">Calibrating puzzle matrix...</div>
                 </div>
             </div>
@@ -154,34 +206,31 @@
 
         <!-- Settings Page -->
         <div id="settings" class="mockup">
-            <div class="mockup-header"><h2>Settings</h2></div>
+            <div class="mockup-header"><h2 data-i18n="settings_title">Settings</h2></div>
             <div class="mockup-content">
                 <div class="game-screen start-screen"> <!-- Using start-screen for background -->
                     <div class="start-content"> <!-- Using start-content for the box styling -->
                         <div class="settings-section">
-                            <label for="music-toggle">Music</label>
-                            <button id="music-toggle" class="toggle-btn active">ON</button>
+                            <label for="music-toggle" data-i18n="music">Music</label>
+                            <button id="music-toggle" class="toggle-btn active" data-i18n="on">ON</button>
                         </div>
                         <div class="settings-section">
-                            <label for="sfx-toggle">Sound Effects</label>
-                            <button id="sfx-toggle" class="toggle-btn active">ON</button>
+                            <label for="sfx-toggle" data-i18n="sfx">Sound Effects</label>
+                            <button id="sfx-toggle" class="toggle-btn active" data-i18n="on">ON</button>
                         </div>
                         <div class="settings-section">
-                            <label for="volume-slider">Volume</label>
+                            <label for="volume-slider" data-i18n="volume">Volume</label>
                             <input type="range" id="volume-slider" min="0" max="100" value="80">
                         </div>
                         <div class="settings-section">
-                            <label for="language-select">Language</label>
-                            <select id="language-select">
-                                <option>English</option>
-                                <option>Spanish</option>
-                                <option>Norwegian</option>
-                                <option>French</option>
-                                <option>Italian</option>
+                            <label for="language-select" data-i18n="language">Language</label>
+                            <select id="language-select" onchange="loadTranslations(this.value)">
+                                <option value="en">English</option>
+                                <option value="no">Norsk</option>
                             </select>
                         </div>
                         <div class="design-actions">
-                            <button class="action-btn primary" onclick="closeSettings()">CLOSE</button>
+                            <button class="action-btn primary" data-i18n="close" onclick="closeSettings()">CLOSE</button>
                         </div>
                     </div>
                 </div>
@@ -190,20 +239,20 @@
 
         <!-- Load Game Page -->
         <div id="load-game" class="mockup">
-            <div class="mockup-header"><h2>Load Game</h2></div>
+            <div class="mockup-header"><h2 data-i18n="load_game">Load Game</h2></div>
             <div class="mockup-content">
                 <div class="game-screen load-game-screen">
                     <div class="saved-games-list">
                         <div class="saved-game-item">
-                            <p>Save Slot 1 - Haunted Mansion</p>
+                            <p data-i18n="save_slot_1">Save Slot 1 - Haunted Mansion</p>
                             <small>Date: 2025-11-20 | Time: 01:23:45</small>
                         </div>
                         <div class="saved-game-item">
-                            <p>Save Slot 2 - Ancient Tomb</p>
+                            <p data-i18n="save_slot_2">Save Slot 2 - Ancient Tomb</p>
                             <small>Date: 2025-11-19 | Time: 00:45:12</small>
                         </div>
                         <div class="design-actions">
-                            <button class="action-btn">BACK</button>
+                            <button class="action-btn" data-i18n="back">BACK</button>
                         </div>
                     </div>
                 </div>
@@ -220,34 +269,34 @@
                             <h3>The Cold Embrace of Starlight</h3>
                             <p>A frigid, metallic tang invades your senses as your vision flickers into reluctant focus. You're confined within a damaged cryo-pod, its low hum now punctuated by the urgent, crimson flash of a warning light. A synthetic voice, eerily calm, intones: "System integrity compromised. Emergency protocols initiated." The air, thick with ozone and the chill of deep space, clings to your skin. Before you, a reinforced hatch, your only exit, remains stubbornly dark and unresponsive.</p>
                             <div class="immersive-options">
-                                <div class="immersive-option" data-action="updateObjective" data-value="Find a way to power the door.">1. Check the cryo-pod's diagnostic screen.</div>
-                                <div class="immersive-option" data-action="addItem" data-value="ID-Card">2. Try to override the door controls.</div>
-                                <div class="immersive-option" data-action="removeItem" data-value="Rusty Key">3. Search the nearby storage locker.</div>
-                                <div class="immersive-option">4. Wait for help.</div>
+                                <div class="immersive-option" data-action="updateObjective" data-value="Find a way to power the door." data-i18n="check_cryo_pod_option">Check the cryo-pod's diagnostic screen.</div>
+                                <div class="immersive-option" data-action="addItem" data-value="ID-Card" data-i18n="override_door_controls_option">Try to override the door controls.</div>
+                                <div class="immersive-option" data-action="removeItem" data-value="Rusty Key" data-i18n="search_storage_locker_option">Search the nearby storage locker.</div>
+                                <div class="immersive-option" data-i18n="wait_for_help_option">Wait for help.</div>
                             </div>
                         </div>
                     </div>
                     <div class="immersive-sidebar">
-                        <h3>GAME STATUS</h3>
+                        <h3 data-i18n="game_status">GAME STATUS</h3>
                         <p class="game-timer">TIME: 00:12:34</p>
-                        <p class="current-location-subtext">Current Location: The Forgotten Crypt</p>
+                        <p class="current-location-subtext"><span data-i18n="current_location">Current Location</span>: The Forgotten Crypt</p>
                         <div class="status-box">
-                            <h4>OBJECTIVE</h4>
+                            <h4 data-i18n="objective">OBJECTIVE</h4>
                             <p id="objective-text"></p>
                         </div>
                         <div class="status-box">
-                            <h4>INVENTORY</h4>
+                            <h4 data-i18n="inventory">INVENTORY</h4>
                             <ul id="inventory-list"></ul>
                         </div>
                         <div id="hint-box" class="status-box">
-                            <h4>HINT <span id="hint-budget"></span></h4>
-                            <p id="hint-text"></p>
+                            <h4 data-i18n="hint">HINT <span id="hint-budget"></span></h4>
+                            <p id="hint-text" data-i18n="click_for_hint">Click for a hint</p>
                             <div id="hint-cooldown"></div>
                         </div>
                         <div class="retro-actions">
-                            <button data-action="showPage" data-value="settings">SETTINGS</button>
-                            <button data-action="saveGame">SAVE</button>
-                            <button data-action="showPage" data-value="start">QUIT</button>
+                            <button data-action="showPage" data-value="settings" data-i18n="settings">SETTINGS</button>
+                            <button data-action="saveGame" data-i18n="save_game">SAVE</button>
+                            <button data-action="showPage" data-value="start" data-i18n="quit_game">QUIT</button>
                         </div>
                     </div>
                 </div>
@@ -255,7 +304,11 @@
         </div>
     </div>
 
-    
+    <audio id="background-music" loop>
+        <source src="{{ url_for('static', filename='audio/background_music.mp3') }}" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
 </body>

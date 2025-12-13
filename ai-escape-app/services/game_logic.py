@@ -9,21 +9,25 @@ from services.ai_service import evaluate_and_adapt_puzzle, generate_room_descrip
 def create_game_session(
     db_session: Session,
     player_id: str,
-    theme: str = "mystery",
-    location: str = "ancient_library", # This 'location' is actually the desired start_room_id
+    theme: str = "forgotten_library",
+    location: str = "forgotten_library_entrance", # This 'location' is actually the desired start_room_id
     difficulty: str = "medium",
 ) -> GameSession:
     """
     Initializes and stores a new GameSession in the database.
     """
+    print(f"create_game_session received - theme: {theme}, location: {location}")
     # Determine the actual theme based on the location if it's not explicitly provided
     selected_theme_id = theme
+    print(f"  selected_theme_id (after initial assignment): {selected_theme_id}")
     if selected_theme_id not in ROOM_DATA:
         # Fallback to a default theme if selected theme is invalid
+        print(f"  Warning: Invalid theme '{selected_theme_id}'. Falling back to 'mystery'.")
         selected_theme_id = "mystery" # Default theme
 
     # Get the theme data from ROOM_DATA
     theme_data = ROOM_DATA.get(selected_theme_id)
+    print(f"  theme_data (from ROOM_DATA.get): {theme_data is not None}")
     if not theme_data:
         # This case should ideally not happen if ROOM_DATA is properly structured
         return None # Or raise an error as appropriate
@@ -31,8 +35,10 @@ def create_game_session(
     # Find the starting room within the selected theme
     # The 'location' parameter passed here is actually the intended first_room_id
     first_room_id = location
+    print(f"  first_room_id (after initial assignment from location): {first_room_id}")
     if first_room_id not in theme_data["rooms"]:
         # Fallback to the theme's default start_room if the provided location is not in this theme
+        print(f"  Warning: Room '{first_room_id}' not found in theme's rooms. Falling back to theme's start_room: {theme_data['start_room']}.")
         first_room_id = theme_data["start_room"]
     
     room_info = theme_data["rooms"].get(first_room_id)
