@@ -197,7 +197,7 @@ def solve_puzzle(
 
 
     # Use AI to evaluate the attempt and get adaptation suggestions
-    ai_evaluation = evaluate_and_adapt_puzzle(
+    ai_evaluation_response = evaluate_and_adapt_puzzle(
         puzzle_id=puzzle_id,
         player_attempt=solution_attempt,
         puzzle_solution=correct_solution, # Pass the correct solution to the AI for evaluation
@@ -209,11 +209,15 @@ def solve_puzzle(
         narrative_archetype=game_session.narrative_archetype,
     )
 
-    if "error" in ai_evaluation:
-        return False, f"AI evaluation failed: {ai_evaluation['error']}", game_session, ai_evaluation
+    if "error" in ai_evaluation_response:
+        return False, ai_evaluation_response["error"], game_session, ai_evaluation_response
 
-    is_correct = ai_evaluation.get("is_correct", False)
-    feedback_message = ai_evaluation.get("feedback", "No feedback provided by AI.")
+    is_correct = ai_evaluation_response.get("is_correct", False)
+    feedback_message = ai_evaluation_response.get("feedback", "No feedback provided by AI.")
+    hint_message = ai_evaluation_response.get("hint")
+    puzzle_status = ai_evaluation_response.get("puzzle_status", "unsolved")
+    next_step_description = ai_evaluation_response.get("next_step_description")
+    new_puzzle_state_from_ai = ai_evaluation_response.get("new_puzzle_state")
     
     # Update puzzle_state with AI evaluation details
     # Create a mutable copy of game_session.puzzle_state
@@ -221,14 +225,18 @@ def solve_puzzle(
     
     # Update the specific puzzle_id entry
     current_puzzle_details = new_puzzle_state.get(puzzle_id, {})
-    current_puzzle_details["solved"] = is_correct
+    current_puzzle_details["solved"] = is_correct # This should probably be derived from puzzle_status if multi-step
+    current_puzzle_details["status"] = puzzle_status # Store the status from AI
     current_puzzle_details["attempts"] = current_puzzle_details.get("attempts", 0) + 1
     current_puzzle_details["last_attempt"] = solution_attempt
-    current_puzzle_details["ai_feedback"] = ai_evaluation
-    # Increment hints_used if a hint was provided in the AI feedback and it's not solved
-    if ai_evaluation.get("hint") and not is_correct:
+    current_puzzle_details["ai_feedback"] = ai_evaluation_response
+    if hint_message: # If a hint was provided by AI, track it
         current_puzzle_details["hints_used"] = current_puzzle_details.get("hints_used", 0) + 1
     
+    # Merge new_puzzle_state_from_ai into current_puzzle_details
+    if new_puzzle_state_from_ai:
+        current_puzzle_details.update(new_puzzle_state_from_ai)
+
     new_puzzle_state[puzzle_id] = current_puzzle_details
     game_session.puzzle_state = new_puzzle_state # Reassign the modified dictionary
     flag_modified(game_session, "puzzle_state") # Explicitly flag the JSON field as modified
@@ -239,10 +247,9 @@ def solve_puzzle(
     db_session.commit()
     db_session.refresh(game_session)
 
-    if is_correct:
-        return True, "Puzzle solved!", game_session, ai_evaluation
-    else:
-        return False, feedback_message, game_session, ai_evaluation
+    # Return structure: (is_solved: bool, message: str, updated_game_session: GameSession | None, ai_evaluation: dict)
+    # The message should be the feedback from AI.
+    return is_correct, feedback_message, game_session, ai_evaluation_response
 
 
 
@@ -274,9 +281,15 @@ def get_contextual_options(game_session: GameSession) -> list[str]:
             options.append(f"Go {direction} to {next_room_name}")
 
     # Puzzles
-    for puzzle_id, puzzle_details in room_info["puzzles"].items():
-        if not game_session.puzzle_state.get(puzzle_id, {}).get("solved", False):
-            options.append(f"Solve {puzzle_id}") # Using puzzle_id for now, can be changed to a more descriptive name
+    for puzzle_id, puzzle_details_from_room_data in room_info["puzzles"].items():
+        current_puzzle_state = game_session.puzzle_state.get(puzzle_id, {})
+        if not current_puzzle_state.get("solved", False) and current_puzzle_state.get("status") != "solved":
+            # If the AI provided a next step description, use that
+            if current_puzzle_state.get("next_step_description"):
+                options.append(current_puzzle_state["next_step_description"])
+            else:
+                # Otherwise, use the initial description from ROOM_DATA, perhaps rephrased
+                options.append(f"Investigate: {puzzle_details_from_room_data['description']}")
 
     # Add a generic "Go back" option, assuming this maps to moving to a previous room.
     # For now, it's just a placeholder as the navigation is linear.
@@ -422,7 +435,7 @@ def get_a_hint(db_session: Session, session_id: int) -> tuple[str, GameSession |
     current_puzzle_description = room_info["puzzles"][puzzle_id]["description"]
 
     # Use AI to get a hint
-    ai_evaluation = evaluate_and_adapt_puzzle(
+    ai_evaluation_response = evaluate_and_adapt_puzzle(
         puzzle_id=puzzle_id,
         player_attempt="I need a hint", # Special phrase to request a hint
         puzzle_solution=correct_solution,
@@ -434,15 +447,20 @@ def get_a_hint(db_session: Session, session_id: int) -> tuple[str, GameSession |
         narrative_archetype=game_session.narrative_archetype,
     )
 
-    if "error" in ai_evaluation:
-        return f"AI evaluation failed: {ai_evaluation['error']}", game_session
+    if "error" in ai_evaluation_response:
+        return f"AI evaluation failed: {ai_evaluation_response['error']}", game_session
 
-    hint = ai_evaluation.get("hint", "No hint available from the AI.")
+    hint = ai_evaluation_response.get("hint", "No hint available from the AI.")
 
     # Update puzzle state with hints_used
     new_puzzle_state = game_session.puzzle_state.copy()
     current_puzzle_details = new_puzzle_state.get(puzzle_id, {})
     current_puzzle_details["hints_used"] = current_puzzle_details.get("hints_used", 0) + 1
+    # Update with new_puzzle_state from AI if provided, in case the AI also adapted the puzzle state
+    new_puzzle_state_from_ai = ai_evaluation_response.get("new_puzzle_state")
+    if new_puzzle_state_from_ai:
+        current_puzzle_details.update(new_puzzle_state_from_ai)
+    
     new_puzzle_state[puzzle_id] = current_puzzle_details
     game_session.puzzle_state = new_puzzle_state
     flag_modified(game_session, "puzzle_state")

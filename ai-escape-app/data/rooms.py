@@ -1,5 +1,17 @@
 # data/rooms.py
 
+# IMPORTANT NOTE ON PUZZLE STRUCTURE:
+# While this ROOM_DATA defines initial 'puzzles' with a 'description' and a 'solution',
+# the actual puzzle progression, hints, and dynamic adaptation are managed by the
+# AI service (ai_service.py) and stored within the GameSession's 'puzzle_state'
+# in game_logic.py.
+#
+# The 'solution' provided here should be considered the correct input for the
+# initial step of the puzzle, or the ultimate solution if it's a single-step puzzle.
+# The AI will interpret this solution, evaluate player attempts against it,
+# provide feedback, and guide multi-step puzzles, updating the dynamic
+# 'puzzle_state' in the game session accordingly.
+
 ROOM_DATA = {
     "forgotten_library": {
         "start_room": "forgotten_library_entrance",
