@@ -68,20 +68,24 @@ def generate_room_description(theme: str, scenario_name_for_ai_prompt: str, narr
     items_list = ", ".join(room_context.get('items', []))
 
     full_prompt = (
-        f"You are the game master for an AI Escape room game. Generate an immersive and atmospheric description "
-        f"for the following room:\n\n"
+        f"You are the game master for an AI Escape room game. Generate a rich, immersive, and atmospheric description "
+        f"for the following room, acting as the story introduction for the player. "
+        f"The description should clearly explain where the player is, establish the ambiance, "
+        f"and state the player's immediate goal for this room (e.g., finding a key, restoring power, unlocking a door). "
+        f"It should also subtly hint at the types of puzzles or interactions the player might encounter "
+        f"without explicitly listing game mechanics or solutions. "
+        f"Ensure the story strongly matches the given theme and location.\n\n"
         f"Theme: {theme}\n"
         f"Scenario Name: {sanitized_scenario_name}\n"
         f"Room ID: {sanitized_current_room_id}\n"
-        f"Current Game Narrative State: {narrative_state}\n"
-        f"Room Context:\n"
+        f"Current Game Narrative State: {json.dumps(narrative_state, indent=2)}\n" # Pass full narrative state for richer context
+        f"Room Context (for AI's internal reference, do not explicitly list these in the description):\n"
         f"  Name: {room_context.get('name', sanitized_current_room_id)}\n"
         f"  Exits: {exits_list}\n"
         f"  Puzzles (unsolved): {puzzles_list}\n"
         f"  Items: {items_list}\n\n"
-        f"The description should clearly explain why the player is there and what their immediate goal is "
-        f"to progress or solve a puzzle in this specific room. Make it engaging and mysterious. "
-        f"Do NOT explicitly list exits, puzzles, or items at the end of the description, integrate them naturally."
+        f"Make it engaging and mysterious. "
+        f"The goal is to provide a comprehensive sense of place and purpose to the player upon entering the room."
     )
     logging.info(f"Calling AI for generate_room_description. Room: {sanitized_current_room_id}, Prompt: {full_prompt[:200]}...")
     try:
@@ -107,16 +111,20 @@ def generate_puzzle(puzzle_type: str, difficulty: str, theme: str, location: str
 
     full_prompt = (
         f"You are an AI Game Master. Generate a new puzzle for an escape room game. "
+        f"The puzzle should be interactive and clearly indicate what the player is trying to achieve. "
         f"Return your response as a JSON object only. Do NOT include any other text.\n\n"
         f"**JSON Schema:**\n"
         f"```json\n"
         f"{{\n"
         f'  "puzzle_id": string, // A unique identifier for the puzzle (e.g., "star_map_console")\n'
-        f'  "description": string, // A detailed description of the puzzle for the player\n'
+        f'  "description": string, // A detailed description of the puzzle for the player, clearly stating the objective\n'
         f'  "solution": string,    // The exact solution string (case-insensitive for comparison)\n'
         f'  "prerequisites": array, // (Optional) List of strings of prerequisites (e.g., "power_restored", "keycard_found")\n'
         f'  "outcomes": array,    // (Optional) List of strings of outcomes (e.g., "door_unlocked", "new_item_revealed")\n'
         f'  "puzzle_steps": array // (Optional) For multi-step puzzles, a list of dictionaries, each with "step_description" and "step_solution"\n'
+        f'  "puzzle_type": string // (Optional) e.g., "code_entry", "object_interaction", "mechanism_sequence", "inspection"\n'
+        f'  "items_required": array // (Optional) List of items needed to solve the puzzle (e.g., ["Rusty Key"])\n'
+        f'  "item_discovered_on_solve": array // (Optional) List of items discovered when this puzzle is solved (e.g., ["Keycard"])\n'
         f"}}\n"
         f"```\n\n"
         f"**Game Context:**\n"
@@ -124,13 +132,18 @@ def generate_puzzle(puzzle_type: str, difficulty: str, theme: str, location: str
         f"- Location: {sanitized_location}\n"
         f"- Difficulty: {difficulty}\n"
         f"- Narrative Archetype: {narrative_archetype if narrative_archetype else 'None'}\n"
-        f"- Requested Puzzle Type: {sanitized_puzzle_type}\n"
+        f"- Requested Puzzle Type: {sanitized_puzzle_type if sanitized_puzzle_type else 'any'}\n"
         f"- Additional Context: {context_str}\n"
         f"- Known Prerequisites: {prereq_str}\n"
         f"- Expected Outcomes: {outcomes_str}\n\n"
-        f"Generate a puzzle that fits the context and difficulty. Ensure the `solution` is concise and exact. "
-        f"For 'easy' difficulty, puzzles should be straightforward with clear clues. "
-        f"For 'hard' difficulty, puzzles should be complex, possibly multi-step, with hidden clues and minimal direct guidance. "
+        f"Generate a puzzle that fits the context and difficulty. "
+        f"The `description` must clearly state what the player needs to achieve. "
+        f"For 'easy' difficulty: Puzzles should be straightforward, have fewer steps (ideally one), and clear objectives. Hints should be direct. "
+        f"For 'medium' difficulty: Puzzles can have multiple steps, require some indirect clue-finding, and light exploration. "
+        f"For 'hard' difficulty: Puzzles should be complex, multi-step, with hidden clues, and minimal direct guidance. They might require combining items or complex sequences. "
+        f"Ensure the `solution` is concise and exact. "
+        f"If the puzzle involves finding an item, specify it in `item_discovered_on_solve`. "
+        f"If the puzzle requires an item from the player's inventory, specify it in `items_required`. "
         f"Ensure the generated JSON is valid and adheres strictly to the schema."
     )
     
@@ -192,9 +205,12 @@ def evaluate_and_adapt_puzzle(
         f'  "feedback": string,    // A message to the player about their attempt\n'
         f'  "hint": string,        // (Optional) A context-aware hint if the attempt is incorrect\n'
         f'  "puzzle_status": string, // e.g., "solved", "partially_solved", "unsolved", "failed"\n'
-        f'  "next_step_description": string, // (Optional) For multi-step puzzles, what to do next\n'
+        f'  "next_step_description": string, // (Optional) For multi-step puzzles, what the player needs to do next (short, action-oriented phrase)\n'
         f'  "difficulty_adjustment_suggestion": string, // e.g., "make_easier", "make_harder", "none"\n'
-        f'  "new_puzzle_state": object // (Optional) Any updates to the puzzle\'s internal state (e.g., clues found)\n'
+        f'  "new_puzzle_state": object, // (Optional) Any updates to the puzzle\'s internal state (e.g., clues found, step completed)\n'
+        f'  "items_found": array, // (Optional) List of strings of items discovered/obtained (e.g., ["Rusty Key", "Flashlight"])\n'
+        f'  "game_state_changes": object, // (Optional) Dictionary of broader game state changes (e.g., {{"door_status": {{"main_door": "unlocked"}}}}, {{"power_grid": "online"}})\n'
+        f'  "puzzle_progress": object // (Optional) Dictionary of specific progress within a puzzle (e.g., {{"lever_pulled": true}} or {{"riddle_part_1_solved": true}})\n'
         f"}}\n"
         f"```\n\n"
         f"**Game Context:**\n"
@@ -213,8 +229,10 @@ def evaluate_and_adapt_puzzle(
         f"Make sure 'feedback' is engaging and 'hint' is helpful but doesn't give away the solution too easily for higher difficulties. "
         f"Consider the `difficulty` when providing hints or adapting feedback. For 'hard' difficulty, be subtle. For 'easy', be more direct."
         f"If the `player_attempt` is the exact `puzzle_solution` (case-insensitive), set `is_correct` to true and `puzzle_status` to 'solved'."
-        f"Otherwise, if the attempt is close or shows partial understanding, you can set `puzzle_status` to 'partially_solved' and provide `new_puzzle_state`."
-        f"Ensure the generated JSON is valid and adheres strictly to the schema."
+        f"Otherwise, if the attempt is close or shows partial understanding, you can set `puzzle_status` to 'partially_solved' and provide `new_puzzle_state`. "
+        f"If the action leads to finding an item, include `items_found`. If it changes a broader game state (like unlocking a door or turning on power), include `game_state_changes`. "
+        f"If it's a specific step in a multi-part puzzle, use `puzzle_progress`. "
+        f"Ensure the generated JSON is valid and adheres strictly to the schema. The `next_step_description` should be a short, actionable phrase like 'Inspect the safe' or 'Enter code'."
     )
 
     logging.info(f"Calling AI for evaluate_and_adapt_puzzle. Puzzle: {sanitized_puzzle_id}, Attempt: {sanitized_player_attempt}, Prompt: {full_prompt[:500]}...")

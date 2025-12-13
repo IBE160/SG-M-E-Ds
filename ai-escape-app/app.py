@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path='.flaskenv') # take environment variables from .env.
 from flask import Flask, render_template
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
