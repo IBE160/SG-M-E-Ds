@@ -49,7 +49,7 @@ def create_game_session(
     initial_room_description = generate_room_description(
         theme=selected_theme_id, # Pass the resolved theme (e.g. "forgotten_library")
         scenario_name_for_ai_prompt=room_info["name"], # Pass the human-readable name of the actual start room
-        narrative_state={}, # Initial narrative state is empty
+        narrative_state={"intro_story": theme_data.get("intro_story", "")}, # Initialize with intro story
         room_context={
             "name": room_info["name"],
             "exits": list(room_info["exits"].keys()),
@@ -72,6 +72,7 @@ def create_game_session(
         start_time=datetime.now(timezone.utc),
         current_room_description=initial_room_description, # Use dynamically generated description
         game_history=[], # Initialize with an empty list
+        narrative_state={"intro_story": theme_data.get("intro_story", "")}, # Ensure narrative_state is initialized with intro_story
         last_updated=datetime.now(timezone.utc),
     )
     db_session.add(new_session)
@@ -327,9 +328,31 @@ def get_contextual_options(game_session: GameSession) -> list[str]:
             for required_item in items_required:
                 if required_item in game_session.inventory:
                     # Provide an option to use the item
-                    options.append(f"Use {required_item} on {puzzle_id.replace('_', ' ').title()}")
+                    options.append(f"Use {required_item} on {puzzle_room_data['name']}") # Use puzzle_room_data['name'] for consistency with interactables
                 # else: Optionally, hint that an item is needed: "Find {required_item}"
 
+    # Add options for picking up items
+    for item_id in room_info.get("items", []):
+        if item_id not in game_session.inventory:
+            options.append(f"Pick up {item_id.replace('_', ' ').title()}")
+
+    # Add options for interacting with interactables
+    for interactable_id, interactable_data in room_info.get("interactables", {}).items():
+        for action in interactable_data.get("actions", []):
+            # Each 'action' is now a dictionary with 'label' and 'effect'
+            options.append(action["label"])
+    
+    # Add options for using inventory items on interactables/puzzles
+    for item_in_inventory in game_session.inventory:
+        # Offer to use item on any interactable
+        for target_id, target_data in room_info.get("interactables", {}).items():
+            options.append(f"Use {item_in_inventory.replace('_', ' ').title()} on {target_data['name']}")
+        # Offer to use item on any unsolved puzzle
+        for puzzle_id, puzzle_data in room_info.get("puzzles", {}).items():
+            current_puzzle_session_state = game_session.puzzle_state.get(puzzle_id, {})
+            if current_puzzle_session_state.get("status") not in ["solved", "failed"]:
+                options.append(f"Use {item_in_inventory.replace('_', ' ').title()} on {puzzle_data['name']}")
+    
     # Add a generic "Go back" option, assuming this maps to moving to a previous room.
     if game_session.game_history: # Only allow going back if there's history
         options.append("Go back")
@@ -619,3 +642,271 @@ def get_a_hint(db_session: Session, session_id: int) -> tuple[str, GameSession |
     db_session.refresh(game_session)
 
     return hint, game_session
+
+
+def player_action(
+    db_session: Session, session_id: int, action_phrase: str, player_attempt: str = ""
+) -> tuple[bool, str, GameSession | None, dict]:
+    """
+    Processes a player's action phrase, interpreting it and triggering the appropriate game logic.
+    Returns (is_successful, message, updated_game_session, ai_evaluation).
+    """
+    game_session = get_game_session(db_session, session_id)
+    if not game_session:
+        return False, "Game session not found.", None, {"error": "Game session not found."}
+
+    current_room_id = game_session.current_room
+    theme_id = game_session.theme
+    
+    theme_data = ROOM_DATA.get(theme_id)
+    if not theme_data:
+        return False, "Game theme data not found.", game_session, {"error": "Game theme data not found."}
+
+    room_info = theme_data["rooms"].get(current_room_id)
+    if not room_info:
+        return False, "Room data not found.", game_session, {"error": "Room data not found."}
+
+    # --- Handle Structured Interactable Actions (narrative choices) ---
+    for interactable_id, interactable_data in room_info.get("interactables", {}).items():
+        for action in interactable_data.get("actions", []):
+            if action["label"].lower() == action_phrase.lower():
+                effect = action.get("effect")
+                if effect:
+                    effect_type = effect.get("type")
+                    effect_target = effect.get("target")
+                    effect_value = effect.get("value")
+                    effect_message = effect.get("message", "You interact with the environment.")
+
+                    if effect_type == "narrative_update" and effect_target == "current_room_description":
+                        updated_session = update_game_session(
+                            db_session, session_id, current_room_description=effect_value
+                        )
+                        return True, effect_message, updated_session, {"action_type": "narrative_update", "target": effect_target, "value": effect_value}
+                    
+                    elif effect_type == "new_room":
+                        new_room_id = effect_target
+                        if new_room_id not in theme_data["rooms"]:
+                             return False, f"Invalid room target for new_room effect: {new_room_id}", game_session, {"error": "Invalid room target."}
+
+                        game_history = list(game_session.game_history)
+                        game_history.append(current_room_id)
+
+                        # Generate new room description for the target room
+                        new_room_info = theme_data["rooms"].get(new_room_id)
+                        if not new_room_info:
+                            return False, "New room not found in theme data.", game_session, {"error": "New room not found."}
+                            
+                        room_context = {
+                            "name": new_room_info.get("name"),
+                            "exits": list(new_room_info.get("exits", {}).keys()),
+                            "puzzles": list(new_room_info.get("puzzles", {}).keys()),
+                            "items": new_room_info.get("items", []),
+                            "interactables": new_room_info.get("interactables", {}),
+                        }
+                        
+                        new_description = generate_room_description(
+                            theme=game_session.theme,
+                            scenario_name_for_ai_prompt=new_room_info["name"],
+                            narrative_state=game_session.narrative_state,
+                            room_context=room_context,
+                            current_room_id=new_room_id,
+                        )
+
+                        if new_description.startswith("Error:"):
+                            new_description = new_room_info.get("description", "A mysterious room.")
+
+                        updated_session = update_game_session(
+                            db_session,
+                            session_id,
+                            current_room=new_room_id,
+                            current_room_description=new_description,
+                            game_history=game_history,
+                        )
+                        if updated_session:
+                            return True, effect_message, updated_session, {"action_type": "new_room", "target_room": new_room_id}
+                        else:
+                            return False, "Failed to update game session for new room.", game_session, {"error": "Failed to update session."}
+                    
+                    # Add other effect types here as needed (e.g., "add_item", "unlock_exit")
+                    else:
+                        # For unhandled structured effects, log and return
+                        return False, f"Unhandled structured effect type: {effect_type}", game_session, {"error": "Unhandled effect type."}
+                else:
+                    return False, "Structured action found without defined effect.", game_session, {"error": "Missing effect."}
+    # --- End Structured Interactable Actions ---
+
+    # --- Handle "Pick up" action ---
+    if action_phrase.startswith("Pick up "):
+        item_to_pick_up = action_phrase.replace("Pick up ", "").strip().lower().replace(' ', '_')
+        current_room_info = ROOM_DATA.get(game_session.theme, {}).get("rooms", {}).get(game_session.current_room, {})
+        
+        if item_to_pick_up in current_room_info.get("items", []):
+            updated_session = update_player_inventory(db_session, session_id, item_to_pick_up, "add")
+            if updated_session:
+                # Remove the item from the room's items list in ROOM_DATA temporarily for this session's context
+                # This will require modifying the ROOM_DATA structure if we want persistence beyond current session state
+                # For now, we'll rely on the AI not suggesting to pick up an item already picked up
+                return True, f"You picked up the {item_to_pick_up.replace('_', ' ')}.", updated_session, {"action_type": "pick_up", "item_picked_up": item_to_pick_up}
+            else:
+                return False, "Failed to pick up item.", game_session, {"error": "Failed to update inventory."}
+        else:
+            return False, f"There is no {item_to_pick_up.replace('_', ' ')} to pick up here.", game_session, {"error": "Item not found in room."}
+
+    # --- Handle "Use [item] on [target]" action ---
+    if action_phrase.startswith("Use "):
+        parts = action_phrase.split(" on ", 1)
+        if len(parts) == 2:
+            item_part = parts[0].replace("Use ", "").strip()
+            target_part = parts[1].strip()
+            item_to_use = item_part.lower().replace(' ', '_')
+            target_name = target_part.lower().replace(' ', '_') # Convert target to ID format
+            
+            current_room_info = ROOM_DATA.get(game_session.theme, {}).get("rooms", {}).get(game_session.current_room, {})
+            
+            target_puzzle_id = None
+            target_interactable_id = None
+
+            # Check if target is a puzzle
+            for p_id, p_data in current_room_info.get("puzzles", {}).items():
+                if p_data.get("name", "").lower().replace(' ', '_') == target_name:
+                    target_puzzle_id = p_id
+                    break
+            
+            # Check if target is an interactable
+            if not target_puzzle_id:
+                for i_id, i_data in current_room_info.get("interactables", {}).items():
+                    if i_data.get("name", "").lower().replace(' ', '_') == target_name:
+                        target_interactable_id = i_id
+                        break
+            
+            if target_puzzle_id:
+                # If the target is a puzzle, use the existing solve_puzzle logic or a specific use_item_on_puzzle
+                # For now, we'll route it through use_item which then calls evaluate_and_adapt_puzzle
+                return use_item(db_session, session_id, item_to_use, target_puzzle_id)
+            elif target_interactable_id:
+                # If the target is an interactable, we can also route this through use_item,
+                # letting the AI evaluate "Use [item] on [interactable]" as a general attempt.
+                return use_item(db_session, session_id, item_to_use, target_interactable_id) # Treat interactable as a puzzle_id for AI evaluation
+            else:
+                return False, f"Cannot use {item_to_use.replace('_', ' ')} on {target_part}. Target not found.", game_session, {"error": "Target for item use not found."}
+        else:
+            return False, "Invalid 'Use' command format.", game_session, {"error": "Invalid action format."}
+
+    # --- Handle Interactable actions (e.g., "Inspect Bookshelf", "Open Chest") ---
+    # This covers actions like Inspect, Activate, Open, etc., on interactables or even puzzles
+    parts = action_phrase.split(" ", 1) # Split only on the first space
+    if len(parts) == 2:
+        action_verb = parts[0].strip().lower()
+        target_name = parts[1].strip().lower().replace(' ', '_')
+
+        current_room_info = ROOM_DATA.get(game_session.theme, {}).get("rooms", {}).get(game_session.current_room, {})
+        
+        target_interactable_id = None
+        target_puzzle_id = None
+
+        # Check if target is an interactable
+        for i_id, i_data in current_room_info.get("interactables", {}).items():
+            if i_data.get("name", "").lower().replace(' ', '_') == target_name:
+                if action_verb in i_data.get("actions", []):
+                    target_interactable_id = i_id
+                    break
+        
+        # Check if target is a puzzle
+        if not target_interactable_id:
+            for p_id, p_data in current_room_info.get("puzzles", {}).items():
+                # We need to map generic actions like 'inspect' to a puzzle,
+                # or have the AI determine if the action is relevant.
+                # For now, if the action verb is 'inspect' and it's a puzzle,
+                # we'll treat it as an attempt on the puzzle.
+                if p_data.get("name", "").lower().replace(' ', '_') == target_name:
+                    target_puzzle_id = p_id
+                    break
+
+        if target_interactable_id or target_puzzle_id:
+            # Route all such interactions through evaluate_and_adapt_puzzle
+            # The AI will interpret the action verb and target.
+            puzzle_id_for_ai = target_puzzle_id if target_puzzle_id else target_interactable_id
+            
+            # Prepare player_attempt for AI
+            ai_player_attempt = f"{action_verb} {target_name.replace('_', ' ')}"
+            
+            # Get puzzle details for AI from ROOM_DATA, if it's a puzzle
+            puzzle_solution = ""
+            current_puzzle_description = ""
+            if target_puzzle_id:
+                puzzle_data = current_room_info["puzzles"][target_puzzle_id]
+                puzzle_solution = puzzle_data.get("solution", "")
+                current_puzzle_description = puzzle_data.get("description", "")
+            
+            # If it's an interactable, the AI will use its knowledge of interactables/game state
+            elif target_interactable_id:
+                interactable_data = current_room_info["interactables"][target_interactable_id]
+                current_puzzle_description = interactable_data.get("description", "") # Use interactable description for context
+
+
+            ai_response = evaluate_and_adapt_puzzle(
+                puzzle_id=puzzle_id_for_ai,
+                player_attempt=ai_player_attempt,
+                puzzle_solution=puzzle_solution, # Pass solution if available (for actual puzzles)
+                current_puzzle_state=game_session.puzzle_state.get(puzzle_id_for_ai, {}),
+                current_puzzle_description=current_puzzle_description,
+                theme=game_session.theme,
+                location=game_session.location,
+                difficulty=game_session.difficulty,
+                narrative_archetype=game_session.narrative_archetype,
+                current_inventory=game_session.inventory # Provide inventory for context
+            )
+
+            if "error" in ai_response:
+                return False, ai_response["error"], game_session, ai_response
+            
+            is_successful = ai_response.get("is_correct", False)
+            feedback_message = ai_response.get("feedback", "No feedback provided by AI.")
+            items_found = ai_response.get("items_found", [])
+            items_consumed = ai_response.get("items_consumed", [])
+            game_state_changes = ai_response.get("game_state_changes", {})
+            puzzle_progress = ai_response.get("puzzle_progress", {})
+
+            # --- Apply Game State Changes ---
+            for item_to_add in items_found:
+                update_player_inventory(db_session, session_id, item_to_add, "add")
+            for item_to_remove in items_consumed:
+                update_player_inventory(db_session, session_id, item_to_remove, "remove")
+
+            db_session.refresh(game_session) # Refresh after inventory changes
+
+            if game_state_changes:
+                current_narrative_state = game_session.narrative_state.copy()
+                current_narrative_state.update(game_state_changes)
+                game_session.narrative_state = current_narrative_state
+                flag_modified(game_session, "narrative_state")
+            
+            if puzzle_progress:
+                new_puzzle_state_for_session = game_session.puzzle_state.copy()
+                current_puzzle_details = new_puzzle_state_for_session.get(puzzle_id_for_ai, {})
+                current_puzzle_details.update(puzzle_progress)
+                if ai_response.get("new_puzzle_state"): # Also merge if AI returned full new state
+                    current_puzzle_details.update(ai_response["new_puzzle_state"])
+                new_puzzle_state_for_session[puzzle_id_for_ai] = current_puzzle_details
+                game_session.puzzle_state = new_puzzle_state_for_session
+                flag_modified(game_session, "puzzle_state")
+
+            if ai_response.get("puzzle_status") == "solved":
+                new_puzzle_state_for_session = game_session.puzzle_state.copy()
+                current_puzzle_details = new_puzzle_state_for_session.get(puzzle_id_for_ai, {})
+                current_puzzle_details["solved"] = True
+                new_puzzle_state_for_session[puzzle_id_for_ai] = current_puzzle_details
+                game_session.puzzle_state = new_puzzle_state_for_session
+                flag_modified(game_session, "puzzle_state")
+            # --- End Apply Game State Changes ---
+
+            db_session.add(game_session)
+            db_session.commit()
+            db_session.refresh(game_session)
+            
+            return is_successful, feedback_message, game_session, ai_response
+        else:
+            return False, f"You can't {action_verb} the {target_name.replace('_', ' ')}.", game_session, {"error": "Invalid action on target."}
+
+    # If no specific action matched, return failure
+    return False, f"Unknown action: {action_phrase}", game_session, {"error": "Unknown action."}

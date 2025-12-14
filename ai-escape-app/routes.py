@@ -10,6 +10,7 @@ from services.game_logic import (
     load_game_state, # New import
     get_saved_games, # New import
     get_a_hint,
+    player_action, # New import
 )
 from services.settings import get_player_settings, update_player_settings, delete_player_settings # New import
 from services.ai_service import generate_narrative, generate_room_description, generate_puzzle, evaluate_and_adapt_puzzle, adjust_difficulty_based_on_performance
@@ -620,6 +621,7 @@ def interact(session_id):
                 "exits": list(new_room_info.get("exits", {}).keys()),
                 "puzzles": list(new_room_info.get("puzzles", {}).keys()),
                 "items": new_room_info.get("items", []),
+                "interactables": new_room_info.get("interactables", {}),
             }
             
             new_description = generate_room_description(
@@ -664,27 +666,27 @@ def interact(session_id):
 
                     if all_previous_puzzles_solved:
                         return jsonify({"id": updated_session.id, "current_room": updated_session.current_room, "message": "You escaped!", "game_over": True})
-
-    elif chosen_option.startswith("Solve "):
-        puzzle_id = chosen_option.replace("Solve ", "")
-        
-        if not player_attempt:
-            return jsonify({"error": "Player attempt is required for solving puzzles."}), 400
-
-        is_solved, message, updated_session, ai_evaluation = solve_puzzle(
-            current_app.session, session_id, puzzle_id, player_attempt
+    else: # This block handles all other interaction types (pick up, inspect, use, solve puzzle implicitly)
+        is_successful, message, updated_session, ai_evaluation = player_action(
+            current_app.session, session_id, chosen_option, player_attempt
         )
+        
         if not updated_session:
             result["error"] = message
             status_code = 404
-        elif "error" in ai_evaluation:
+        elif "error" in ai_evaluation: # General AI evaluation error
             result["error"] = message
             result["ai_evaluation"] = ai_evaluation
             status_code = 500
         else:
-            result["is_solved"] = is_solved
+            result["is_successful"] = is_successful
             result["message"] = message
-            result["contextual_options"] = get_contextual_options(updated_session)
-            result["ai_evaluation"] = ai_evaluation
+            result["ai_evaluation"] = ai_evaluation # Pass AI evaluation to frontend for detailed feedback
+            if updated_session:
+                result["current_room"] = updated_session.current_room
+                result["contextual_options"] = get_contextual_options(updated_session)
+                result["inventory"] = updated_session.inventory
+                result["narrative_state"] = updated_session.narrative_state
+                result["puzzle_state"] = updated_session.puzzle_state # Ensure puzzle state is updated
 
     return jsonify(result), status_code
