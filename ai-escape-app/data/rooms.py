@@ -19,13 +19,20 @@ ROOM_DATA = {
         "rooms": {
             "forgotten_library_entrance": {
                 "name": "Forgotten Library Entrance",
-                "description": "The antechamber is perfectly circular, its walls smooth but for the occasional rough-hewn symbol. The only source of light comes from a flickering, ethereal glow emanating from a heavy, iron-banded door directly opposite where you lay. A small, overturned stone bench lies near the wall to your left, its surface covered in a fine layer of dust. The hum feels strongest here, almost vibrating your teeth.",
+                "description": "The antechamber is perfectly circular, its walls smooth but for the occasional rough-hewn symbol. The only source of light comes from a flickering, ethereal glow emanating from a heavy, iron-banded door directly opposite where you lay. An intricate glowing symbol, an eye weeping three tears, is etched into its surface, clearly sealing it. A small, overturned stone bench lies near the wall to your left, its surface covered in a fine layer of dust. The hum feels strongest here, almost vibrating your teeth.",
                 "image": "forgotten_library.jpg",
                 "puzzles": {
                     "ancient_symbol_door_puzzle": {
                         "name": "Ancient Symbol Door Puzzle",
                         "description": "The heavy door is sealed by an intricate glowing symbol, an eye weeping three tears, etched into its surface. To open it, you must decipher the correct sequence of symbols.",
-                        "solution": "EYETEARS", # Placeholder solution for now
+                        "solution": ["EXAMINE_GLOWING_SYMBOL", "EYETEARS"],
+                        "expected_answer": "eyetears", # Direct answer for the puzzle
+                        "hint_levels": [
+                            "As you run your fingers along the cold stone door, the intricate glowing symbol feels strangely significant. What could it represent?",
+                            "You notice the symbol is an 'eye' from which three 'tears' seem to weep. These are clearly the most prominent features.",
+                            "The etched figures form a clear picture: an 'Eye' and three 'Tears'. Could combining these words be the key?",
+                            "The solution seems to be a single word. Combine 'Eye' and 'Tears' into one word: 'EYETEARS'."
+                        ],
                         "type": "symbol_sequence",
                         "difficulty": "medium",
                         "prerequisites": [],
@@ -38,10 +45,10 @@ ROOM_DATA = {
                 "interactables": {
                     "heavy_door": {
                         "name": "Heavy Door",
-                        "description": "A heavy, iron-banded door, emitting a faint glow.",
+                        "description": "A heavy, iron-banded door, emitting a faint glow and sealed by an ancient symbol.",
                         "actions": [
                             {
-                                "label": "Inspect Door",
+                                "label": "Examine Glowing Symbol",
                                 "effect": {
                                     "type": "trigger_puzzle",
                                     "puzzle_id": "ancient_symbol_door_puzzle",
@@ -81,17 +88,18 @@ ROOM_DATA = {
                         ]
                     }
                 },
-                "exits": {"north": "forgotten_library_study"},
+                "exits": {},
+                "next_room_id": "forgotten_library_study"
             },
             "forgotten_library_study": {
                 "name": "Forgotten Library Study",
-                "description": "A small, secluded study within the library, filled with rare manuscripts and a single, locked desk.",
+                "description": "A small, secluded study within the library, filled with towering shelves of rare manuscripts. In the center sits a single, ornate desk, its main drawer secured by an intricate lock. The quiet hum from the entrance room is barely audible here, replaced by the faint scent of old parchment and dust.",
                 "image": "forgotten_library.jpg", # Reusing image
                 "puzzles": {
                     "desk_puzzle": {
                         "name": "Locked Desk Drawer",
                         "description": "The desk has an intricate lock. A note nearby reads: 'The number of forgotten tales.' You need a numeric code to open it.",
-                        "solution": "7", # Original solution
+                        "solution": ["INSPECT_DESK", "7"], # Original solution
                         "type": "code_entry",
                         "difficulty": "easy",
                         "prerequisites": [],
@@ -132,13 +140,42 @@ ROOM_DATA = {
                         ]
                     }
                 },
-                "exits": {"south": "forgotten_library_entrance", "east": "forgotten_library_escape_chamber"},
+                "exits": {"south": "forgotten_library_entrance"},
+                "next_room_id": "forgotten_library_escape_chamber"
             },
             "forgotten_library_escape_chamber": {
                 "name": "Forgotten Library Exit",
-                "description": "You've found the secret exit from the Forgotten Library!",
+                "description": "You've found the secret exit from the Forgotten Library! A narrow passage, disguised as a crumbling bookshelf, leads to a winding tunnel with a faint glimmer of sunlight at its end. This is your chance to escape.",
                 "image": "forgotten_library.jpg", # Reusing image
-                "puzzles": {},
+                "puzzles": {
+                    "final_escape_puzzle": {
+                        "name": "Final Escape",
+                        "description": "The path to freedom lies ahead. Simply choose to escape.",
+                        "solution": ["ESCAPE_THE_LIBRARY"],
+                        "type": "action_trigger",
+                        "difficulty": "easy",
+                        "prerequisites": [],
+                        "outcomes": ["game_completed"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "escape_game"
+                    }
+                },
+                "interactables": {
+                    "secret_exit": {
+                        "name": "Secret Exit",
+                        "description": "The narrow passage leading to freedom.",
+                        "actions": [
+                            {
+                                "label": "Escape the Library",
+                                "effect": {
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "final_escape_puzzle",
+                                    "message": "You step into the light and leave the Forgotten Library behind."
+                                }
+                            }
+                        ]
+                    }
+                },
                 "exits": {},
             },
         }
@@ -236,14 +273,16 @@ ROOM_DATA = {
                         ]
                     }
                 }, # ADDED COMMA HERE
-                "exits": {"east": "sci-fi_hangar_storage"}, # ADDED COMMA HERE
+                "exits": {},
+                "next_room_id": "sci-fi_hangar_storage"
             },
             "sci-fi_hangar_storage": {
                 "name": "Sci-Fi Hangar Storage",
                 "description": "Rows of crates and old equipment. A heavy door leads further into the facility.",
                 "image": "scifi_hangar.jpg",
                 "puzzles": {},
-                "exits": {"west": "sci-fi_hangar_main", "north": "sci_fi_hangar_escape_chamber"},
+                "exits": {"west": "sci-fi_hangar_main"},
+                "next_room_id": "sci_fi_hangar_escape_chamber"
             },
             "sci_fi_hangar_escape_chamber": {
                 "name": "Sci-Fi Hangar Escape Pods",
@@ -322,14 +361,16 @@ ROOM_DATA = {
                         ]
                     }
                 },
-                "exits": {"north": "underwater_lab_biolabs"},
+                "exits": {},
+                "next_room_id": "underwater_lab_biolabs"
             },
             "underwater_lab_biolabs": {
                 "name": "Underwater Laboratory Biolabs",
                 "description": "Tanks with glowing specimens and complex life support systems. The hum of the lab is constant.",
                 "image": "underwater_lab.jpg",
                 "puzzles": {},
-                "exits": {"south": "underwater_lab_entrance", "east": "underwater_lab_escape_chamber"},
+                "exits": {"south": "underwater_lab_entrance"},
+                "next_room_id": "underwater_lab_escape_chamber"
             },
             "underwater_lab_escape_chamber": {
                 "name": "Underwater Laboratory Exit",
@@ -427,7 +468,8 @@ ROOM_DATA = {
                         ]
                     }
                 },
-                "exits": {"south": "spaceship_engine_room"}
+                "exits": {},
+                "next_room_id": "spaceship_engine_room"
             }, # ADDED COMMA HERE
             "spaceship_engine_room": {
                 "name": "Derelict Spaceship Engine Room",
@@ -446,7 +488,8 @@ ROOM_DATA = {
                         "triggers_event": "restore_engine_power"
                     }
                 },
-                "exits": {"north": "spaceship_bridge", "west": "spaceship_escape_chamber"},
+                "exits": {"north": "spaceship_bridge"},
+                "next_room_id": "spaceship_escape_chamber"
             },
             "spaceship_escape_chamber": {
                 "name": "Derelict Spaceship Escape Hatch",
@@ -549,7 +592,8 @@ ROOM_DATA = {
                         ]
                     }
                 },
-                "exits": {"north": "clown_funhouse_mirror_maze"},
+                "exits": {},
+                "next_room_id": "clown_funhouse_mirror_maze"
             }, # ADDED COMMA HERE
             "clown_funhouse_mirror_maze": {
                 "name": "Clown's Funhouse Mirror Maze",
@@ -568,7 +612,8 @@ ROOM_DATA = {
                         "triggers_event": "reveal_maze_exit"
                     }
                 },
-                "exits": {"south": "clown_funhouse_entrance", "east": "clown_funhouse_escape_chamber"},
+                "exits": {"south": "clown_funhouse_entrance"},
+                "next_room_id": "clown_funhouse_escape_chamber"
             },
             "clown_funhouse_escape_chamber": {
                 "name": "Clown's Funhouse Exit",
@@ -671,7 +716,8 @@ ROOM_DATA = {
                         ]
                     }
                 },
-                "exits": {"east": "kids_room_toy_chest"},
+                "exits": {},
+                "next_room_id": "kids_room_toy_chest"
             },
             "kids_room_toy_chest": {
                 "name": "The Toy Chest Corner",
@@ -690,7 +736,8 @@ ROOM_DATA = {
                         "triggers_event": "reveal_toy_chest_contents"
                     }
                 },
-                "exits": {"west": "kids_room_play_area", "north": "kids_room_escape_chamber"},
+                "exits": {"west": "kids_room_play_area"},
+                "next_room_id": "kids_room_escape_chamber"
             },
             "kids_room_escape_chamber": {
                 "name": "Kids Room Exit",
@@ -777,7 +824,8 @@ ROOM_DATA = {
                         ]
                     }
                 },
-                "exits": {"north": "candy_wonderland_gingerbread_house"},
+                "exits": {},
+                "next_room_id": "candy_wonderland_gingerbread_house"
             }, # ADDED COMMA HERE
             "candy_wonderland_gingerbread_house": {
                 "name": "Candy Wonderland Gingerbread House",
@@ -796,7 +844,8 @@ ROOM_DATA = {
                         "triggers_event": "open_gingerbread_house_door"
                     }
                 },
-                "exits": {"south": "candy_wonderland_path", "west": "candy_wonderland_escape_chamber"},
+                "exits": {"south": "candy_wonderland_path"},
+                "next_room_id": "candy_wonderland_escape_chamber"
             },
             "candy_wonderland_escape_chamber": {
                 "name": "Candy Wonderland Exit",
@@ -909,14 +958,16 @@ ROOM_DATA = {
                         ]
                     }
                 },
-                "exits": {"north": "mansion_library"},
+                "exits": {},
+                "next_room_id": "mansion_library"
             }, # ADDED COMMA HERE
             "mansion_library": {
                 "name": "Abandoned Mansion Library",
                 "description": "Shelves of decaying books fill this room, the silence broken only by the creaks of the old house. A fireplace holds cold ashes.",
                 "image": "abandoned_mansion.jpg",
                 "puzzles": {},
-                "exits": {"south": "mansion_foyer", "west": "abandoned_mansion_escape_chamber"},
+                "exits": {"south": "mansion_foyer"},
+                "next_room_id": "abandoned_mansion_escape_chamber"
             },
             "abandoned_mansion_escape_chamber": {
                 "name": "Abandoned Mansion Secret Passage",
@@ -1019,14 +1070,16 @@ ROOM_DATA = {
                         ]
                     }
                 },
-                "exits": {"west": "tomb_chamber"},
+                "exits": {},
+                "next_room_id": "tomb_chamber"
             }, # ADDED COMMA HERE
             "tomb_chamber": {
                 "name": "Ancient Tomb Chamber",
                 "description": "A hidden chamber, darker and colder than the entrance. Strange artifacts rest on pedestals, and a faint hum can be heard.",
                 "image": "ancient_tomb.jpg", # Reusing image
                 "puzzles": {},
-                "exits": {"east": "tomb_entrance", "north": "ancient_tomb_escape_chamber"},
+                "exits": {"east": "tomb_entrance"},
+                "next_room_id": "ancient_tomb_escape_chamber"
             },
             "ancient_tomb_escape_chamber": {
                 "name": "Ancient Tomb Secret Exit",
@@ -1129,7 +1182,8 @@ ROOM_DATA = {
                         ]
                     }
                 },
-                "exits": {"north": "asylum_wards"},
+                "exits": {},
+                "next_room_id": "asylum_wards"
             }, # ADDED COMMA HERE
             "asylum_wards": {
                 "name": "Abandoned Asylum Wards",
@@ -1148,7 +1202,8 @@ ROOM_DATA = {
                         "triggers_event": "unlock_next_room_code"
                     }
                 },
-                "exits": {"south": "asylum_reception", "east": "asylum_escape_chamber"},
+                "exits": {"south": "asylum_reception"},
+                "next_room_id": "asylum_escape_chamber"
             },
             "asylum_escape_chamber": {
                 "name": "Abandoned Asylum Exit",

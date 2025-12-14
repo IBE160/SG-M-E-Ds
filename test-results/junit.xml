@@ -1,0 +1,413 @@
+<testsuites id="" name="" tests="12" failures="9" skipped="0" errors="0" time="31.027526">
+<testsuite name="example.spec.ts" timestamp="2025-12-13T22:44:23.584Z" hostname="chromium" tests="1" failures="0" skipped="0" time="0.016" errors="0">
+<testcase name="Example Test Suite › should pass a basic assertion" classname="example.spec.ts" time="0.016">
+</testcase>
+</testsuite>
+<testsuite name="inventory.spec.ts" timestamp="2025-12-13T22:44:23.584Z" hostname="chromium" tests="3" failures="3" skipped="0" time="80.069" errors="0">
+<testcase name="Inventory and Interaction Functionality › should allow picking up an item and adding it to inventory" classname="inventory.spec.ts" time="26.726">
+<failure message="inventory.spec.ts:31:7 should allow picking up an item and adding it to inventory" type="FAILURE">
+<![CDATA[  [chromium] › inventory.spec.ts:31:7 › Inventory and Interaction Functionality › should allow picking up an item and adding it to inventory 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Current Room:')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByText('Current Room:')
+
+
+      26 |
+      27 |     // Awaiting "Current Room:" text as an indicator of game started
+    > 28 |     await expect(page.getByText('Current Room:')).toBeVisible();
+         |                                                   ^
+      29 |   }
+      30 |
+      31 |   test('should allow picking up an item and adding it to inventory', async ({ page }) => {
+        at startNewGame (C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\tests\e2e\inventory.spec.ts:28:51)
+        at C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\tests\e2e\inventory.spec.ts:33:5
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[Navigating to / for player test_player_1
+Page loaded for player test_player_1
+
+[[ATTACHMENT|inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-chromium\video.webm]]
+
+[[ATTACHMENT|inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-chromium\error-context.md]]
+
+[[ATTACHMENT|inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Inventory and Interaction Functionality › should allow inspecting an interactable and provide feedback" classname="inventory.spec.ts" time="26.569">
+<failure message="inventory.spec.ts:54:7 should allow inspecting an interactable and provide feedback" type="FAILURE">
+<![CDATA[  [chromium] › inventory.spec.ts:54:7 › Inventory and Interaction Functionality › should allow inspecting an interactable and provide feedback 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Current Room:')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByText('Current Room:')
+
+
+      26 |
+      27 |     // Awaiting "Current Room:" text as an indicator of game started
+    > 28 |     await expect(page.getByText('Current Room:')).toBeVisible();
+         |                                                   ^
+      29 |   }
+      30 |
+      31 |   test('should allow picking up an item and adding it to inventory', async ({ page }) => {
+        at startNewGame (C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\tests\e2e\inventory.spec.ts:28:51)
+        at C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\tests\e2e\inventory.spec.ts:56:5
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[Navigating to / for player test_player_2
+Page loaded for player test_player_2
+
+[[ATTACHMENT|inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-chromium\video.webm]]
+
+[[ATTACHMENT|inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-chromium\error-context.md]]
+
+[[ATTACHMENT|inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Inventory and Interaction Functionality › should allow using an inventory item on a puzzle/interactable" classname="inventory.spec.ts" time="26.774">
+<failure message="inventory.spec.ts:72:7 should allow using an inventory item on a puzzle/interactable" type="FAILURE">
+<![CDATA[  [chromium] › inventory.spec.ts:72:7 › Inventory and Interaction Functionality › should allow using an inventory item on a puzzle/interactable 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Current Room:')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByText('Current Room:')
+
+
+      26 |
+      27 |     // Awaiting "Current Room:" text as an indicator of game started
+    > 28 |     await expect(page.getByText('Current Room:')).toBeVisible();
+         |                                                   ^
+      29 |   }
+      30 |
+      31 |   test('should allow picking up an item and adding it to inventory', async ({ page }) => {
+        at startNewGame (C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\tests\e2e\inventory.spec.ts:28:51)
+        at C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\tests\e2e\inventory.spec.ts:74:5
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[Navigating to / for player test_player_3
+Page loaded for player test_player_3
+
+[[ATTACHMENT|inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-chromium\video.webm]]
+
+[[ATTACHMENT|inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-chromium\error-context.md]]
+
+[[ATTACHMENT|inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="example.spec.ts" timestamp="2025-12-13T22:44:23.584Z" hostname="firefox" tests="1" failures="0" skipped="0" time="0.019" errors="0">
+<testcase name="Example Test Suite › should pass a basic assertion" classname="example.spec.ts" time="0.019">
+</testcase>
+</testsuite>
+<testsuite name="inventory.spec.ts" timestamp="2025-12-13T22:44:23.584Z" hostname="firefox" tests="3" failures="3" skipped="0" time="70.89" errors="0">
+<testcase name="Inventory and Interaction Functionality › should allow picking up an item and adding it to inventory" classname="inventory.spec.ts" time="21.512">
+<failure message="inventory.spec.ts:31:7 should allow picking up an item and adding it to inventory" type="FAILURE">
+<![CDATA[  [firefox] › inventory.spec.ts:31:7 › Inventory and Interaction Functionality › should allow picking up an item and adding it to inventory 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Current Room:')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByText('Current Room:')
+
+
+      26 |
+      27 |     // Awaiting "Current Room:" text as an indicator of game started
+    > 28 |     await expect(page.getByText('Current Room:')).toBeVisible();
+         |                                                   ^
+      29 |   }
+      30 |
+      31 |   test('should allow picking up an item and adding it to inventory', async ({ page }) => {
+        at startNewGame (C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\tests\e2e\inventory.spec.ts:28:51)
+        at C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\tests\e2e\inventory.spec.ts:33:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-firefox\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-firefox\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-firefox\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[Navigating to / for player test_player_1
+Page loaded for player test_player_1
+
+[[ATTACHMENT|inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-firefox\test-failed-1.png]]
+
+[[ATTACHMENT|inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-firefox\video.webm]]
+
+[[ATTACHMENT|inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-firefox\error-context.md]]
+
+[[ATTACHMENT|inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-firefox\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Inventory and Interaction Functionality › should allow inspecting an interactable and provide feedback" classname="inventory.spec.ts" time="22.566">
+<failure message="inventory.spec.ts:54:7 should allow inspecting an interactable and provide feedback" type="FAILURE">
+<![CDATA[  [firefox] › inventory.spec.ts:54:7 › Inventory and Interaction Functionality › should allow inspecting an interactable and provide feedback 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Current Room:')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByText('Current Room:')
+
+
+      26 |
+      27 |     // Awaiting "Current Room:" text as an indicator of game started
+    > 28 |     await expect(page.getByText('Current Room:')).toBeVisible();
+         |                                                   ^
+      29 |   }
+      30 |
+      31 |   test('should allow picking up an item and adding it to inventory', async ({ page }) => {
+        at startNewGame (C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\tests\e2e\inventory.spec.ts:28:51)
+        at C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\tests\e2e\inventory.spec.ts:56:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-firefox\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-firefox\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-firefox\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[Navigating to / for player test_player_2
+Page loaded for player test_player_2
+
+[[ATTACHMENT|inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-firefox\test-failed-1.png]]
+
+[[ATTACHMENT|inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-firefox\video.webm]]
+
+[[ATTACHMENT|inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-firefox\error-context.md]]
+
+[[ATTACHMENT|inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-firefox\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Inventory and Interaction Functionality › should allow using an inventory item on a puzzle/interactable" classname="inventory.spec.ts" time="26.812">
+<failure message="inventory.spec.ts:72:7 should allow using an inventory item on a puzzle/interactable" type="FAILURE">
+<![CDATA[  [firefox] › inventory.spec.ts:72:7 › Inventory and Interaction Functionality › should allow using an inventory item on a puzzle/interactable 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Current Room:')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByText('Current Room:')
+
+
+      26 |
+      27 |     // Awaiting "Current Room:" text as an indicator of game started
+    > 28 |     await expect(page.getByText('Current Room:')).toBeVisible();
+         |                                                   ^
+      29 |   }
+      30 |
+      31 |   test('should allow picking up an item and adding it to inventory', async ({ page }) => {
+        at startNewGame (C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\tests\e2e\inventory.spec.ts:28:51)
+        at C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\tests\e2e\inventory.spec.ts:74:5
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-firefox\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-firefox\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[Navigating to / for player test_player_3
+Page loaded for player test_player_3
+
+[[ATTACHMENT|inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-firefox\video.webm]]
+
+[[ATTACHMENT|inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-firefox\error-context.md]]
+
+[[ATTACHMENT|inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-firefox\trace.zip]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="example.spec.ts" timestamp="2025-12-13T22:44:23.584Z" hostname="webkit" tests="1" failures="0" skipped="0" time="0.019" errors="0">
+<testcase name="Example Test Suite › should pass a basic assertion" classname="example.spec.ts" time="0.019">
+</testcase>
+</testsuite>
+<testsuite name="inventory.spec.ts" timestamp="2025-12-13T22:44:23.584Z" hostname="webkit" tests="3" failures="3" skipped="0" time="0.894" errors="0">
+<testcase name="Inventory and Interaction Functionality › should allow picking up an item and adding it to inventory" classname="inventory.spec.ts" time="0.397">
+<failure message="inventory.spec.ts:31:7 should allow picking up an item and adding it to inventory" type="FAILURE">
+<![CDATA[  [webkit] › inventory.spec.ts:31:7 › Inventory and Interaction Functionality › should allow picking up an item and adding it to inventory 
+
+    Error: browserContext.newPage: Protocol error (Screencast.startVideo): Failed to open file 'C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\test-results\.playwright-artifacts-9\24fb2bf8e70c5277fee6ed70e9d3fcaa.webm' for writing: No such file or directory
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|inventory-Inventory-and-In-ffb97--and-adding-it-to-inventory-webkit\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Inventory and Interaction Functionality › should allow inspecting an interactable and provide feedback" classname="inventory.spec.ts" time="0.255">
+<failure message="inventory.spec.ts:54:7 should allow inspecting an interactable and provide feedback" type="FAILURE">
+<![CDATA[  [webkit] › inventory.spec.ts:54:7 › Inventory and Interaction Functionality › should allow inspecting an interactable and provide feedback 
+
+    Error: browserContext.newPage: Protocol error (Screencast.startVideo): Failed to open file 'C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\test-results\.playwright-artifacts-8\74fdedb980ada745a68daa9a465cb78f.webm' for writing: No such file or directory
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|inventory-Inventory-and-In-b6419-ctable-and-provide-feedback-webkit\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Inventory and Interaction Functionality › should allow using an inventory item on a puzzle/interactable" classname="inventory.spec.ts" time="0.242">
+<failure message="inventory.spec.ts:72:7 should allow using an inventory item on a puzzle/interactable" type="FAILURE">
+<![CDATA[  [webkit] › inventory.spec.ts:72:7 › Inventory and Interaction Functionality › should allow using an inventory item on a puzzle/interactable 
+
+    Error: browserContext.newPage: Protocol error (Screencast.startVideo): Failed to open file 'C:\Users\Bruker\OneDrive\Documents\Årsstudium IT\Programmering med KI\SG-M-E-Ds\test-results\.playwright-artifacts-10\ac9d470a642ac3073b89924159ea718c.webm' for writing: No such file or directory
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|inventory-Inventory-and-In-ee7b8-em-on-a-puzzle-interactable-webkit\trace.zip]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>
