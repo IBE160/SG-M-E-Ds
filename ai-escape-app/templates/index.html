@@ -261,51 +261,6 @@
             </div>
         </div>
 
-        <!-- Immersive (Game) Page - This content will be moved to game.html -->
-        <div id="immersive" class="mockup">
-            <div class="mockup-header"><h2>Immersive Adventure</h2></div>
-            <div class="mockup-content">
-                <div class="game-screen immersive-screen">
-                    <div class="immersive-main">
-                        <div class="immersive-text-box">
-                            <h3>The Cold Embrace of Starlight</h3>
-                            <p>A frigid, metallic tang invades your senses as your vision flickers into reluctant focus. You're confined within a damaged cryo-pod, its low hum now punctuated by the urgent, crimson flash of a warning light. A synthetic voice, eerily calm, intones: "System integrity compromised. Emergency protocols initiated." The air, thick with ozone and the chill of deep space, clings to your skin. Before you, a reinforced hatch, your only exit, remains stubbornly dark and unresponsive.</p>
-                            <div class="immersive-options">
-                                <div class="immersive-option" data-action="updateObjective" data-value="Find a way to power the door." data-i18n="check_cryo_pod_option">Check the cryo-pod's diagnostic screen.</div>
-                                <div class="immersive-option" data-action="addItem" data-value="ID-Card" data-i18n="override_door_controls_option">Try to override the door controls.</div>
-                                <div class="immersive-option" data-action="removeItem" data-value="Rusty Key" data-i18n="search_storage_locker_option">Search the nearby storage locker.</div>
-                                <div class="immersive-option" data-i18n="wait_for_help_option">Wait for help.</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="immersive-sidebar">
-                        <h3 data-i18n="game_status">GAME STATUS</h3>
-                        <p class="game-timer">TIME: 00:12:34</p>
-                        <p class="current-location-subtext"><span data-i18n="current_location">Current Location</span>: The Forgotten Crypt</p>
-                        <div class="status-box">
-                            <h4 data-i18n="objective">OBJECTIVE</h4>
-                            <p id="objective-text"></p>
-                        </div>
-                        <div class="status-box">
-                            <h4 data-i18n="inventory">INVENTORY</h4>
-                            <ul id="inventory-list"></ul>
-                        </div>
-                        <div id="hint-box" class="status-box">
-                            <h4 data-i18n="hint">HINT <span id="hint-budget"></span></h4>
-                            <p id="hint-text" data-i18n="click_for_hint">Click for a hint</p>
-                            <div id="hint-cooldown"></div>
-                        </div>
-                        <div class="retro-actions">
-                            <button data-action="showPage" data-value="settings" data-i18n="settings">SETTINGS</button>
-                            <button data-action="saveGame" data-i18n="save_game">SAVE</button>
-                            <button data-action="showPage" data-value="start" data-i18n="quit_game">QUIT</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <audio id="background-music" loop>
         <source src="{{ url_for('static', filename='audio/background_music.mp3') }}" type="audio/mpeg">
         Your browser does not support the audio element.

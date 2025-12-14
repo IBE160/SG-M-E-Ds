@@ -77,5 +77,8 @@
     "check_cryo_pod_option": "Sjekk kryopodens diagnostikkskjerm.",
     "override_door_controls_option": "Prøv å overstyre dørkontrollene.",
     "search_storage_locker_option": "Søk i det nærliggende lagerrommet.",
-    "wait_for_help_option": "Vent på hjelp."
+    "wait_for_help_option": "Vent på hjelp.",
+    "please_select_theme": "Vennligst velg et tema før du starter spillet.",
+    "please_select_location": "Vennligst velg et sted før du starter spillet.",
+    "please_select_difficulty": "Vennligst velg en vanskelighetsgrad før du starter spillet."
 }

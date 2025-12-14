@@ -12,44 +12,37 @@ def create_game_session(
     theme: str = "forgotten_library",
     location: str = "forgotten_library_entrance", # This 'location' is actually the desired start_room_id
     difficulty: str = "medium",
-) -> GameSession:
+) -> tuple[GameSession | None, str | None]: # Modified return type
     """
     Initializes and stores a new GameSession in the database.
+    Returns (GameSession, None) on success, or (None, error_message) on failure.
     """
     print(f"create_game_session received - theme: {theme}, location: {location}")
-    # Determine the actual theme based on the location if it's not explicitly provided
+    
     selected_theme_id = theme
-    print(f"  selected_theme_id (after initial assignment): {selected_theme_id}")
     if selected_theme_id not in ROOM_DATA:
-        # Fallback to a default theme if selected theme is invalid
-        print(f"  Warning: Invalid theme '{selected_theme_id}'. Falling back to 'mystery'.")
-        selected_theme_id = "mystery" # Default theme
+        # User-provided theme is invalid
+        return None, f"Invalid theme '{selected_theme_id}'. Please choose a valid theme."
 
-    # Get the theme data from ROOM_DATA
     theme_data = ROOM_DATA.get(selected_theme_id)
-    print(f"  theme_data (from ROOM_DATA.get): {theme_data is not None}")
+    # This check should now always be true due to the above validation, but keeping for safety.
     if not theme_data:
-        # This case should ideally not happen if ROOM_DATA is properly structured
-        return None # Or raise an error as appropriate
+        return None, "Error: Theme data not found after validation."
 
-    # Find the starting room within the selected theme
-    # The 'location' parameter passed here is actually the intended first_room_id
     first_room_id = location
-    print(f"  first_room_id (after initial assignment from location): {first_room_id}")
     if first_room_id not in theme_data["rooms"]:
-        # Fallback to the theme's default start_room if the provided location is not in this theme
-        print(f"  Warning: Room '{first_room_id}' not found in theme's rooms. Falling back to theme's start_room: {theme_data['start_room']}.")
-        first_room_id = theme_data["start_room"]
+        # User-provided location for the theme is invalid
+        return None, f"Invalid starting location '{first_room_id}' for theme '{selected_theme_id}'. Please choose a valid room for this theme."
     
     room_info = theme_data["rooms"].get(first_room_id)
     if not room_info:
-        # Should not happen if start_room is correctly defined
-        return None # Or raise an error
+        # This check should now always be true due to the above validation, but keeping for safety.
+        return None, "Error: Room info not found after validation."
 
     initial_room_description = generate_room_description(
-        theme=selected_theme_id, # Pass the resolved theme (e.g. "forgotten_library")
-        scenario_name_for_ai_prompt=room_info["name"], # Pass the human-readable name of the actual start room
-        narrative_state={"intro_story": theme_data.get("intro_story", "")}, # Initialize with intro story
+        theme=selected_theme_id,
+        scenario_name_for_ai_prompt=room_info["name"],
+        narrative_state={"intro_story": theme_data.get("intro_story", "")},
         room_context={
             "name": room_info["name"],
             "exits": list(room_info["exits"].keys()),
@@ -60,25 +53,24 @@ def create_game_session(
     )
 
     if initial_room_description.startswith("Error:"):
-        # Fallback to static description if AI generation fails
         initial_room_description = room_info["description"]
 
     new_session = GameSession(
         player_id=player_id,
         current_room=first_room_id,
-        theme=selected_theme_id, # Store the actual theme used (e.g. "forgotten_library")
-        location=selected_theme_id, # Store the top-level scenario key (e.g. "forgotten_library")
+        theme=selected_theme_id,
+        location=selected_theme_id, # Stores the top-level scenario key (e.g. "forgotten_library")
         difficulty=difficulty,
         start_time=datetime.now(timezone.utc),
-        current_room_description=initial_room_description, # Use dynamically generated description
-        game_history=[], # Initialize with an empty list
-        narrative_state={"intro_story": theme_data.get("intro_story", "")}, # Ensure narrative_state is initialized with intro_story
+        current_room_description=initial_room_description,
+        game_history=[],
+        narrative_state={"intro_story": theme_data.get("intro_story", "")},
         last_updated=datetime.now(timezone.utc),
     )
     db_session.add(new_session)
     db_session.commit()
     db_session.refresh(new_session)
-    return new_session
+    return new_session, None
 
 def get_game_session(db_session: Session, session_id: int) -> GameSession | None:
     """

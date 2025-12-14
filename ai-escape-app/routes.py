@@ -137,15 +137,19 @@ def start_game():
     if not player_id:
         return jsonify({"error": "Player ID is required"}), 400
 
-    new_session = create_game_session(
+    new_session, error_message = create_game_session(
         current_app.session, player_id, theme, location, difficulty
     )
+    
+    if new_session is None:
+        return jsonify({"error": error_message}), 400
+        
     return jsonify({"session_id": new_session.id}), 201
 
 
 @bp.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", room_data=ROOM_DATA)
 
 @bp.route("/game/<int:session_id>")
 def game_view(session_id):

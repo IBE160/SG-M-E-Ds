@@ -457,16 +457,43 @@ function applyTranslations() {
             themeButtons.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
             buttonElement.classList.add('active');
             selectedAmbianceText = themeId; // Store the ambiance theme ID
+            
             document.querySelectorAll('.location-options').forEach(loc => loc.style.display = 'none');
             const locationContainer = document.getElementById('locations-' + ambianceCategory);
             if (locationContainer) {
                 locationContainer.style.display = 'flex';
-                // Set the default selected location image for the ambiance
-                const firstLocation = locationContainer.querySelector('.option-btn');
-                if (firstLocation) {
-                    selectedLocationText = firstLocation.dataset.location; // Store default location key
-                    // Also visually activate the first location
-                    firstLocation.classList.add('active');
+                
+                // --- Automatically select default location ---
+                // Clear any previously active location buttons in this category
+                locationContainer.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
+
+                if (ROOM_DATA_JS && ROOM_DATA_JS[themeId]) {
+                    const defaultLocationId = ROOM_DATA_JS[themeId].start_room;
+                    const defaultLocationButton = locationContainer.querySelector(`[data-location="${defaultLocationId}"]`);
+                    
+                    if (defaultLocationButton) {
+                        selectedLocationText = defaultLocationId;
+                        defaultLocationButton.classList.add('active');
+                        // Also ensure the selectedAmbianceText is updated based on the default location's themeId
+                        // This might be redundant if themeId passed is always correct, but good for consistency
+                        selectedAmbianceText = defaultLocationButton.dataset.themeId; 
+                        console.log(`Default location selected: ${selectedLocationText} for theme: ${selectedAmbianceText}`);
+                    } else {
+                        // Fallback if start_room from ROOM_DATA_JS is not found among buttons
+                        const firstLocationButton = locationContainer.querySelector('.option-btn');
+                        if (firstLocationButton) {
+                            selectedLocationText = firstLocationButton.dataset.location;
+                            firstLocationButton.classList.add('active');
+                            selectedAmbianceText = firstLocationButton.dataset.themeId;
+                            console.log(`Fallback: First location selected: ${selectedLocationText} for theme: ${selectedAmbianceText}`);
+                        } else {
+                            selectedLocationText = ''; // No locations available
+                            console.warn(`No location buttons found for ambiance category: ${ambianceCategory}`);
+                        }
+                    }
+                } else {
+                    selectedLocationText = ''; // No ROOM_DATA or theme found
+                    console.warn(`ROOM_DATA_JS not available or themeId ${themeId} not found.`);
                 }
             }
         }
@@ -492,6 +519,22 @@ function applyTranslations() {
 
         function startLoading() {
             console.log('startLoading called');
+
+            // --- Frontend Validation ---
+            if (!selectedAmbianceText) {
+                alert(tr('please_select_theme'));
+                return;
+            }
+            if (!selectedLocationText) {
+                alert(tr('please_select_location'));
+                return;
+            }
+            if (!selectedDifficulty) { // Although it defaults, explicit check for safety
+                alert(tr('please_select_difficulty'));
+                return;
+            }
+            // --- End Frontend Validation ---
+
             showPage('loading');
             const messages = [
                 tr("reticulating_splines"),

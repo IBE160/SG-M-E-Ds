@@ -77,5 +77,8 @@
     "check_cryo_pod_option": "Check the cryo-pod's diagnostic screen.",
     "override_door_controls_option": "Try to override the door controls.",
     "search_storage_locker_option": "Search the nearby storage locker.",
-    "wait_for_help_option": "Wait for help."
+    "wait_for_help_option": "Wait for help.",
+    "please_select_theme": "Please select a theme before starting the game.",
+    "please_select_location": "Please select a location before starting the game.",
+    "please_select_difficulty": "Please select a difficulty before starting the game."
 }

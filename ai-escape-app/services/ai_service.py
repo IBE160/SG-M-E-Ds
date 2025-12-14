@@ -16,7 +16,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY not found in environment variables. Please set it in the .env file.")
 
-genai.configure(api_key=GEMINI_API_KEY, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
+genai.configure(api_key=GEMINI_API_KEY)
 
 def _sanitize_input(text: str) -> str:
     """
@@ -31,144 +31,37 @@ def _sanitize_input(text: str) -> str:
 
 
 # Initialize Gemini Model
-model = genai.GenerativeModel('gemini-1.5-pro')
+model = genai.GenerativeModel('gemini-pro')
 
 
 def generate_narrative(prompt: str, narrative_archetype: str = None, theme: str = None, location: str = None) -> str:
     """
-    Generates a narrative using the Gemini API based on the provided prompt and context.
+    Returns a static narrative for the game.
+    NO AI CALLS are made in this function.
     """
-    sanitized_prompt = _sanitize_input(prompt)
-    full_prompt = (
-        f"Generate a narrative for an AI Escape game based on the following:\n"
-        f"Prompt: {sanitized_prompt}\n"
-        f"Theme: {theme if theme else 'unspecified'}\n"
-        f"Location: {location if location else 'unspecified'}\n"
-        f"Narrative Archetype: {narrative_archetype if narrative_archetype else 'unspecified'}\n"
-        f"Ensure the narrative is immersive and sets the scene for a puzzle game."
-    )
-    logging.info(f"Calling AI for generate_narrative. Prompt: {full_prompt[:100]}...") # Log first 100 chars
-    try:
-        response = model.generate_content(full_prompt)
-        return response.text
-    except Exception as e:
-        logging.error(f"AI call failed for generate_narrative: {e}")
-        return "Error: Could not generate narrative."
+    logging.info(f"Deterministic: generate_narrative called with prompt: {prompt}")
+    return "You find yourself in a mysterious place. Your adventure begins!" # Static narrative
 
 
 def generate_room_description(theme: str, scenario_name_for_ai_prompt: str, narrative_state: dict, room_context: dict, current_room_id: str, narrative_archetype: str = None) -> str:
     """
-    Generates a detailed room description using the Gemini API.
+    Returns a static room description based on the provided room_context.
+    NO AI CALLS are made in this function.
     """
-    sanitized_scenario_name = _sanitize_input(scenario_name_for_ai_prompt)
-    sanitized_current_room_id = _sanitize_input(current_room_id)
-
-    exits_list = ", ".join(room_context.get('exits', []))
-    puzzles_list = ", ".join(room_context.get('puzzles', []))
-    items_list = ", ".join(room_context.get('items', []))
-    interactables_list = ", ".join(room_context.get('interactables', {}).keys())
-
-    full_prompt = (
-        f"You are the game master for an AI Escape room game. Generate a rich, immersive, and atmospheric description "
-        f"for the following room, acting as the story introduction for the player. "
-        f"The description should clearly explain where the player is, establish the ambiance, "
-        f"and state the player's immediate goal for this room (e.g., finding a key, restoring power, unlocking a door). "
-        f"It should also subtly hint at the types of puzzles or interactions the player might encounter "
-        f"without explicitly listing game mechanics or solutions. "
-        f"Ensure the story strongly matches the given theme and location.\n\n"
-        f"Theme: {theme}\n"
-        f"Scenario Name: {sanitized_scenario_name}\n"
-        f"Room ID: {sanitized_current_room_id}\n"
-        f"Current Game Narrative State: {json.dumps(narrative_state, indent=2)}\n" # Pass full narrative state for richer context
-        f"Room Context (for AI's internal reference, do not explicitly list these in the description):\n"
-        f"  Name: {room_context.get('name', sanitized_current_room_id)}\n"
-        f"  Exits: {exits_list}\n"
-        f"  Puzzles (unsolved): {puzzles_list}\n"
-        f"  Items: {items_list}\n"
-        f"  Interactables: {interactables_list}\n\n"
-        f"Make it engaging and mysterious. "
-        f"The goal is to provide a comprehensive sense of place and purpose to the player upon entering the room."
-    )
-    logging.info(f"Calling AI for generate_room_description. Room: {sanitized_current_room_id}, Prompt: {full_prompt[:200]}...")
-    try:
-        response = model.generate_content(full_prompt)
-        return response.text
-    except Exception as e:
-        logging.error(f"AI call failed for generate_room_description: {e}")
-        return f"Error: Could not generate description for {sanitized_scenario_name}."
+    logging.info(f"Deterministic: generate_room_description called for room {current_room_id}")
+    # Prioritize description from room_context, fall back to a generic message
+    return room_context.get("description", f"You are in a {scenario_name_for_ai_prompt.lower()} room. It is quite mysterious.")
 
 
 def generate_puzzle(puzzle_type: str, difficulty: str, theme: str, location: str, narrative_archetype: str = None, puzzle_context: dict = None, prerequisites: list = None, outcomes: list = None) -> dict:
     """
-    Generates a puzzle using the Gemini API.
-    Returns a structured dictionary with puzzle details.
+    Returns a static puzzle definition for the game.
+    NO AI CALLS are made in this function.
     """
-    sanitized_puzzle_type = _sanitize_input(puzzle_type)
-    sanitized_theme = _sanitize_input(theme)
-    sanitized_location = _sanitize_input(location)
-    
-    context_str = json.dumps(puzzle_context) if puzzle_context else "None"
-    prereq_str = ", ".join(prerequisites) if prerequisites else "None"
-    outcomes_str = ", ".join(outcomes) if outcomes else "None"
-
-    full_prompt = (
-        f"You are an AI Game Master. Generate a new puzzle for an escape room game. "
-        f"The puzzle should be interactive and clearly indicate what the player is trying to achieve. "
-        f"Return your response as a JSON object only. Do NOT include any other text.\n\n"
-        f"**JSON Schema:**\n"
-        f"```json\n"
-        f"{{\n"
-        f'  "puzzle_id": string, // A unique identifier for the puzzle (e.g., "star_map_console")\n'
-        f'  "description": string, // A detailed description of the puzzle for the player, clearly stating the objective\n'
-        f'  "solution": string,    // The exact solution string (case-insensitive for comparison)\n'
-        f'  "prerequisites": array, // (Optional) List of strings of prerequisites (e.g., "power_restored", "keycard_found")\n'
-        f'  "outcomes": array,    // (Optional) List of strings of outcomes (e.g., "door_unlocked", "new_item_revealed")\n'
-        f'  "puzzle_steps": array // (Optional) For multi-step puzzles, a list of dictionaries, each with "step_description" and "step_solution"\n'
-        f'  "puzzle_type": string // (Optional) e.g., "code_entry", "object_interaction", "mechanism_sequence", "inspection"\n'
-        f'  "items_required": array // (Optional) List of items needed to solve the puzzle (e.g., ["Rusty Key"])\n'
-        f'  "item_discovered_on_solve": array // (Optional) List of items discovered when this puzzle is solved (e.g., ["Keycard"])\n'
-        f"}}\n"
-        f"```\n\n"
-        f"**Game Context:**\n"
-        f"- Theme: {sanitized_theme}\n"
-        f"- Location: {sanitized_location}\n"
-        f"- Difficulty: {difficulty}\n"
-        f"- Narrative Archetype: {narrative_archetype if narrative_archetype else 'None'}\n"
-        f"- Requested Puzzle Type: {sanitized_puzzle_type if sanitized_puzzle_type else 'any'}\n"
-        f"- Additional Context: {context_str}\n"
-        f"- Known Prerequisites: {prereq_str}\n"
-        f"- Expected Outcomes: {outcomes_str}\n\n"
-        f"Generate a puzzle that fits the context and difficulty. "
-        f"The `description` must clearly state what the player needs to achieve. "
-        f"For 'easy' difficulty: Puzzles should be straightforward, have fewer steps (ideally one), and clear objectives. Hints should be direct. "
-        f"For 'medium' difficulty: Puzzles can have multiple steps, require some indirect clue-finding, and light exploration. "
-        f"For 'hard' difficulty: Puzzles should be complex, multi-step, with hidden clues, and minimal direct guidance. They might require combining items or complex sequences. "
-        f"Ensure the `solution` is concise and exact. "
-        f"If the puzzle involves finding an item, specify it in `item_discovered_on_solve`. "
-        f"If the puzzle requires an item from the player's inventory, specify it in `items_required`. "
-        f"Ensure the generated JSON is valid and adheres strictly to the schema."
-    )
-    
-    logging.info(f"Calling AI for generate_puzzle. Type: {sanitized_puzzle_type}, Difficulty: {difficulty}, Prompt: {full_prompt[:500]}...")
-    try:
-        response = model.generate_content(
-            full_prompt,
-            generation_config=genai.GenerationConfig(response_mime_type="application/json")
-        )
-        ai_puzzle = json.loads(response.text)
-        logging.info(f"AI puzzle generation response: {ai_puzzle}")
-
-        # Validate basic structure
-        if not all(k in ai_puzzle for k in ["puzzle_id", "description", "solution"]):
-            raise ValueError("AI puzzle response missing required keys.")
-
-        return ai_puzzle
-    except json.JSONDecodeError as e:
-        logging.error(f"AI response for generate_puzzle was not valid JSON: {response.text[:500]}... Error: {e}")
-        return {"error": "AI returned malformed response for puzzle generation.", "details": str(e)}
-    except Exception as e:
-        logging.error(f"AI call failed for generate_puzzle: {e}")
-        return {"error": "An internal error occurred during puzzle generation.", "details": str(e)}
+    logging.info(f"Deterministic: generate_puzzle called for type {puzzle_type}, theme {theme}")
+    # This function is not currently called directly in the game logic for existing puzzles,
+    # but rather for dynamically generating new ones. For deterministic logic, we'll return a generic error.
+    return {"error": "Dynamic puzzle generation is disabled for deterministic mode."}
 
 
 def evaluate_and_adapt_puzzle(
@@ -181,98 +74,127 @@ def evaluate_and_adapt_puzzle(
     location: str,
     difficulty: str,
     narrative_archetype: str = None,
-    current_inventory: list = None # Added current_inventory parameter
+    current_inventory: list = None
 ) -> dict:
     """
-    Evaluates a puzzle solution attempt or item usage using the Gemini API and adapts the puzzle.
-    Returns a structured dictionary with evaluation, feedback, hints, and potential puzzle state updates.
+    Evaluates a puzzle solution attempt or item usage using deterministic logic.
+    Returns a structured dictionary with evaluation, feedback, and potential game state updates.
+    NO AI CALLS are made in this function.
     """
-    sanitized_puzzle_id = _sanitize_input(puzzle_id)
-    sanitized_player_attempt = _sanitize_input(player_attempt)
-    sanitized_current_puzzle_description = _sanitize_input(current_puzzle_description)
-    sanitized_inventory = ", ".join(current_inventory) if current_inventory else "None" # Sanitize inventory for prompt
+    logging.info(f"Deterministic: evaluate_and_adapt_puzzle called for puzzle {puzzle_id} with attempt {player_attempt}")
 
-    # Use a chat-based model for multi-turn interaction or a model configured for JSON output
-    # For now, we'll try to get JSON output directly from generate_content
-    # by instructing the model clearly in the prompt.
+    # --- Initial State Setup ---
+    is_correct = False
+    feedback = "That doesn't seem to work."
+    puzzle_status = current_puzzle_state.get("status", "unsolved")
+    items_found = []
+    items_consumed = []
+    game_state_changes = {}
+    puzzle_progress = {}
     
-    # Construct the full prompt for the AI
-    full_prompt = (
-        f"You are an AI Game Master assisting in an escape room game. "
-        f"A player has made an attempt to solve a puzzle or use an item. Your task is to evaluate this attempt, "
-        f"provide feedback, and suggest how the puzzle or game state might change. "
-        f"Return your response as a JSON object only. Do NOT include any other text.\n\n"
-        f"**JSON Schema:**\n"
-        f"```json\n"
-        f"{{\n"
-        f'  "is_correct": boolean, // True if the attempt solves the current step or the whole puzzle/item use\n'
-        f'  "feedback": string,    // A message to the player about their attempt\n'
-        f'  "hint": string,        // (Optional) A context-aware hint if the attempt is incorrect or item usage is invalid\n'
-        f'  "puzzle_status": string, // e.g., "solved", "partially_solved", "unsolved", "failed", "item_used"\n'
-        f'  "next_step_description": string, // (Optional) For multi-step puzzles, what the player needs to do next (short, action-oriented phrase)\n'
-        f'  "difficulty_adjustment_suggestion": string, // e.g., "make_easier", "make_harder", "none"\n'
-        f'  "new_puzzle_state": object, // (Optional) Any updates to the puzzle\'s internal state (e.g., clues found, step completed)\n'
-        f'  "items_found": array, // (Optional) List of strings of items discovered/obtained (e.g., ["Rusty Key", "Flashlight"])\n'
-        f'  "items_consumed": array, // (Optional) List of strings of items consumed/removed from inventory (e.g., ["Rusty Key"])\n'
-        f'  "game_state_changes": object, // (Optional) Dictionary of broader game state changes (e.g., {{"door_status": {{"main_door": "unlocked"}}}}, {{"power_grid": "online"}})\n'
-        f'  "puzzle_progress": object // (Optional) Dictionary of specific progress within a puzzle (e.g., {{"lever_pulled": true}} or {{"riddle_part_1_solved": true}})\n'
-        f"}}\n"
-        f"```\n\n"
-        f"**Game Context:**\n"
-        f"- Theme: {theme}\n"
-        f"- Location: {location}\n"
-        f"- Difficulty: {difficulty}\n"
-        f"- Narrative Archetype: {narrative_archetype if narrative_archetype else 'None'}\n"
-        f"- Player Inventory: [{sanitized_inventory}]\n\n" # Added inventory to context
-        f"**Puzzle/Target Details:**\n"
-        f"- Puzzle ID (or Target ID if item use): {sanitized_puzzle_id}\n"
-        f"- Initial Description: {sanitized_current_puzzle_description}\n"
-        f"- Known Solution (for your reference, if applicable): {puzzle_solution}\n"
-        f"- Current Puzzle State (dynamic): {current_puzzle_state}\n\n"
-        f"**Player's Attempt:**\n"
-        f"- Attempt: {sanitized_player_attempt}\n\n"
-        f"Evaluate the attempt. This attempt can be a puzzle solution or an action using an inventory item (e.g., 'Use Rusty Key on Locked Door').\n"
-        f"**For item usage attempts:**\n"
-        f"1. Check if the item mentioned in the `player_attempt` is present in the `Player Inventory`.\n"
-        f"2. Determine if the used item is appropriate and effective for the `Puzzle ID (or Target ID)` and its `Initial Description`.\n"
-        f"3. If the item is *not* in inventory, set `is_correct: false` and `feedback: 'You do not have that item.'`\n"
-        f"4. If the item is in inventory but *not* valid for the target, set `is_correct: false` and `feedback: 'That doesn\'t seem to work here.'`\n"
-        f"5. If the item is valid, set `is_correct: true`, provide positive `feedback`, set `puzzle_status: 'item_used'`, and indicate `items_consumed` (e.g., if a key breaks or a potion is used) or `game_state_changes` (e.g., {{\"door_status\": \"unlocked\"}}).\n"
-        f"**For puzzle solution attempts (non-item use):**\n"
-        f"1. If the player explicitly asked for a hint (e.g., `player_attempt` is 'I need a hint'), provide a hint. "
-        f"2. Make sure 'feedback' is engaging and 'hint' is helpful but doesn't give away the solution too easily for higher difficulties. "
-        f"3. Consider the `difficulty` when providing hints or adapting feedback. For 'hard' difficulty, be subtle. For 'easy', be more direct."
-        f"4. If the `player_attempt` is the exact `puzzle_solution` (case-insensitive), set `is_correct` to true and `puzzle_status` to 'solved'."
-        f"5. Otherwise, if the attempt is close or shows partial understanding, you can set `puzzle_status` to 'partially_solved' and provide `new_puzzle_state`. "
-        f"If the action leads to finding an item, include `items_found`. If it changes a broader game state (like unlocking a door or turning on power), include `game_state_changes`. "
-        f"If it's a specific step in a multi-part puzzle, use `puzzle_progress`. "
-        f"Ensure the generated JSON is valid and adheres strictly to the schema. The `next_step_description` should be a short, actionable phrase like 'Inspect the safe' or 'Enter code'."
-    )
+    # Retrieve full puzzle definition (ROOM_DATA is the source of truth for static defs)
+    # Note: 'location' in the parameters here is actually the current room_id.
+    # We need to access ROOM_DATA from a different scope or pass room_info explicitly if needed.
+    # For this deterministic logic, we'll assume the full puzzle_definition is sufficient.
 
-    logging.info(f"Calling AI for evaluate_and_adapt_puzzle. Puzzle: {sanitized_puzzle_id}, Attempt: {sanitized_player_attempt}, Prompt: {full_prompt[:500]}...")
-    try:
-        # Use a generation configuration that encourages JSON output
-        response = model.generate_content(
-            full_prompt,
-            generation_config=genai.GenerationConfig(response_mime_type="application/json")
-        )
-        
-        # Parse the JSON response
-        ai_evaluation = json.loads(response.text)
-        logging.info(f"AI evaluation response: {ai_evaluation}")
-        
-        # Validate the response against the expected structure
-        if not all(k in ai_evaluation for k in ["is_correct", "feedback", "puzzle_status"]):
-            raise ValueError("AI response missing required keys.")
-        
-        return ai_evaluation
+    # --- Handle already solved puzzles ---
+    if current_puzzle_state.get("solved", False):
+        return {"is_correct": True, "feedback": f"You have already solved the '{puzzle_id.replace('_', ' ').title()}' puzzle.", "puzzle_status": "solved"}
 
-    except json.JSONDecodeError as e:
-        logging.error(f"AI response was not valid JSON: {response.text[:500]}... Error: {e}")
-        return {"is_correct": False, "feedback": "AI returned malformed response. Try again.", "puzzle_status": "unsolved", "error": "Malformed JSON from AI."}
-    except Exception as e:
-        logging.error(f"AI call failed for evaluate_and_adapt_puzzle: {e}")
-        return {"is_correct": False, "feedback": "An internal error occurred. Please try again.", "puzzle_status": "unsolved", "error": str(e)}
+    # --- Handle "I need a hint" request ---
+    if player_attempt.lower() == "i need a hint":
+        # A simple, static hint based on description for now, as no AI is called.
+        return {
+            "is_correct": False,
+            "feedback": "Here's a hint.",
+            "hint": f"Think about the description: '{current_puzzle_description}'.",
+            "puzzle_status": "unsolved"
+        }
+
+    # --- Determine if it's an item usage attempt ---
+    if player_attempt.lower().startswith("use "):
+        parts = player_attempt.lower().split(" on ", 1)
+        if len(parts) == 2:
+            item_id = parts[0].replace("use ", "").strip().replace(' ', '_')
+            target_name_attempt = parts[1].strip().replace(' ', '_')
+            
+            # --- Inventory Validation ---
+            if item_id not in current_inventory:
+                return {"is_correct": False, "feedback": "You don't have that item.", "puzzle_status": "unsolved"}
+
+            # --- Target Validation (Does the item match the current puzzle?) ---
+            # This logic assumes the 'target_name_attempt' refers to the 'puzzle_id'
+            # Or the 'name' field of the puzzle.
+            # For this context, we will directly check against the current puzzle_id.
+            
+            # We also need to get the full puzzle definition to check items_required
+            # We need to import ROOM_DATA here, or pass puzzle_definition.
+            # Assuming puzzle_definition is available and correct here.
+            
+            # Placeholder for retrieving puzzle_definition. In reality, solve_puzzle will pass it.
+            # This function is called from solve_puzzle and use_item, which already have puzzle_definition.
+            # Let's assume the caller ensures this context.
+            # For simplicity, we're already passed `puzzle_solution` which implies we know the puzzle context.
+            # The actual puzzle definition from ROOM_DATA needs to be accessed here to check `items_required`.
+            from data.rooms import ROOM_DATA # Temporarily import here for access
+            room_static_info = ROOM_DATA.get(theme, {}).get("rooms", {}).get(location, {})
+            puzzle_definition = room_static_info.get("puzzles", {}).get(puzzle_id)
+
+            if not puzzle_definition:
+                 return {"is_correct": False, "feedback": "Puzzle definition not found for this target. (Internal Error)", "puzzle_status": "unsolved"}
+
+            if item_id not in puzzle_definition.get("items_required", []):
+                return {"is_correct": False, "feedback": "That item doesn't work here.", "puzzle_status": "unsolved"}
+            
+            # --- Correct Item Usage (deterministic) ---
+            # If the item is in inventory and is required by the puzzle, it's a success
+            is_correct = True
+            feedback = f"You successfully used the {item_id.replace('_', ' ')}!"
+            puzzle_status = "solved" # Or "item_used" depending on how we track partial progress
+            items_consumed.append(item_id) # Assume item is consumed on correct use
+
+            # Apply outcomes defined in the puzzle_definition
+            for outcome in puzzle_definition.get("outcomes", []):
+                game_state_changes[outcome] = True # e.g., "door_unlocked"
+            for item_to_reveal in puzzle_definition.get("reveal_on_solve", []):
+                items_found.append(item_to_reveal) # e.g., "keycard"
+            
+            # No further puzzle_progress here, assuming single-step item usage for solve
+
+        else: # Malformed "Use" command
+            feedback = "Invalid 'Use' command format. Try 'Use [item] on [target]'."
+            is_correct = False
+    else:
+        # --- Direct Solution Attempt (non-item usage) ---
+        if player_attempt.lower() == puzzle_solution.lower():
+            is_correct = True
+            feedback = f"You correctly solved the '{puzzle_definition.get('name', puzzle_id.replace('_', ' ').title())}' puzzle!"
+            puzzle_status = "solved"
+            
+            # Apply outcomes defined in the puzzle_definition
+            for outcome in puzzle_definition.get("outcomes", []):
+                game_state_changes[outcome] = True # e.g., "door_unlocked_north"
+            for item_to_reveal in puzzle_definition.get("reveal_on_solve", []):
+                items_found.append(item_to_reveal)
+
+        else:
+            is_correct = False
+            feedback = "That's not quite right. Try again."
+            puzzle_status = "unsolved"
+
+    return {
+        "is_correct": is_correct,
+        "feedback": feedback,
+        "hint": "", # No hints from deterministic logic unless specifically coded
+        "puzzle_status": puzzle_status,
+        "next_step_description": "",
+        "difficulty_adjustment_suggestion": "none",
+        "new_puzzle_state": {},
+        "items_found": items_found,
+        "items_consumed": items_consumed,
+        "game_state_changes": game_state_changes,
+        "puzzle_progress": puzzle_progress
+    }
 
 
 def adjust_difficulty_based_on_performance(
@@ -283,54 +205,8 @@ def adjust_difficulty_based_on_performance(
     narrative_archetype: str = None,
 ) -> dict:
     """
-    Adjusts game difficulty based on player performance using the Gemini API.
+    STUB: Adjusts game difficulty based on player performance using the Gemini API.
     Returns a structured dictionary with difficulty adjustment suggestions.
     """
-    sanitized_theme = _sanitize_input(theme)
-    sanitized_location = _sanitize_input(location)
-
-    full_prompt = (
-        f"You are an AI Game Master. Analyze the player's performance based on the current puzzle state "
-        f"and recommend an adjustment to the overall game difficulty. "
-        f"Return your response as a JSON object only. Do NOT include any other text.\n\n"
-        f"**JSON Schema:**\n"
-        f"```json\n"
-        f"{{\n"
-        f'  "difficulty_adjustment": string, // e.g., "make_easier", "make_harder", "none"\n'
-        f'  "reason": string,              // Explanation for the suggested adjustment\n'
-        f'  "suggested_puzzle_parameters": object // (Optional) Parameters for future puzzle generation (e.g., "more_direct_clues", "fewer_steps")\n'
-        f"}}\n"
-        f"```\n\n"
-        f"**Game Context:**\n"
-        f"- Theme: {sanitized_theme}\n"
-        f"- Location: {sanitized_location}\n"
-        f"- Overall Difficulty: {overall_difficulty}\n"
-        f"- Narrative Archetype: {narrative_archetype if narrative_archetype else 'None'}\n\n"
-        f"**Current Puzzle State:**\n"
-        f"{json.dumps(puzzle_state, indent=2)}\n\n"
-        f"Analyze the `puzzle_state`. Look for patterns like many attempts, frequent hint usage, or rapid puzzle solving. "
-        f"Suggest whether to 'make_easier', 'make_harder', or 'none' based on the player's performance relative to the `overall_difficulty`. "
-        f"Provide a concise `reason`. If adjusting, suggest `suggested_puzzle_parameters` to guide future puzzle generation. "
-        f"Ensure the generated JSON is valid and adheres strictly to the schema."
-    )
-
-    logging.info(f"Calling AI for adjust_difficulty_based_on_performance. Difficulty: {overall_difficulty}, Prompt: {full_prompt[:500]}...")
-    try:
-        response = model.generate_content(
-            full_prompt,
-            generation_config=genai.GenerationConfig(response_mime_type="application/json")
-        )
-        ai_adjustment = json.loads(response.text)
-        logging.info(f"AI difficulty adjustment response: {ai_adjustment}")
-
-        # Validate basic structure
-        if not all(k in ai_adjustment for k in ["difficulty_adjustment", "reason"]):
-            raise ValueError("AI adjustment response missing required keys.")
-
-        return ai_adjustment
-    except json.JSONDecodeError as e:
-        logging.error(f"AI response for difficulty adjustment was not valid JSON: {response.text[:500]}... Error: {e}")
-        return {"difficulty_adjustment": "none", "reason": "AI returned malformed response.", "error": str(e)}
-    except Exception as e:
-        logging.error(f"AI call failed for adjust_difficulty_based_on_performance: {e}")
-        return {"difficulty_adjustment": "none", "reason": "An internal error occurred.", "error": str(e)}
+    logging.info(f"STUB: adjust_difficulty_based_on_performance called with puzzle_state {puzzle_state}")
+    return {"difficulty_adjustment": "none", "reason": "STUB: No adjustment.", "suggested_puzzle_parameters": {}}
