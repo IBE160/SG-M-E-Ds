@@ -261,12 +261,10 @@
             </div>
         </div>
 
-    <audio id="background-music" loop>
-        <source src="{{ url_for('static', filename='audio/background_music.mp3') }}" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+    <audio id="background-music" loop preload="auto" src="{{ url_for('static', filename='audio/411867__ispeakwaves__mystery.mp3') }}"></audio>
+    <audio id="button-click-sound" preload="auto" src="{{ url_for('static', filename='audio/342200__christopherderp__videogame-menu-button-click.wav') }}"></audio>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 </body>
 </html>

@@ -8,17 +8,46 @@ let selectedLocationText = ''; // To store the selected location name
 const currentPlayerId = 'test_player_1'; // Placeholder for now
 
 // --- Music & Volume Globals ---
-let backgroundMusic; // Will be assigned in DOMContentLoaded
-let isMusicEnabled = (localStorage.getItem('isMusicEnabled') === 'true'); // Default to true if not set
-let gameVolume = parseFloat(localStorage.getItem('gameVolume')) || 0.5; // Default to 0.5 (50%)
+let backgroundMusic;
+let buttonClickSound;
+let isMusicEnabled = (localStorage.getItem('isMusicEnabled') === null) ? true : (localStorage.getItem('isMusicEnabled') === 'true');
+let isSfxEnabled = (localStorage.getItem('isSfxEnabled') === null) ? true : (localStorage.getItem('isSfxEnabled') === 'true');
+let gameVolume = parseFloat(localStorage.getItem('gameVolume')) || 0.5;
+
+function initAudio() {
+    try {
+        backgroundMusic = new Howl({
+            src: ["/static/audio/411867__ispeakwaves__mystery.mp3"],
+            loop: true,
+            volume: gameVolume,
+            autoplay: isMusicEnabled,
+            html5: true // Force HTML5 Audio to prevent Web Audio API issues
+        });
+
+        buttonClickSound = new Howl({
+            src: ["/static/audio/342200__christopherderp__videogame-menu-button-click.wav"],
+            volume: gameVolume,
+            html5: true // Force HTML5 Audio
+        });
+        
+        // Ensure initial play state
+        if (isMusicEnabled) {
+            backgroundMusic.play();
+        } else {
+            backgroundMusic.pause();
+        }
+    } catch (e) {
+        console.error("Error initializing audio with Howler.js:", e);
+    }
+}
 // --- End Music & Volume Globals ---
 
 // --- Music & Volume Functions ---
 function toggleMusic() {
     isMusicEnabled = !isMusicEnabled;
-    if (backgroundMusic) { // Ensure backgroundMusic element exists
+    if (backgroundMusic) {
         if (isMusicEnabled) {
-            backgroundMusic.play().catch(e => console.log("Music auto-play prevented:", e));
+            backgroundMusic.play();
         } else {
             backgroundMusic.pause();
         }
@@ -27,10 +56,16 @@ function toggleMusic() {
     updateMusicToggleButton();
 }
 
+function toggleSfx() {
+    isSfxEnabled = !isSfxEnabled;
+    localStorage.setItem('isSfxEnabled', isSfxEnabled);
+    updateSfxToggleButton();
+}
+
 function setVolume(volumeLevel) { // volumeLevel is 0-100
-    gameVolume = parseFloat(volumeLevel) / 100; // Ensure float conversion
-    if (backgroundMusic) {
-        backgroundMusic.volume = gameVolume;
+    gameVolume = parseFloat(volumeLevel) / 100;
+    if (typeof Howler !== 'undefined') { // Check if Howler is defined before using it
+        Howler.volume(gameVolume);
     }
     localStorage.setItem('gameVolume', gameVolume);
 }
@@ -38,13 +73,33 @@ function setVolume(volumeLevel) { // volumeLevel is 0-100
 function updateMusicToggleButton() {
     const musicToggleButton = document.getElementById('music-toggle');
     if (musicToggleButton) {
-        if (isMusicEnabled) {
+        // Reflect the actual playing state for the 'active' class
+        if (backgroundMusic && backgroundMusic.playing()) {
             musicToggleButton.classList.add('active');
-            musicToggleButton.textContent = tr('on');
         } else {
             musicToggleButton.classList.remove('active');
-            musicToggleButton.textContent = tr('off');
         }
+        // Reflect the stored preference for the text
+        musicToggleButton.textContent = isMusicEnabled ? tr('on') : tr('off');
+    }
+}
+
+function updateSfxToggleButton() {
+    const sfxToggleButton = document.getElementById('sfx-toggle');
+    if (sfxToggleButton) {
+        if (isSfxEnabled) {
+            sfxToggleButton.classList.add('active');
+            sfxToggleButton.textContent = tr('on');
+        } else {
+            sfxToggleButton.classList.remove('active');
+            sfxToggleButton.textContent = tr('off');
+        }
+    }
+}
+
+function playButtonClickSound() {
+    if (isSfxEnabled && buttonClickSound) {
+        buttonClickSound.play();
     }
 }
 // --- End Music & Volume Functions ---
@@ -135,6 +190,7 @@ function applyTranslations() {
 
     // Ensure the music toggle button text is updated correctly after language change
     updateMusicToggleButton();
+    updateSfxToggleButton();
 
     // The language select options themselves don't need translation,
     // as their text content is static (English, Norsk, etc.) and
@@ -600,17 +656,12 @@ function applyTranslations() {
             }
 
             // --- Music & Volume Initialization ---
-            backgroundMusic = document.getElementById('background-music'); // Assign to global backgroundMusic
-            if (backgroundMusic) {
-                backgroundMusic.volume = gameVolume; // Set initial volume
-                if (isMusicEnabled) {
-                    backgroundMusic.play().catch(e => console.log("Music auto-play prevented:", e));
-                } else {
-                    backgroundMusic.pause();
-                }
-            }
+            initAudio();
+
             // Update UI for music toggle and volume slider
             updateMusicToggleButton();
+            updateSfxToggleButton();
+
             const volumeSlider = document.getElementById('volume-slider');
             if (volumeSlider) {
                 volumeSlider.value = gameVolume * 100; // Set slider position (0-100)
@@ -621,14 +672,19 @@ function applyTranslations() {
             if (musicToggleButton) {
                 musicToggleButton.addEventListener('click', toggleMusic);
             }
+
+            const sfxToggleButton = document.getElementById('sfx-toggle');
+            if (sfxToggleButton) {
+                sfxToggleButton.addEventListener('click', toggleSfx);
+            }
+
+            document.addEventListener('click', (e) => {
+                if (e.target.matches('button')) {
+                    playButtonClickSound();
+                }
+            });
             // --- End Music & Volume Initialization ---
 
-
-
-
-
-
-            
             // Check if currentSessionId is defined (meaning we are on the /game/<session_id> page)
             if (typeof currentSessionId !== 'undefined' && currentSessionId !== null) {
                 console.log('On immersive game page. currentSessionId:', currentSessionId);
