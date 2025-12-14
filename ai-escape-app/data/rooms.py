@@ -435,9 +435,15 @@ ROOM_DATA = {
                 "image": "spaceship.jpg",
                 "puzzles": {
                     "engine_puzzle": {
+                        "name": "Engine Diagnostic Puzzle",
                         "description": "The diagnostic panel shows three critical relays offline. Restore power by inputting the correct sequence: Delta-Gamma-Epsilon.",
                         "solution": "DGE",
-                        "solved": False
+                        "type": "sequence_input",
+                        "difficulty": "medium",
+                        "prerequisites": ["core_power_online"],
+                        "outcomes": ["engine_power_restored"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "restore_engine_power"
                     }
                 },
                 "exits": {"north": "spaceship_bridge", "west": "spaceship_escape_chamber"},
@@ -551,9 +557,15 @@ ROOM_DATA = {
                 "image": "clown_funhouse.jpg",
                 "puzzles": {
                     "maze_puzzle": {
+                        "name": "Mirror Maze Riddle",
                         "description": "Find the true path through the maze. The riddle on the wall says: 'I have many faces, but only one is true.'",
-                        "solution": "truth",
-                        "solved": False
+                        "solution": "TRUTH", # Solution is case-insensitive for AI
+                        "type": "riddle",
+                        "difficulty": "medium",
+                        "prerequisites": [],
+                        "outcomes": ["maze_solved"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "reveal_maze_exit"
                     }
                 },
                 "exits": {"south": "clown_funhouse_entrance", "east": "clown_funhouse_escape_chamber"},
@@ -667,9 +679,15 @@ ROOM_DATA = {
                 "image": "kids_room.jpg", # Reusing image
                 "puzzles": {
                     "toy_puzzle": {
+                        "name": "Toy Block Sequence Puzzle",
                         "description": "Arrange the colored blocks in the order of the rainbow: Red, Orange, Yellow, Green, Blue, Indigo, Violet.",
                         "solution": "ROYGBIV",
-                        "solved": False
+                        "type": "sequence_input",
+                        "difficulty": "easy",
+                        "prerequisites": [],
+                        "outcomes": ["toy_chest_open"],
+                        "reveal_on_solve": ["toy_car"],
+                        "triggers_event": "reveal_toy_chest_contents"
                     }
                 },
                 "exits": {"west": "kids_room_play_area", "north": "kids_room_escape_chamber"},
@@ -767,9 +785,15 @@ ROOM_DATA = {
                 "image": "candy_wonderland.jpg", # Reusing image
                 "puzzles": {
                     "gingerbread_puzzle": {
-                        "description": "The frosting on the door forms a sequence: 1-2-3-5-8. What's next?",
+                        "name": "Gingerbread Door Sequence",
+                        "description": "The frosting on the door forms a sequence: 1-2-3-5-8. What's next in the Fibonacci sequence?",
                         "solution": "13",
-                        "solved": False
+                        "type": "numeric_code",
+                        "difficulty": "medium",
+                        "prerequisites": [],
+                        "outcomes": ["gingerbread_door_open"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "open_gingerbread_house_door"
                     }
                 },
                 "exits": {"south": "candy_wonderland_path", "west": "candy_wonderland_escape_chamber"},
@@ -1113,9 +1137,15 @@ ROOM_DATA = {
                 "image": "asylum.jpg", # Reusing image
                 "puzzles": {
                     "patient_files_puzzle": {
-                        "description": "A set of patient files are scattered. Find the file marked with a broken key icon and read the three-digit code: 4-8-2.",
+                        "name": "Patient Files Code",
+                        "description": "A set of patient files are scattered. Find the file marked with a broken key icon and read the three-digit code: 4-8-2. You need to enter this code to unlock the next room.",
                         "solution": "482",
-                        "solved": False
+                        "type": "numeric_code",
+                        "difficulty": "medium",
+                        "prerequisites": [],
+                        "outcomes": ["patient_files_accessed"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "unlock_next_room_code"
                     }
                 },
                 "exits": {"south": "asylum_reception", "east": "asylum_escape_chamber"},

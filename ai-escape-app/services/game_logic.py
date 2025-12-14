@@ -402,7 +402,7 @@ def get_contextual_options(game_session: GameSession) -> list[str]:
                 if current_puzzle_session_state.get("next_step_description"):
                     options.append(current_puzzle_session_state["next_step_description"])
                 else:
-                    options.append(f"Solve {puzzle_definition['name']}")
+                    options.append(f"Solve {puzzle_definition.get('name', 'Unknown Puzzle')}")
     
     # Add options for picking up items (still relevant)
     for item_id in room_info.get("items", []):
