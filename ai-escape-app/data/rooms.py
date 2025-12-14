@@ -21,7 +21,19 @@ ROOM_DATA = {
                 "name": "Forgotten Library Entrance",
                 "description": "The antechamber is perfectly circular, its walls smooth but for the occasional rough-hewn symbol. The only source of light comes from a flickering, ethereal glow emanating from a heavy, iron-banded door directly opposite where you lay. A small, overturned stone bench lies near the wall to your left, its surface covered in a fine layer of dust. The hum feels strongest here, almost vibrating your teeth.",
                 "image": "forgotten_library.jpg",
-                "puzzles": {},
+                "puzzles": {
+                    "ancient_symbol_door_puzzle": {
+                        "name": "Ancient Symbol Door Puzzle",
+                        "description": "The heavy door is sealed by an intricate glowing symbol, an eye weeping three tears, etched into its surface. To open it, you must decipher the correct sequence of symbols.",
+                        "solution": "EYETEARS", # Placeholder solution for now
+                        "type": "symbol_sequence",
+                        "difficulty": "medium",
+                        "prerequisites": [],
+                        "outcomes": ["forgotten_library_entrance_door_unlocked"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "unlock_door_exit"
+                    }
+                },
                 "items": ["old_key"],
                 "interactables": {
                     "heavy_door": {
@@ -31,10 +43,9 @@ ROOM_DATA = {
                             {
                                 "label": "Inspect Door",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The door is ancient and incredibly solid. The faint glow seems to come from an intricate symbol carved into its surface, depicting a stylized eye weeping three tears. It appears to be sealed by something more than a simple lock.",
-                                    "message": "You learn more about the door."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "ancient_symbol_door_puzzle",
+                                    "message": "You inspect the heavy door, revealing an ancient symbol puzzle."
                                 }
                             }
                         ]
@@ -78,22 +89,47 @@ ROOM_DATA = {
                 "image": "forgotten_library.jpg", # Reusing image
                 "puzzles": {
                     "desk_puzzle": {
-                        "description": "The desk has an intricate lock. A note nearby reads: 'The number of forgotten tales.'",
-                        "solution": "7",
-                        "solved": False
+                        "name": "Locked Desk Drawer",
+                        "description": "The desk has an intricate lock. A note nearby reads: 'The number of forgotten tales.' You need a numeric code to open it.",
+                        "solution": "7", # Original solution
+                        "type": "code_entry",
+                        "difficulty": "easy",
+                        "prerequisites": [],
+                        "outcomes": ["desk_drawer_open", "old_journal_found"],
+                        "reveal_on_solve": ["old_journal"],
+                        "triggers_event": "reveal_desk_content"
                     }
                 },
                 "items": [],
                 "interactables": {
-                    "desk_puzzle": {
-                        "name": "Intricate Desk",
-                        "description": "A grand wooden desk with an intricate lock. It seems to be the source of the 'desk_puzzle'.",
-                        "actions": ["inspect", "solve"]
+                    "desk_puzzle": { # Changed name to desk_lock for clarity
+                        "name": "Intricate Desk Lock",
+                        "description": "A grand wooden desk with an intricate lock.",
+                        "actions": [
+                            {
+                                "label": "Inspect Desk",
+                                "effect": {
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "desk_puzzle",
+                                    "message": "You inspect the intricate lock on the desk."
+                                }
+                            }
+                        ]
                     },
                     "manuscript": {
                         "name": "Ancient Manuscript",
                         "description": "A fragile, leather-bound manuscript resting on a pedestal. It seems very old.",
-                        "actions": ["inspect"]
+                        "actions": [
+                            {
+                                "label": "Inspect Manuscript",
+                                "effect": {
+                                    "type": "narrative_update",
+                                    "target": "current_room_description",
+                                    "value": "The manuscript is written in an archaic script, filled with astrological charts and cryptic prophecies. One page highlights a constellation resembling the 'Eye' symbol from the entrance door, surrounded by three distinct stars. This might be a clue for the door puzzle.",
+                                    "message": "You carefully read the ancient manuscript."
+                                }
+                            }
+                        ]
                     }
                 },
                 "exits": {"south": "forgotten_library_entrance", "east": "forgotten_library_escape_chamber"},
@@ -117,9 +153,26 @@ ROOM_DATA = {
                 "image": "scifi_hangar.jpg",
                 "puzzles": {
                     "console_puzzle": {
-                        "description": "A deactivated console displays a series of cryptic symbols. Input the sequence to power up.",
+                        "name": "Hangar Console Power-Up",
+                        "description": "A deactivated console displays a series of cryptic symbols. Input the correct sequence to power up the hangar's main systems.",
                         "solution": "ALPHA7",
-                        "solved": False
+                        "type": "code_entry",
+                        "difficulty": "medium",
+                        "prerequisites": [],
+                        "outcomes": ["hangar_power_restored", "engineering_door_power_online"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "power_hangar_systems"
+                    },
+                    "engineering_door_lock": {
+                        "name": "Engineering Door Lock",
+                        "description": "The heavy engineering door is sealed. A digital keypad next to it requires a 4-digit access code.",
+                        "solution": "1987", # Placeholder solution
+                        "type": "code_entry",
+                        "difficulty": "easy",
+                        "prerequisites": ["hangar_power_restored"],
+                        "outcomes": ["engineering_door_unlocked"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "unlock_engineering_access"
                     }
                 },
                 "items": [],
@@ -131,10 +184,9 @@ ROOM_DATA = {
                             {
                                 "label": "Check Navigation",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The navigation screen displays a critical system error: 'HYPERDRIVE OFFLINE - ENERGY CONDUIT DISRUPTED.' A holographic projection shows a complex network of power lines, one segment highlighted in red.",
-                                    "message": "You check the navigation console."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "console_puzzle",
+                                    "message": "You inspect the navigation console, realizing it needs to be powered up."
                                 }
                             }
                         ]
@@ -161,10 +213,9 @@ ROOM_DATA = {
                             {
                                 "label": "Open Engineering",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The door remains sealed. A digital keypad next to it flashes 'ACCESS DENIED - MANUAL OVERRIDE REQUIRED.' Below the keypad, a small, recessed slot is visible, perhaps for a data chip.",
-                                    "message": "You try to open the Engineering door."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "engineering_door_lock",
+                                    "message": "You try to open the Engineering door, finding it locked by a keypad."
                                 }
                             }
                         ]
@@ -213,9 +264,15 @@ ROOM_DATA = {
                 "image": "underwater_lab.jpg",
                 "puzzles": {
                     "pressure_puzzle": {
-                        "description": "A pressure gauge needs recalibration. Adjust the three dials to match the deep-sea pressure reading: 5-2-8.",
+                        "name": "Containment Field Recalibration",
+                        "description": "A pressure gauge needs recalibration to stabilize the containment field. Adjust the three dials to match the deep-sea pressure reading: 5-2-8.",
                         "solution": "528",
-                        "solved": False
+                        "type": "code_entry",
+                        "difficulty": "easy",
+                        "prerequisites": [],
+                        "outcomes": ["containment_field_stabilized"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "stabilize_containment"
                     }
                 },
                 "items": [],
@@ -227,10 +284,9 @@ ROOM_DATA = {
                             {
                                 "label": "Inspect Console",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The main control console has several deactivated panels. One panel, however, shows a fluctuating pressure reading and a warning light indicating 'Containment Field Instability'. Below it, a keypad requests a 'Calibration Code'.",
-                                    "message": "You inspect the main control console."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "pressure_puzzle",
+                                    "message": "You inspect the main control console, revealing the containment field recalibration puzzle."
                                 }
                             }
                         ]
@@ -292,7 +348,30 @@ ROOM_DATA = {
                 "name": "Derelict Spaceship Bridge",
                 "description": "The metallic silence of a derelict spaceship. Flickering emergency lights cast long shadows over dead control panels and abandoned cryogenic pods. The main viewscreen is dark, showing only your own reflection. Your pilot's console, though mostly inert, has a single, blinking red button labeled 'Emergency Power Override'.",
                 "image": "spaceship.jpg",
-                "puzzles": {}, # No initial puzzles here
+                "puzzles": {
+                    "diagnostic_panel_puzzle": {
+                        "name": "Pilot Console Diagnostic",
+                        "description": "The diagnostic panel flickers, showing 'Core Power: Offline', 'Life Support: Critical', and 'Hyperdrive: Offline'. A sequence of three colored lights needs to be activated in the correct order to bring systems online.",
+                        "solution": "REDGREENBLUE", # Placeholder solution
+                        "type": "sequence_input",
+                        "difficulty": "medium",
+                        "prerequisites": [],
+                        "outcomes": ["core_power_online", "life_support_online"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "restore_bridge_power"
+                    },
+                    "cryo_pod_datapads_puzzle": {
+                        "name": "Cryo-Pod Data-Pad",
+                        "description": "One pod has a data-pad wedged in its control panel. Its screen is cracked but emits a faint, greenish glow, displaying corrupted log entries. Decipher the passcode to access crew logs.",
+                        "solution": "08675309", # Placeholder solution
+                        "type": "code_entry",
+                        "difficulty": "medium",
+                        "prerequisites": [],
+                        "outcomes": ["crew_logs_accessed"],
+                        "reveal_on_solve": ["security_keycard"],
+                        "triggers_event": "reveal_security_keycard"
+                    }
+                },
                 "items": [],
                 "interactables": {
                     "pilot_console": {
@@ -302,10 +381,9 @@ ROOM_DATA = {
                             {
                                 "label": "Inspect Console",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The pilot's console is covered in dust, most screens dark. However, a small diagnostic panel flickers, showing 'Core Power: Offline', 'Life Support: Critical', and 'Hyperdrive: Offline'. Below these, a manual override port is visible, but requires a keycard.",
-                                    "message": "You inspect the pilot console."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "diagnostic_panel_puzzle",
+                                    "message": "You inspect the pilot console, revealing a diagnostic puzzle."
                                 }
                             },
                             {
@@ -341,10 +419,9 @@ ROOM_DATA = {
                             {
                                 "label": "Examine Pods",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The cryo-pods are all empty, their stasis fields deactivated. One pod, however, has a small data-pad wedged in its control panel. Its screen is cracked but emits a faint, greenish glow.",
-                                    "message": "You examine the cryogenic pods."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "cryo_pod_datapads_puzzle",
+                                    "message": "You examine the cryogenic pods, finding a data-pad with a puzzle."
                                 }
                             }
                         ]
@@ -382,7 +459,30 @@ ROOM_DATA = {
                 "name": "Clown's Funhouse Entrance",
                 "description": "You stand at the beginning of a long, silent assembly line. Conveyor belts stretch into the gloom, laden with half-finished dolls, headless teddy bears, and stacks of painted eyes. To your left, a control panel covered in rusted switches and unlabeled buttons sits dormant. To your right, a large, metal bin overflowing with discarded toy limbs creates a macabre mound. A single, working light bulb swings precariously overhead, casting dancing shadows.",
                 "image": "clown_funhouse.jpg",
-                "puzzles": {}, # No initial puzzles here
+                "puzzles": {
+                    "missing_gear_puzzle": {
+                        "name": "Conveyor Belt Missing Gear",
+                        "description": "The conveyor belt is stalled. You notice a crucial gear is missing from the mechanism. Find a replacement gear to get it moving.",
+                        "solution": "USE_GEAR", # Solution implies using an item
+                        "type": "object_use",
+                        "difficulty": "medium",
+                        "prerequisites": ["small_gear_found"],
+                        "outcomes": ["conveyor_belt_active"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "activate_conveyor_belt"
+                    },
+                    "control_panel_sequence_puzzle": {
+                        "name": "Control Panel Sequence",
+                        "description": "The control panel has four unlabeled buttons that need to be pressed in the correct order to activate the machinery. A faint diagram nearby hints at the pattern: 'Circle, Square, Triangle, Star'.",
+                        "solution": "CSTS", # Placeholder solution
+                        "type": "sequence_input",
+                        "difficulty": "medium",
+                        "prerequisites": [],
+                        "outcomes": ["machine_activated"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "activate_toy_machine"
+                    }
+                }, # No initial puzzles here
                 "items": [],
                 "interactables": {
                     "conveyor_belt": {
@@ -392,10 +492,9 @@ ROOM_DATA = {
                             {
                                 "label": "Inspect Conveyor",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The conveyor belt is covered in a thick layer of dust. Beneath a pile of plastic doll heads, you find a small, tarnished silver key, almost hidden. It looks like it belongs to a very old lock.",
-                                    "message": "You inspect the conveyor belt."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "missing_gear_puzzle",
+                                    "message": "You inspect the conveyor belt, noticing a missing gear."
                                 }
                             }
                         ]
@@ -407,10 +506,9 @@ ROOM_DATA = {
                             {
                                 "label": "Press Switches",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The switches are stiff and mostly rusted. One switch, however, moves freely. Flipping it causes a faint click from deep within the machinery, but nothing immediately happens. A small, unlit display screen flickers briefly.",
-                                    "message": "You press a switch on the control panel."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "control_panel_sequence_puzzle",
+                                    "message": "You try pressing the switches, realizing it's a sequence puzzle."
                                 }
                             }
                         ]
@@ -424,8 +522,8 @@ ROOM_DATA = {
                                 "effect": {
                                     "type": "narrative_update",
                                     "target": "current_room_description",
-                                    "value": "The bin is full of unsettling toy parts – arms, legs, heads with vacant stares. Deep inside, you find a small, child's drawing, crumpled. It depicts a smiling sun and a large, mechanical heart.",
-                                    "message": "You dig through the bin of toy parts."
+                                    "value": "The bin is full of unsettling toy parts – arms, legs, heads with vacant stares. Deep inside, you find a small, child's drawing, crumpled. It depicts a smiling sun and a large, mechanical heart. You also find a small, rusty gear.",
+                                    "message": "You dig through the bin of toy parts and find a small gear."
                                 }
                             }
                         ]
@@ -477,7 +575,30 @@ ROOM_DATA = {
                 "name": "The Oversized Playroom",
                 "description": "You are in a vast playroom. Giant building blocks, each the size of a small car, are scattered across the floor. A towering, one-eyed teddy bear, nearly filling the corner, watches with a stitched smile. To your right, a colossal toy chest, its lid slightly ajar, promises both secrets and dangers. Everything feels strangely out of proportion.",
                 "image": "kids_room.jpg",
-                "puzzles": {}, # No initial puzzles here
+                "puzzles": {
+                    "building_block_color_puzzle": {
+                        "name": "Giant Building Block Puzzle",
+                        "description": "The giant building blocks have faded crayon markings. One block has a drawing of a key, and nearby blocks are colored Red, Blue, Yellow. A note says 'Color of the Key'. Enter the color sequence.",
+                        "solution": "YELLOWBLUE", # Placeholder solution for now
+                        "type": "code_entry",
+                        "difficulty": "easy",
+                        "prerequisites": [],
+                        "outcomes": ["blocks_moved", "small_key_found"],
+                        "reveal_on_solve": ["small_key"],
+                        "triggers_event": "reveal_key_under_blocks"
+                    },
+                    "teddy_bear_zipper_puzzle": {
+                        "name": "Teddy Bear Zipper",
+                        "description": "The towering teddy bear has a small, zippered pouch on its belly, but the zipper is stuck. It needs a specific tool or action to open.",
+                        "solution": "USE_KNIFE", # Placeholder - implies an item
+                        "type": "object_use",
+                        "difficulty": "medium",
+                        "prerequisites": ["sharp_tool_found"], # Example prerequisite
+                        "outcomes": ["bear_pouch_open", "bear_note_found"],
+                        "reveal_on_solve": ["bear_note"],
+                        "triggers_event": "open_teddy_bear_pouch"
+                    }
+                }, # No initial puzzles here
                 "items": [],
                 "interactables": {
                     "building_blocks": {
@@ -487,10 +608,9 @@ ROOM_DATA = {
                             {
                                 "label": "Inspect Blocks",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The blocks are made of a surprisingly light, foamy material. You notice one block has faded crayon markings, a simple drawing of a key. This might be a clue for later.",
-                                    "message": "You inspect the giant building blocks."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "building_block_color_puzzle",
+                                    "message": "You inspect the giant building blocks, noticing a color puzzle."
                                 }
                             }
                         ]
@@ -502,10 +622,9 @@ ROOM_DATA = {
                             {
                                 "label": "Examine Bear",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The teddy bear is worn, its fur matted in places. Its single button eye stares vacantly. You notice a small, zippered pouch on its belly, but the zipper is stuck.",
-                                    "message": "You examine the towering teddy bear."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "teddy_bear_zipper_puzzle",
+                                    "message": "You examine the towering teddy bear, finding a stuck zipper."
                                 }
                             }
                         ]
@@ -572,7 +691,19 @@ ROOM_DATA = {
                 "name": "Candy Wonderland Path",
                 "description": "You stand on a path paved with rainbow-colored gumdrops. Towering lollipops form a kaleidoscopic forest, and the air shimmers with edible glitter. Ahead, a grand gingerbread house, adorned with candy cane pillars and gumdrop windows, beckons from atop a hill of ice cream. A faint, sweet melody drifts from its direction.",
                 "image": "candy_wonderland.jpg",
-                "puzzles": {}, # No initial puzzles here
+                "puzzles": {
+                    "lollipop_rune_puzzle": {
+                        "name": "Lollipop Rune Sequence",
+                        "description": "The lollipops have tiny, intricately carved messages on their sticks, almost like ancient runes. A few stand out, forming a sequence: 'Sun, Moon, Star, Cloud'. To activate the path, you must trace the correct rune sequence.",
+                        "solution": "SUNMOONSTARCLOUD", # Placeholder solution
+                        "type": "sequence_input",
+                        "difficulty": "medium",
+                        "prerequisites": [],
+                        "outcomes": ["path_activated"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "activate_candy_path"
+                    }
+                }, # No initial puzzles here
                 "items": [],
                 "interactables": {
                     "gumdrop_path": {
@@ -597,10 +728,9 @@ ROOM_DATA = {
                             {
                                 "label": "Inspect Lollipops",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The lollipops are massive, some taller than you, with swirled, sugary patterns. A few have tiny, intricately carved messages on their sticks, almost like ancient runes. One seems to hint at a sequence of colors.",
-                                    "message": "You inspect the towering lollipops."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "lollipop_rune_puzzle",
+                                    "message": "You inspect the towering lollipops, noticing ancient runes on their sticks."
                                 }
                             }
                         ]
@@ -663,9 +793,26 @@ ROOM_DATA = {
                 "image": "abandoned_mansion.jpg",
                 "puzzles": {
                     "mansion_riddle": {
+                        "name": "Mansion Riddle",
                         "description": "I have a heart, but cannot love. I have a mouth, but cannot speak. I have a house, but cannot live. What am I?",
-                        "solution": "bell",
-                        "solved": False
+                        "solution": "BELL", # Original solution
+                        "type": "riddle",
+                        "difficulty": "easy",
+                        "prerequisites": [],
+                        "outcomes": ["library_secret_revealed"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "reveal_library_secret"
+                    },
+                    "clock_hand_puzzle": {
+                        "name": "Grandfather Clock Hands",
+                        "description": "The clock's face is cracked, its hands frozen at a quarter past midnight. You notice three small, numbered dials beneath the clock face. You need to set the time correctly to activate something.",
+                        "solution": "300", # Placeholder for 3:00
+                        "type": "numeric_code",
+                        "difficulty": "medium",
+                        "prerequisites": [],
+                        "outcomes": ["clock_secret_revealed"],
+                        "reveal_on_solve": ["ornate_key"],
+                        "triggers_event": "reveal_key_from_clock"
                     }
                 },
                 "items": [],
@@ -677,10 +824,9 @@ ROOM_DATA = {
                             {
                                 "label": "Inspect Clock",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The clock's face is cracked, its hands frozen at a quarter past midnight. Inside, the intricate gears are rusted solid. You notice a small, tarnished silver key jammed into a keyhole on its side, but it seems stuck fast.",
-                                    "message": "You inspect the grandfather clock."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "clock_hand_puzzle",
+                                    "message": "You inspect the grandfather clock, finding a puzzle with its hands."
                                 }
                             }
                         ]
@@ -694,8 +840,16 @@ ROOM_DATA = {
                                 "effect": {
                                     "type": "narrative_update",
                                     "target": "current_room_description",
-                                    "value": "You pull back the heavy velvet curtain. Behind it, a darkened archway leads to what appears to be a library. The air there is even heavier with the scent of old paper and dust.",
+                                    "value": "You pull back the heavy velvet curtain. Behind it, a darkened archway leads to what appears to be a library. The air there is even heavier with the scent of old paper and dust. A faint inscription above the archway reads: 'Seek truth in tales, for silence holds the answer.'",
                                     "message": "You examine the velvet curtain."
+                                }
+                            },
+                            {
+                                "label": "Solve Riddle",
+                                "effect": {
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "mansion_riddle",
+                                    "message": "You try to solve the riddle hinted at by the curtain."
                                 }
                             }
                         ]
@@ -759,9 +913,26 @@ ROOM_DATA = {
                 "image": "ancient_tomb.jpg",
                 "puzzles": {
                     "hieroglyph_puzzle": {
-                        "description": "Arrange the ancient tiles to reveal the name of the forgotten pharaoh.",
-                        "solution": "RAMSES",
-                        "solved": False
+                        "name": "Hieroglyph Sequence",
+                        "description": "Arrange the ancient tiles to reveal the name of the forgotten pharaoh. The symbols suggest a sequence corresponding to 'RAMSES'.",
+                        "solution": "RAMSES", # Original solution
+                        "type": "symbol_sequence",
+                        "difficulty": "medium",
+                        "prerequisites": [],
+                        "outcomes": ["hieroglyphs_deciphered"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "reveal_tomb_door_clue"
+                    },
+                    "sarcophagus_lid_puzzle": {
+                        "name": "Sarcophagus Lid Mechanism",
+                        "description": "The sarcophagus lid is incredibly heavy. You notice a recessed panel with three rotating discs on its side, each displaying a different animal: 'Jackal, Falcon, Scarab'. You need to align them correctly to move the lid.",
+                        "solution": "JACKALFALCONSCARAB", # Placeholder solution
+                        "type": "sequence_input",
+                        "difficulty": "hard",
+                        "prerequisites": [],
+                        "outcomes": ["sarcophagus_open"],
+                        "reveal_on_solve": ["ancient_scroll"],
+                        "triggers_event": "open_sarcophagus"
                     }
                 },
                 "items": [],
@@ -773,10 +944,9 @@ ROOM_DATA = {
                             {
                                 "label": "Inspect Sarcophagus",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The sarcophagus is made of polished black granite, adorned with gold leaf that still gleams faintly. The lid is incredibly heavy, and even though it's ajar, pushing it further open would require immense strength or a leverage tool. A faint, sweet scent, like dried spices, emanates from within.",
-                                    "message": "You inspect the sarcophagus."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "sarcophagus_lid_puzzle",
+                                    "message": "You inspect the sarcophagus, revealing a lid mechanism puzzle."
                                 }
                             }
                         ]
@@ -788,10 +958,9 @@ ROOM_DATA = {
                             {
                                 "label": "Examine Hieroglyphs",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The hieroglyphs depict scenes of ancient rituals, gods, and a long lineage of pharaohs. One sequence seems to repeat, forming a complex pattern that might be a protective ward or a directional guide.",
-                                    "message": "You examine the hieroglyphs."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "hieroglyph_puzzle",
+                                    "message": "You examine the hieroglyphs, finding a puzzle within their patterns."
                                 }
                             }
                         ]
@@ -852,7 +1021,30 @@ ROOM_DATA = {
                 "name": "Abandoned Asylum Reception",
                 "description": "You are in the dilapidated reception area of the asylum. A grand, but dusty, wooden reception desk stands before a shattered window. To your left, a row of rusted filing cabinets leans precariously. To your right, a corridor stretches into darkness, lined with closed patient room doors. The main entrance, a pair of heavy iron doors behind you, is barred from the outside.",
                 "image": "asylum.jpg",
-                "puzzles": {}, # No initial puzzles here
+                "puzzles": {
+                    "patient_log_puzzle": {
+                        "name": "Patient Log Book Code",
+                        "description": "A faded patient log book lies on the desk. Most entries are illegible, but one name, 'Dr. Eldridge', is clearly visible next to an entry for 'Patient Zero' and a series of cryptic numbers that seem to be a code.",
+                        "solution": "314", # Placeholder solution
+                        "type": "numeric_code",
+                        "difficulty": "medium",
+                        "prerequisites": [],
+                        "outcomes": ["patient_zero_code_found"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "reveal_cabinet_clue"
+                    },
+                    "filing_cabinet_lock_puzzle": {
+                        "name": "Locked Filing Cabinet",
+                        "description": "A drawer on the filing cabinet is jammed shut. Through a small gap, you can see the edge of a folder marked 'Restricted'. The drawer is secured by a combination lock.",
+                        "solution": "1897", # Placeholder solution
+                        "type": "code_entry",
+                        "difficulty": "easy",
+                        "prerequisites": ["patient_zero_code_found"], # Requires code from patient log
+                        "outcomes": ["cabinet_unlocked", "restricted_folder_found"],
+                        "reveal_on_solve": ["restricted_folder"],
+                        "triggers_event": "open_filing_cabinet"
+                    }
+                }, # No initial puzzles here
                 "items": [],
                 "interactables": {
                     "reception_desk": {
@@ -862,10 +1054,9 @@ ROOM_DATA = {
                             {
                                 "label": "Inspect Desk",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The reception desk is covered in a thick layer of dust. You find a faded patient log book, its pages yellowed and brittle. Most entries are illegible, but one name, 'Dr. Eldridge', is clearly visible next to an entry for 'Patient Zero' and a date from decades ago.",
-                                    "message": "You inspect the reception desk."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "patient_log_puzzle",
+                                    "message": "You inspect the reception desk, finding a patient log with a code puzzle."
                                 }
                             }
                         ]
@@ -877,10 +1068,9 @@ ROOM_DATA = {
                             {
                                 "label": "Examine Cabinets",
                                 "effect": {
-                                    "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The filing cabinets are mostly empty, their drawers creaking open to reveal only cobwebs and rust. One drawer is jammed shut. Through a small gap, you can see the edge of a folder marked 'Restricted'.",
-                                    "message": "You examine the filing cabinets."
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "filing_cabinet_lock_puzzle",
+                                    "message": "You examine the filing cabinets, noticing a locked drawer."
                                 }
                             }
                         ]
