@@ -317,6 +317,19 @@
         }
 
         /* --- Settings & Load Game --- */
+        #settings.mockup.active,
+        #load-game.mockup.active {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh; /* Ensure it fits within the viewport height */
+            overflow: auto; /* Allow scrolling if content exceeds max-height */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        }
         .settings-screen {
             padding: 2rem;
             display: flex;

@@ -70,6 +70,8 @@
     "hint": "HINT",
     "click_for_hint": "Click for a hint",
     "no_more_hints_available": "No more hints available.",
+    "hint_on_cooldown": "Hint on cooldown",
+    "requesting_hint": "Requesting hint...",
     "could_not_retrieve_hint": "Could not retrieve a hint at this time.",
     "quit_game": "QUIT",
     "save_game": "SAVE",

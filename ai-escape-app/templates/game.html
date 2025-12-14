@@ -58,6 +58,44 @@
 
     </div>
 
+        <!-- Settings Page -->
+        <div id="settings" class="mockup">
+            <div class="mockup-header"><h2 data-i18n="settings_title">Settings</h2></div>
+            <div class="mockup-content">
+                <div class="game-screen start-screen"> <!-- Using start-screen for background -->
+                    <div class="start-content"> <!-- Using start-content for the box styling -->
+                        <div class="settings-section">
+                            <label for="music-toggle" data-i18n="music">Music</label>
+                            <button id="music-toggle" class="toggle-btn active" data-i18n="on">ON</button>
+                        </div>
+                        <div class="settings-section">
+                            <label for="sfx-toggle" data-i18n="sfx">Sound Effects</label>
+                            <button id="sfx-toggle" class="toggle-btn active" data-i18n="on">ON</button>
+                        </div>
+                        <div class="settings-section">
+                            <label for="volume-slider" data-i18n="volume">Volume</label>
+                            <input type="range" id="volume-slider" min="0" max="100" value="80">
+                        </div>
+                        <div class="settings-section">
+                            <label for="language-select" data-i18n="language">Language</label>
+                            <select id="language-select" onchange="loadTranslations(this.value)">
+                                <option value="en">English</option>
+                                <option value="no">Norsk</option>
+                                <option value="es">Español</option>
+                                <option value="fr">Français</option>
+                            </select>
+                        </div>
+                        <div class="design-actions">
+                            <button class="action-btn primary" data-i18n="close" onclick="closeSettings()">CLOSE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <audio id="background-music" loop preload="auto" src="{{ url_for('static', filename='audio/411867__ispeakwaves__mystery.mp3') }}"></audio>
+    <audio id="button-click-sound" preload="auto" src="{{ url_for('static', filename='audio/342200__christopherderp__videogame-menu-button-click.wav') }}"></audio>
+
     <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 </body>

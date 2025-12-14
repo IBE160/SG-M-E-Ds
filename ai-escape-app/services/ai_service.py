@@ -12,11 +12,20 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 load_dotenv(dotenv_path='ai-escape-app/.flaskenv') # Load environment variables from .flaskenv file
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_ENABLED = False # Initialize flag
 
 if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY not found in environment variables. Please set it in the .env file.")
+    logging.warning("GEMINI_API_KEY not found in environment variables. Gemini AI features are disabled.")
+else:
+    try:
+        genai.configure(api_key=GEMINI_API_KEY)
+        GEMINI_ENABLED = True
+        logging.info("Gemini AI features are enabled.")
+    except Exception as e:
+        logging.error(f"Failed to configure Gemini API with provided key: {e}. Gemini AI features are disabled.")
+        GEMINI_API_KEY = None # Clear key if configuration fails
+        GEMINI_ENABLED = False
 
-genai.configure(api_key=GEMINI_API_KEY)
 
 def _sanitize_input(text: str) -> str:
     """
@@ -30,15 +39,30 @@ def _sanitize_input(text: str) -> str:
     return text.replace('{', '{{').replace('}', '}}')
 
 
-# Initialize Gemini Model
-model = genai.GenerativeModel('gemini-pro')
+# Initialize Gemini Model conditionally
+model = None
+if GEMINI_ENABLED:
+    try:
+        model = genai.GenerativeModel('gemini-pro')
+    except Exception as e:
+        logging.error(f"Failed to initialize Gemini GenerativeModel: {e}. Gemini AI features are disabled.")
+        GEMINI_ENABLED = False
+        model = None
+        
+if not GEMINI_ENABLED:
+    logging.info("Gemini AI is not available. All AI functions will return deterministic/stubbed responses.")
 
 
 def generate_narrative(prompt: str, narrative_archetype: str = None, theme: str = None, location: str = None) -> str:
     """
     Returns a static narrative for the game.
-    NO AI CALLS are made in this function.
+    If GEMINI_ENABLED, it would call AI. Otherwise, deterministic.
     """
+    if GEMINI_ENABLED and model:
+        # Placeholder for actual AI call if it were to be re-enabled
+        # response = model.generate_content(...)
+        # return response.text
+        logging.info("Gemini is enabled but generate_narrative is stubbed for deterministic mode.")
     logging.info(f"Deterministic: generate_narrative called with prompt: {prompt}")
     return "You find yourself in a mysterious place. Your adventure begins!" # Static narrative
 

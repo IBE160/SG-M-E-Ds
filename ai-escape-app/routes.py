@@ -1,4 +1,5 @@
 from flask import Blueprint, current_app, jsonify, request, render_template
+from datetime import datetime, timezone, timedelta
 from services.game_logic import (
     create_game_session,
     get_game_session,
@@ -20,6 +21,8 @@ from data.help_content import HELP_CONTENT # New import
 import logging
 from data.game_settings import GAME_SETTINGS # New import
 
+HINT_COOLDOWN_SECONDS = 45 # Define hint cooldown duration (e.g., 45 seconds)
+
 bp = Blueprint("main", __name__)
 
 
@@ -29,10 +32,32 @@ def get_hint_route(session_id):
     hint, game_session = get_a_hint(current_app.session, session_id)
     if not game_session:
         logging.warning(f"get_hint_route: Game session {session_id} not found.")
+        # If get_a_hint returned an error message, it's in 'hint'
         return jsonify({"error": hint}), 404
     
+    # After a hint is successfully provided (or cooldown is active), calculate the new status
+    hints_remaining = game_session.narrative_state.get("hints_remaining", 0)
+    remaining_hint_cooldown = 0
+    last_hint_timestamp_str = game_session.narrative_state.get("last_hint_timestamp")
+    
+    hint_status_display_text = "Click for a hint" # Default status
+
+    if hints_remaining <= 0:
+        hint_status_display_text = "No more hints available."
+    elif last_hint_timestamp_str:
+        last_hint_timestamp = datetime.fromisoformat(last_hint_timestamp_str)
+        time_since_last_hint = datetime.now(timezone.utc) - last_hint_timestamp
+        if time_since_last_hint < timedelta(seconds=HINT_COOLDOWN_SECONDS):
+            remaining_hint_cooldown = int(HINT_COOLDOWN_SECONDS - time_since_last_hint.total_seconds())
+            hint_status_display_text = f"Hint on cooldown ({remaining_hint_cooldown}s)" # Dynamic message
+    
     logging.info(f"Hint provided for session {session_id}: {hint}")
-    return jsonify({"hint": hint}), 200
+    return jsonify({
+        "hint": hint,
+        "hints_remaining": hints_remaining,
+        "remaining_hint_cooldown": remaining_hint_cooldown,
+        "hint_status_display_text": hint_status_display_text
+    }), 200
 
 
 @bp.route("/game_setup_options", methods=["GET"])
@@ -126,6 +151,18 @@ def delete_player_settings_route(player_id):
         return jsonify({"error": "Player settings not found or failed to delete"}), 404
     return jsonify({"message": f"Settings for {player_id} deleted successfully"}), 200
 
+@bp.route("/api/loading_messages", methods=["GET"])
+def get_loading_messages():
+    loading_messages = [
+        "Reticulating splines...",
+        "Generating narrative paradoxes...",
+        "Hiding keys in obvious places...",
+        "Polishing virtual dust...",
+        "Teaching AI to count on its fingers...",
+        "Finalizing your impending doom..."
+    ]
+    return jsonify(loading_messages), 200
+
 @bp.route("/start_game", methods=["POST"])
 def start_game():
     data = request.get_json()
@@ -149,14 +186,14 @@ def start_game():
 
 @bp.route("/")
 def index():
-    return render_template("index.html", room_data=ROOM_DATA)
+    return render_template("index.html")
 
 @bp.route("/game/<int:session_id>")
 def game_view(session_id):
     # This route now simply renders the game.html template.
     # The game logic and state will be handled by client-side JavaScript
     # interacting with the /game_session API endpoints.
-    return render_template("game.html", session_id=session_id)
+    return render_template("game.html")
 
 
 
@@ -177,6 +214,25 @@ def get_session(session_id):
     if current_room_info and "image" in current_room_info:
         room_image = f"/static/images/{current_room_info['image']}"
 
+    # Calculate remaining hint cooldown
+    hints_remaining = game_session.narrative_state.get("hints_remaining", 0)
+    remaining_hint_cooldown = 0
+    last_hint_timestamp_str = game_session.narrative_state.get("last_hint_timestamp")
+    
+    hint_status_display_text = "Click for a hint" # Default status
+
+    if hints_remaining <= 0:
+        hint_status_display_text = "No more hints available."
+    elif last_hint_timestamp_str:
+        last_hint_timestamp = datetime.fromisoformat(last_hint_timestamp_str)
+        time_since_last_hint = datetime.now(timezone.utc) - last_hint_timestamp
+        if time_since_last_hint < timedelta(seconds=HINT_COOLDOWN_SECONDS):
+            remaining_hint_cooldown = int(HINT_COOLDOWN_SECONDS - time_since_last_hint.total_seconds())
+            hint_status_display_text = f"Hint on cooldown ({remaining_hint_cooldown}s)" # Dynamic message
+    
+    # Objective text (hardcoded English fallback if not explicitly set in narrative_state)
+    objective_display_text = game_session.narrative_state.get("objective") or "Explore and find clues."
+
     return jsonify(
         {
             "id": game_session.id,
@@ -195,6 +251,10 @@ def get_session(session_id):
             "start_time": game_session.start_time.isoformat(),
             "last_updated": game_session.last_updated.isoformat(),
             "contextual_options": contextual_options,
+            "hints_remaining": hints_remaining,
+            "remaining_hint_cooldown": remaining_hint_cooldown,
+            "hint_status_display_text": hint_status_display_text, # Add hardcoded English hint status
+            "objective_display_text": objective_display_text, # Add hardcoded English objective text
         }
     )
 

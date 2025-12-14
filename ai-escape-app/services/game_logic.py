@@ -5,7 +5,6 @@ from models import GameSession, SavedGame
 from data.rooms import ROOM_DATA, PUZZLE_SOLUTIONS
 from services.ai_service import evaluate_and_adapt_puzzle
 
-HINT_COOLDOWN_SECONDS = 45 # Define hint cooldown duration (e.g., 45 seconds)
 
 def create_game_session(
     db_session: Session,
@@ -42,8 +41,20 @@ def create_game_session(
     # Directly use the static room description
     initial_room_description = room_info.get("description", "A mysterious room you find yourself in.")
 
-    # Prepare initial narrative state with the intro story
-    initial_narrative_state = {"intro_story": theme_data.get("intro_story", "")}
+    # Initialize hints_remaining based on difficulty
+    if difficulty == "easy":
+        hints_budget = 8
+    elif difficulty == "hard":
+        hints_budget = 3
+    else: # normal or medium
+        hints_budget = 5
+
+    # Prepare initial narrative state with the intro story and hint state
+    initial_narrative_state = {
+        "intro_story": theme_data.get("intro_story", ""),
+        "hints_remaining": hints_budget, # Store hints_remaining in narrative_state
+        "last_hint_timestamp": None, # Store last_hint_timestamp in narrative_state
+    }
     # Potentially add other initial narrative state items based on game start
 
     new_session = GameSession(
@@ -671,8 +682,27 @@ def get_a_hint(db_session: Session, session_id: int) -> tuple[str, GameSession |
     if not game_session:
         return "Game session not found.", None
 
+    narrative_state = game_session.narrative_state
+    hints_remaining = narrative_state.get("hints_remaining", 0) # Default to 0 if not set
+    last_hint_timestamp_str = narrative_state.get("last_hint_timestamp")
+
+    if hints_remaining <= 0:
+        return "No more hints available for this session.", game_session
+
+    # Check session-level cooldown
+    if last_hint_timestamp_str:
+        # HINT_COOLDOWN_SECONDS is imported via routes, so game_logic needs to know it.
+        # Since it's a global constant for the game, it should be passed or re-imported.
+        # For minimal change, and because it's a constant, I will re-import it here.
+        from routes import HINT_COOLDOWN_SECONDS # Import the constant from routes
+        last_hint_timestamp = datetime.fromisoformat(last_hint_timestamp_str)
+        time_since_last_hint = datetime.now(timezone.utc) - last_hint_timestamp
+        if time_since_last_hint < timedelta(seconds=HINT_COOLDOWN_SECONDS):
+            remaining_cooldown = int(HINT_COOLDOWN_SECONDS - time_since_last_hint.total_seconds())
+            return f"You need a moment to think before asking for another hint. Try again in {remaining_cooldown} seconds.", game_session
+
     current_room_id = game_session.current_room
-    theme_id = game_session.theme # Get the theme ID from the game session
+    theme_id = game_session.theme
     
     theme_data = ROOM_DATA.get(theme_id)
     if not theme_data:
@@ -694,36 +724,29 @@ def get_a_hint(db_session: Session, session_id: int) -> tuple[str, GameSession |
 
     puzzle_definition = room_info["puzzles"][puzzle_id]
     
-    # --- Persistent Hint Usage (Task 1) ---
+    # Decrement hints_remaining and update timestamp for the session in narrative_state
+    narrative_state["hints_remaining"] = hints_remaining - 1
+    narrative_state["last_hint_timestamp"] = datetime.now(timezone.utc).isoformat()
+    game_session.narrative_state = narrative_state
+    flag_modified(game_session, "narrative_state")
+
+    # We need to track how many hints have been given for THIS specific puzzle
+    # This information still resides in puzzle_state, but hints_used_count for selection is distinct from session.hints_remaining
     current_puzzle_state = game_session.puzzle_state.get(puzzle_id, {})
-    hints_used_count = current_puzzle_state.get("hints_used", 0)
-    last_hint_timestamp_str = current_puzzle_state.get("last_hint_timestamp")
+    puzzle_hints_given_count = current_puzzle_state.get("hints_given_for_this_puzzle", 0) + 1
+    current_puzzle_state["hints_given_for_this_puzzle"] = puzzle_hints_given_count
     
-    # Check cooldown
-    if last_hint_timestamp_str:
-        last_hint_timestamp = datetime.fromisoformat(last_hint_timestamp_str)
-        time_since_last_hint = datetime.now(timezone.utc) - last_hint_timestamp
-        if time_since_last_hint < timedelta(seconds=HINT_COOLDOWN_SECONDS):
-            remaining_cooldown = int(HINT_COOLDOWN_SECONDS - time_since_last_hint.total_seconds())
-            return f"You need a moment to think before asking for another hint. Try again in {remaining_cooldown} seconds.", game_session
-
-    # If not on cooldown, increment hints_used and update timestamp
-    hints_used_count += 1
-    current_puzzle_state["hints_used"] = hints_used_count
-    current_puzzle_state["last_hint_timestamp"] = datetime.now(timezone.utc).isoformat() # Store as ISO format string
-
     game_session.puzzle_state[puzzle_id] = current_puzzle_state
-    flag_modified(game_session, "puzzle_state")
+    flag_modified(game_session, "puzzle_state") # Flag puzzle_state as modified as well
 
-    # --- Progressive Hint Levels (Task 2) & Story-Driven Hint Text (Task 3) ---
+    # --- Progressive Hint Levels & Story-Driven Hint Text ---
     hint_levels = puzzle_definition.get("hint_levels", [])
     
     if hint_levels:
-        # Select hint based on the (now incremented) hints_used_count
-        if hints_used_count -1 < len(hint_levels): # -1 because hints_used_count is 1-indexed for the 'nth' hint
-            hint_message = hint_levels[hints_used_count -1]
+        if puzzle_hints_given_count -1 < len(hint_levels): # -1 because hints_given_for_this_puzzle is 1-indexed
+            hint_message = hint_levels[puzzle_hints_given_count -1]
         else:
-            hint_message = "No more specific hints available. You've seen all the clues. Re-read the room description carefully!"
+            hint_message = "No more specific hints available. You've seen all the clues for this puzzle. Re-read the room description carefully!"
     else:
         hint_message = f"You search for a hint, but find none specific to this puzzle. Re-examine the room: '{puzzle_definition.get('description', 'A mysterious puzzle.')}'"
 
