@@ -16,7 +16,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY not found in environment variables. Please set it in the .env file.")
 
-genai.configure(api_key=GEMINI_API_KEY)
+genai.configure(api_key=GEMINI_API_KEY, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
 
 def _sanitize_input(text: str) -> str:
     """
@@ -31,7 +31,7 @@ def _sanitize_input(text: str) -> str:
 
 
 # Initialize Gemini Model
-model = genai.GenerativeModel('gemini-pro')
+model = genai.GenerativeModel('gemini-1.5-pro')
 
 
 def generate_narrative(prompt: str, narrative_archetype: str = None, theme: str = None, location: str = None) -> str:
@@ -66,6 +66,7 @@ def generate_room_description(theme: str, scenario_name_for_ai_prompt: str, narr
     exits_list = ", ".join(room_context.get('exits', []))
     puzzles_list = ", ".join(room_context.get('puzzles', []))
     items_list = ", ".join(room_context.get('items', []))
+    interactables_list = ", ".join(room_context.get('interactables', {}).keys())
 
     full_prompt = (
         f"You are the game master for an AI Escape room game. Generate a rich, immersive, and atmospheric description "
@@ -83,7 +84,8 @@ def generate_room_description(theme: str, scenario_name_for_ai_prompt: str, narr
         f"  Name: {room_context.get('name', sanitized_current_room_id)}\n"
         f"  Exits: {exits_list}\n"
         f"  Puzzles (unsolved): {puzzles_list}\n"
-        f"  Items: {items_list}\n\n"
+        f"  Items: {items_list}\n"
+        f"  Interactables: {interactables_list}\n\n"
         f"Make it engaging and mysterious. "
         f"The goal is to provide a comprehensive sense of place and purpose to the player upon entering the room."
     )
@@ -179,14 +181,16 @@ def evaluate_and_adapt_puzzle(
     location: str,
     difficulty: str,
     narrative_archetype: str = None,
+    current_inventory: list = None # Added current_inventory parameter
 ) -> dict:
     """
-    Evaluates a puzzle solution attempt using the Gemini API and adapts the puzzle.
+    Evaluates a puzzle solution attempt or item usage using the Gemini API and adapts the puzzle.
     Returns a structured dictionary with evaluation, feedback, hints, and potential puzzle state updates.
     """
     sanitized_puzzle_id = _sanitize_input(puzzle_id)
     sanitized_player_attempt = _sanitize_input(player_attempt)
     sanitized_current_puzzle_description = _sanitize_input(current_puzzle_description)
+    sanitized_inventory = ", ".join(current_inventory) if current_inventory else "None" # Sanitize inventory for prompt
 
     # Use a chat-based model for multi-turn interaction or a model configured for JSON output
     # For now, we'll try to get JSON output directly from generate_content
@@ -195,20 +199,21 @@ def evaluate_and_adapt_puzzle(
     # Construct the full prompt for the AI
     full_prompt = (
         f"You are an AI Game Master assisting in an escape room game. "
-        f"A player has made an attempt to solve a puzzle. Your task is to evaluate this attempt, "
-        f"provide feedback, and suggest how the puzzle state might change. "
+        f"A player has made an attempt to solve a puzzle or use an item. Your task is to evaluate this attempt, "
+        f"provide feedback, and suggest how the puzzle or game state might change. "
         f"Return your response as a JSON object only. Do NOT include any other text.\n\n"
         f"**JSON Schema:**\n"
         f"```json\n"
         f"{{\n"
-        f'  "is_correct": boolean, // True if the attempt solves the current step or the whole puzzle\n'
+        f'  "is_correct": boolean, // True if the attempt solves the current step or the whole puzzle/item use\n'
         f'  "feedback": string,    // A message to the player about their attempt\n'
-        f'  "hint": string,        // (Optional) A context-aware hint if the attempt is incorrect\n'
-        f'  "puzzle_status": string, // e.g., "solved", "partially_solved", "unsolved", "failed"\n'
+        f'  "hint": string,        // (Optional) A context-aware hint if the attempt is incorrect or item usage is invalid\n'
+        f'  "puzzle_status": string, // e.g., "solved", "partially_solved", "unsolved", "failed", "item_used"\n'
         f'  "next_step_description": string, // (Optional) For multi-step puzzles, what the player needs to do next (short, action-oriented phrase)\n'
         f'  "difficulty_adjustment_suggestion": string, // e.g., "make_easier", "make_harder", "none"\n'
         f'  "new_puzzle_state": object, // (Optional) Any updates to the puzzle\'s internal state (e.g., clues found, step completed)\n'
         f'  "items_found": array, // (Optional) List of strings of items discovered/obtained (e.g., ["Rusty Key", "Flashlight"])\n'
+        f'  "items_consumed": array, // (Optional) List of strings of items consumed/removed from inventory (e.g., ["Rusty Key"])\n'
         f'  "game_state_changes": object, // (Optional) Dictionary of broader game state changes (e.g., {{"door_status": {{"main_door": "unlocked"}}}}, {{"power_grid": "online"}})\n'
         f'  "puzzle_progress": object // (Optional) Dictionary of specific progress within a puzzle (e.g., {{"lever_pulled": true}} or {{"riddle_part_1_solved": true}})\n'
         f"}}\n"
@@ -217,19 +222,28 @@ def evaluate_and_adapt_puzzle(
         f"- Theme: {theme}\n"
         f"- Location: {location}\n"
         f"- Difficulty: {difficulty}\n"
-        f"- Narrative Archetype: {narrative_archetype if narrative_archetype else 'None'}\n\n"
-        f"**Puzzle Details:**\n"
-        f"- Puzzle ID: {sanitized_puzzle_id}\n"
+        f"- Narrative Archetype: {narrative_archetype if narrative_archetype else 'None'}\n"
+        f"- Player Inventory: [{sanitized_inventory}]\n\n" # Added inventory to context
+        f"**Puzzle/Target Details:**\n"
+        f"- Puzzle ID (or Target ID if item use): {sanitized_puzzle_id}\n"
         f"- Initial Description: {sanitized_current_puzzle_description}\n"
-        f"- Known Solution (for your reference): {puzzle_solution}\n"
+        f"- Known Solution (for your reference, if applicable): {puzzle_solution}\n"
         f"- Current Puzzle State (dynamic): {current_puzzle_state}\n\n"
         f"**Player's Attempt:**\n"
         f"- Attempt: {sanitized_player_attempt}\n\n"
-        f"Evaluate the attempt. If the player explicitly asked for a hint (e.g., `player_attempt` is 'I need a hint'), provide a hint. "
-        f"Make sure 'feedback' is engaging and 'hint' is helpful but doesn't give away the solution too easily for higher difficulties. "
-        f"Consider the `difficulty` when providing hints or adapting feedback. For 'hard' difficulty, be subtle. For 'easy', be more direct."
-        f"If the `player_attempt` is the exact `puzzle_solution` (case-insensitive), set `is_correct` to true and `puzzle_status` to 'solved'."
-        f"Otherwise, if the attempt is close or shows partial understanding, you can set `puzzle_status` to 'partially_solved' and provide `new_puzzle_state`. "
+        f"Evaluate the attempt. This attempt can be a puzzle solution or an action using an inventory item (e.g., 'Use Rusty Key on Locked Door').\n"
+        f"**For item usage attempts:**\n"
+        f"1. Check if the item mentioned in the `player_attempt` is present in the `Player Inventory`.\n"
+        f"2. Determine if the used item is appropriate and effective for the `Puzzle ID (or Target ID)` and its `Initial Description`.\n"
+        f"3. If the item is *not* in inventory, set `is_correct: false` and `feedback: 'You do not have that item.'`\n"
+        f"4. If the item is in inventory but *not* valid for the target, set `is_correct: false` and `feedback: 'That doesn\'t seem to work here.'`\n"
+        f"5. If the item is valid, set `is_correct: true`, provide positive `feedback`, set `puzzle_status: 'item_used'`, and indicate `items_consumed` (e.g., if a key breaks or a potion is used) or `game_state_changes` (e.g., {{\"door_status\": \"unlocked\"}}).\n"
+        f"**For puzzle solution attempts (non-item use):**\n"
+        f"1. If the player explicitly asked for a hint (e.g., `player_attempt` is 'I need a hint'), provide a hint. "
+        f"2. Make sure 'feedback' is engaging and 'hint' is helpful but doesn't give away the solution too easily for higher difficulties. "
+        f"3. Consider the `difficulty` when providing hints or adapting feedback. For 'hard' difficulty, be subtle. For 'easy', be more direct."
+        f"4. If the `player_attempt` is the exact `puzzle_solution` (case-insensitive), set `is_correct` to true and `puzzle_status` to 'solved'."
+        f"5. Otherwise, if the attempt is close or shows partial understanding, you can set `puzzle_status` to 'partially_solved' and provide `new_puzzle_state`. "
         f"If the action leads to finding an item, include `items_found`. If it changes a broader game state (like unlocking a door or turning on power), include `game_state_changes`. "
         f"If it's a specific step in a multi-part puzzle, use `puzzle_progress`. "
         f"Ensure the generated JSON is valid and adheres strictly to the schema. The `next_step_description` should be a short, actionable phrase like 'Inspect the safe' or 'Enter code'."

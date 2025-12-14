@@ -349,8 +349,20 @@ def get_contextual_options(game_session: GameSession) -> list[str]:
     # Default option
     options.append("Look around the room")
 
+    # Retrieve the room's dynamic items from narrative_state, or use static if not present
+    current_room_dynamic_items = game_session.narrative_state.get(f"room_{current_room_id}_items", room_info.get("items", []))
+
+    # Determine available exits, considering dynamic unlocks
+    available_exits = room_info["exits"].copy()
+    # Check narrative state for unlocked doors/exits
+    for exit_direction, exit_room_id in room_info["exits"].items():
+        # Example: if a puzzle outcome sets narrative_state["door_north_unlocked"] = True
+        if game_session.narrative_state.get(f"door_{exit_direction}_unlocked"):
+            available_exits[exit_direction] = exit_room_id
+        # Add other dynamic exit logic here if needed (e.g., checking specific narrative state flags)
+
     # Exits
-    for direction, next_room_id in room_info["exits"].items():
+    for direction, next_room_id in available_exits.items():
         # Ensure next_room_id is within the current theme before adding as an option
         if next_room_id in theme_data["rooms"]:
             next_room_name = theme_data["rooms"].get(next_room_id, {}).get("name", next_room_id)
@@ -404,8 +416,8 @@ def get_contextual_options(game_session: GameSession) -> list[str]:
                 else:
                     options.append(f"Solve {puzzle_definition.get('name', 'Unknown Puzzle')}")
     
-    # Add options for picking up items (still relevant)
-    for item_id in room_info.get("items", []):
+    # Add options for picking up items (still relevant) - use dynamic items list
+    for item_id in current_room_dynamic_items: # CHANGED to use dynamic items
         if item_id not in game_session.inventory:
             options.append(f"Pick up {item_id.replace('_', ' ').title()}")
 
@@ -413,16 +425,15 @@ def get_contextual_options(game_session: GameSession) -> list[str]:
     for item_in_inventory in game_session.inventory:
         # Offer to use item on any interactable
         for target_id, target_data in room_info.get("interactables", {}).items():
-            # Only offer if the interactable itself has an action that supports item use
-            # For now, generic "Use item on object"
             options.append(f"Use {item_in_inventory.replace('_', ' ').title()} on {target_data['name']}")
         
         # Offer to use item on any unsolved puzzle that might require it
         for puzzle_id, puzzle_definition in room_info.get("puzzles", {}).items():
             current_puzzle_session_state = game_session.puzzle_state.get(puzzle_id, {})
             if not current_puzzle_session_state.get("solved", False):
+                # Only offer "Use item on puzzle" if the puzzle explicitly requires this item
                 if item_in_inventory in puzzle_definition.get("items_required", []):
-                    options.append(f"Use {item_in_inventory.replace('_', ' ').title()} on {puzzle_definition['name']}")
+                    options.append(f"Use {item_in_inventory.replace('_', ' ').title()} on {puzzle_definition.get('name', puzzle_id.replace('_', ' ').title())}")
 
     # Add a generic "Go back" option, assuming this maps to moving to a previous room.
     if game_session.game_history: # Only allow going back if there's history
@@ -600,12 +611,18 @@ def use_item(
         return False, ai_evaluation_response["error"], game_session, ai_evaluation_response
 
     is_successful = ai_evaluation_response.get("is_correct", False) # Renamed to is_successful for item use
-    feedback_message = ai_evaluation_response.get("feedback", "No feedback provided by AI.")
+    feedback_message = ai_evaluation_response.get("feedback", "That didn't seem to work.") # Default feedback
     items_found = ai_evaluation_response.get("items_found", [])
     items_consumed = ai_evaluation_response.get("items_consumed", []) # New: items removed from inventory
     game_state_changes = ai_evaluation_response.get("game_state_changes", {})
     puzzle_progress = ai_evaluation_response.get("puzzle_progress", {})
     
+    # Check for specific invalid usage feedback from AI
+    if not is_successful and "You do not have that item" in feedback_message:
+        return False, feedback_message, game_session, ai_evaluation_response
+    if not is_successful and "That doesn't seem to work here" in feedback_message:
+        return False, feedback_message, game_session, ai_evaluation_response
+
     # --- Apply Game State Changes ---
     # Update inventory (add new items, remove consumed items)
     for item_to_add in items_found:
@@ -820,17 +837,38 @@ def player_action(
     # --- Handle "Pick up" action ---
     if action_phrase.startswith("Pick up "):
         item_to_pick_up = action_phrase.replace("Pick up ", "").strip().lower().replace(' ', '_')
-        current_room_info = ROOM_DATA.get(game_session.theme, {}).get("rooms", {}).get(game_session.current_room, {})
         
-        if item_to_pick_up in current_room_info.get("items", []):
-            updated_session = update_player_inventory(db_session, session_id, item_to_pick_up, "add")
-            if updated_session:
-                # Remove the item from the room's items list in ROOM_DATA temporarily for this session's context
-                # This will require modifying the ROOM_DATA structure if we want persistence beyond current session state
-                # For now, we'll rely on the AI not suggesting to pick up an item already picked up
-                return True, f"You picked up the {item_to_pick_up.replace('_', ' ')}.", updated_session, {"action_type": "pick_up", "item_picked_up": item_to_pick_up}
+        # Check current room's static item list from ROOM_DATA
+        room_static_info = ROOM_DATA.get(game_session.theme, {}).get("rooms", {}).get(game_session.current_room, {})
+        
+        # Check if item exists in the room's initial definition OR if it was dynamically placed there
+        # For simplicity, we'll check static list and ensure it hasn't been removed from narrative state yet
+        
+        # Retrieve the room's dynamic items from narrative_state, or use static if not present
+        current_room_dynamic_items = game_session.narrative_state.get(f"room_{current_room_id}_items", room_static_info.get("items", []))
+        
+        if item_to_pick_up in current_room_dynamic_items:
+            # Add item to player's inventory
+            updated_session_with_inventory = update_player_inventory(db_session, session_id, item_to_pick_up, "add")
+            
+            if updated_session_with_inventory:
+                # Remove item from the room's dynamic items list in narrative_state
+                updated_dynamic_items = [item for item in current_room_dynamic_items if item != item_to_pick_up]
+                
+                # Update narrative_state
+                current_narrative_state = updated_session_with_inventory.narrative_state.copy()
+                current_narrative_state[f"room_{current_room_id}_items"] = updated_dynamic_items
+                
+                final_updated_session = update_game_session(
+                    db_session, session_id, narrative_state=current_narrative_state
+                )
+
+                if final_updated_session:
+                    return True, f"You picked up the {item_to_pick_up.replace('_', ' ')}.", final_updated_session, {"action_type": "pick_up", "item_picked_up": item_to_pick_up}
+                else:
+                    return False, "Failed to update room state after picking up item.", game_session, {"error": "Failed to update narrative_state."}
             else:
-                return False, "Failed to pick up item.", game_session, {"error": "Failed to update inventory."}
+                return False, "Failed to add item to inventory.", game_session, {"error": "Failed to update inventory."}
         else:
             return False, f"There is no {item_to_pick_up.replace('_', ' ')} to pick up here.", game_session, {"error": "Item not found in room."}
 
