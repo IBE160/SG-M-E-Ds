@@ -747,6 +747,8 @@ def interact(session_id):
             result["is_successful"] = is_successful
             result["message"] = message
             result["ai_evaluation"] = ai_evaluation # Pass AI evaluation to frontend for detailed feedback
+            if ai_evaluation.get("game_over"):
+                result["game_over"] = True
             if updated_session:
                 result["current_room"] = updated_session.current_room
                 result["current_room_name"] = theme_data["rooms"].get(updated_session.current_room).get("name") # Added current_room_name
