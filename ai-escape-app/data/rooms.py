@@ -24,16 +24,15 @@ ROOM_DATA = {
                 "puzzles": {
                     "ancient_symbol_door_puzzle": {
                         "name": "Ancient Symbol Door Puzzle",
-                        "description": "The heavy door is sealed by an intricate glowing symbol, an eye weeping three tears, etched into its surface. To open it, you must decipher the correct sequence of symbols.",
-                        "solution": ["EXAMINE_GLOWING_SYMBOL", "EYETEARS"],
-                        "expected_answer": "eyetears", # Direct answer for the puzzle
+                        "description": "The heavy door is sealed by an intricate glowing symbol, an eye weeping three tears, etched into its surface. To open it, you must enter the correct word.",
+                        "solution": "EYETEARS", # Direct answer for the puzzle - now a single string
+                        "expected_answer": "eyetears", # Direct answer for the puzzle - now a single string
                         "hint_levels": [
-                            "As you run your fingers along the cold stone door, the intricate glowing symbol feels strangely significant. What could it represent?",
-                            "You notice the symbol is an 'eye' from which three 'tears' seem to weep. These are clearly the most prominent features.",
-                            "The etched figures form a clear picture: an 'Eye' and three 'Tears'. Could combining these words be the key?",
-                            "The solution seems to be a single word. Combine 'Eye' and 'Tears' into one word: 'EYETEARS'."
+                            "Focus on the main components of the symbol. What literal images do you see?",
+                            "You see an 'EYE' and 'THREE TEARS'. Can you form a single word from these observations?",
+                            "Try combining the words you've identified into one. Think about what the 'eye' is doing with the 'tears'."
                         ],
-                        "type": "symbol_sequence",
+                        "type": "word_entry",
                         "difficulty": "medium",
                         "prerequisites": [],
                         "outcomes": ["forgotten_library_entrance_door_unlocked"],
@@ -41,7 +40,7 @@ ROOM_DATA = {
                         "triggers_event": "unlock_door_exit"
                     }
                 },
-                "items": ["old_key"],
+                "items": [],
                 "interactables": {
                     "heavy_door": {
                         "name": "Heavy Door",
@@ -52,7 +51,16 @@ ROOM_DATA = {
                                 "effect": {
                                     "type": "trigger_puzzle",
                                     "puzzle_id": "ancient_symbol_door_puzzle",
-                                    "message": "You inspect the heavy door, revealing an ancient symbol puzzle."
+                                    "message": "You inspect the heavy door. It's sealed by a large, glowing EYE symbol with THREE tear-like markings beneath it. It appears to be a word-based lock."
+                                }
+                            },
+                            {
+                                "label": "Inspect the Door",
+                                "effect": {
+                                    "type": "narrative_update",
+                                    "target": "current_room_description",
+                                    "value": "The heavy, iron-banded door seems ancient. The glowing symbol is central, an eye with three tears. The craftsmanship suggests it responds to an input, perhaps a word. The hum is definitely stronger near the bottom.",
+                                    "message": "You run your hands over the door, feeling the cold stone."
                                 }
                             }
                         ]
@@ -83,6 +91,19 @@ ROOM_DATA = {
                                     "target": "current_room_description",
                                     "value": "The bench is heavy and seems fixed to the floor. Underneath it, you find a small, petrified sliver of wood, barely visible in the gloom. It looks like it might have been part of something larger.",
                                     "message": "You check the stone bench."
+                                }
+                            }
+                        ]
+                    },
+                    "general_room_observation": {
+                        "name": "General Room Observation",
+                        "description": "General observations of the room.",
+                        "actions": [
+                            {
+                                "label": "Look around the room",
+                                "effect": {
+                                    "type": "narrative_update",
+                                    "message": "You take a moment to absorb your surroundings. The circular chamber emphasizes the central, glowing door. The 'eye' symbol with its 'tears' seems to be the only way forward. It feels like a story waiting to be told, or a word waiting to be spoken."
                                 }
                             }
                         ]

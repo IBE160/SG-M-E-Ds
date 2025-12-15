@@ -153,7 +153,6 @@ def evaluate_and_adapt_puzzle(
     items_found = []
     items_consumed = []
     game_state_changes = {}
-    puzzle_progress = {}
     
     # Retrieve full puzzle definition (ROOM_DATA is the source of truth for static defs)
     from data.rooms import ROOM_DATA # Import here to access ROOM_DATA in a clean way
@@ -209,115 +208,59 @@ def evaluate_and_adapt_puzzle(
                 "puzzle_status": puzzle_status,
                 "next_step_description": "",
                 "difficulty_adjustment_suggestion": "none",
-                "new_puzzle_state": {"current_step_index": puzzle_progress.get("current_step_index", 0)},
+                "new_puzzle_state": {"current_step_index": 0}, # Reset or ensure 0 for single step
                 "items_found": items_found,
                 "items_consumed": items_consumed,
-                "game_state_changes": game_state_changes,
-                "puzzle_progress": puzzle_progress
+                "game_state_changes": game_state_changes
             }
 
-    # --- Multi-step puzzle logic ---
+    # --- Unified single-step puzzle logic ---
     if isinstance(puzzle_solution, list):
-        current_step_index = current_puzzle_state.get("current_step_index", 0)
-        
-        if current_step_index >= len(puzzle_solution):
-            # This state should ideally not be reached if "solved" check works, but for safety
-            return {"is_correct": True, "feedback": f"You have already solved the '{puzzle_definition['name']}' puzzle.", "puzzle_status": "solved"}
-        
-        expected_semantic_action = puzzle_solution[current_step_index]
+        puzzle_solution = "".join(puzzle_solution).lower() # Flatten list solutions for direct comparison
+    else:
+        puzzle_solution = str(puzzle_solution).lower() # Ensure solution is a lowercase string for comparison
+    
+    # Handle item usage (e.g., "USE_ITEM_ON_TARGET")
+    if normalized_player_action.startswith("use_"):
+        parts = normalized_player_action.split("_on_", 1)
+        item_id_attempt = parts[0].replace("use_", "").strip()
+        target_name_attempt = parts[1].strip() if len(parts) == 2 else ""
 
-        # Check for item usage within multi-step solution
-        if expected_semantic_action.startswith("USE_") and normalized_player_action.startswith("USE_"):
-            if normalized_player_action == expected_semantic_action:
-                # Extract item_id and target_name_attempt from the expected semantic action
-                # E.g., "USE_OLD_KEY_ON_DESK" -> item_id="old_key", target_name_attempt="desk"
-                parts = expected_semantic_action.replace("USE_", "").split("_ON_", 1)
-                item_id_from_solution = parts[0].lower()
-                
-                # --- Inventory Validation for item usage step ---
-                if item_id_from_solution not in current_inventory:
-                    return {"is_correct": False, "feedback": "You don't have that item.", "puzzle_status": "unsolved"}
+        # Check if the player has the item in inventory
+        if item_id_attempt not in [item.lower().replace(' ', '_') for item in current_inventory]:
+            return {"is_correct": False, "feedback": "You don't have that item.", "puzzle_status": "unsolved"}
 
-                is_correct = True
-                feedback = f"You successfully used the {item_id_from_solution.replace('_', ' ')} as part of the solution!"
-                items_consumed.append(item_id_from_solution)
-            else:
-                is_correct = False
-                feedback = "That item usage is not correct for this step."
-
-        # Check if the normalized player action matches the expected semantic action
-        elif normalized_player_action == expected_semantic_action:
+        # Compare the normalized action against the puzzle solution
+        if normalized_player_action == puzzle_solution:
             is_correct = True
-            feedback = f"Correct action: {normalized_player_action.replace('_', ' ').lower()}!"
+            feedback = f"You successfully used the {item_id_attempt.replace('_', ' ')}!"
+            puzzle_status = "solved"
+            items_consumed.append(item_id_attempt) # Consume the item used
+            # Apply outcomes
+            for outcome in puzzle_definition.get("outcomes", []):
+                game_state_changes[outcome] = True
+            for item_to_reveal in puzzle_definition.get("reveal_on_solve", []):
+                items_found.append(item_to_reveal)
         else:
             is_correct = False
-            feedback = "That's not the correct action for this step. Try something else."
-
-        if is_correct:
-            current_step_index += 1
-            puzzle_progress["current_step_index"] = current_step_index
-            if current_step_index >= len(puzzle_solution):
-                puzzle_status = "solved"
-                feedback = f"You correctly solved the '{puzzle_definition['name']}' puzzle!"
-                # Apply outcomes for multi-step puzzles when fully solved
-                for outcome in puzzle_definition.get("outcomes", []):
-                    game_state_changes[outcome] = True
-                for item_to_reveal in puzzle_definition.get("reveal_on_solve", []):
-                    items_found.append(item_to_reveal)
-            else:
-                puzzle_status = "in_progress"
-                feedback += f" ({current_step_index}/{len(puzzle_solution)} steps completed)"
-                # Provide a hint for the next step, if available in puzzle_definition
-                if puzzle_definition.get("hints") and current_step_index < len(puzzle_definition["hints"]):
-                    feedback += f"\nHint for next step: {puzzle_definition['hints'][current_step_index]}"
-
-        # Update current_puzzle_state with new step index
-        puzzle_progress["current_step_index"] = current_step_index
-
-    # --- Single-step puzzle logic (legacy/direct answer) ---
-    else: # puzzle_solution is a string
-        # Check for item usage (this was already handled above, but re-confirm for single-step solution string)
-        if player_attempt.lower().startswith("use "):
-            parts = player_attempt.lower().split(" on ", 1)
-            if len(parts) == 2:
-                item_id = parts[0].replace("use ", "").strip().replace(' ', '_')
-                target_name_attempt = parts[1].strip().replace(' ', '_')
-                
-                # --- Inventory Validation ---
-                if item_id not in current_inventory:
-                    return {"is_correct": False, "feedback": "You don't have that item.", "puzzle_status": "unsolved"}
-                
-                # If puzzle_solution is an item_id, then this is a direct item usage puzzle
-                if item_id.upper() == str(puzzle_solution).upper().replace('USE_', '').replace('_ON_', '_').lower(): # Compare against 'USE_ITEM_ON_TARGET' format
-                    is_correct = True
-                    feedback = f"You successfully used the {item_id.replace('_', ' ')}!"
-                    puzzle_status = "solved"
-                    items_consumed.append(item_id)
-                    # Apply outcomes
-                    for outcome in puzzle_definition.get("outcomes", []):
-                        game_state_changes[outcome] = True
-                    for item_to_reveal in puzzle_definition.get("reveal_on_solve", []):
-                        items_found.append(item_to_reveal)
-                else:
-                    is_correct = False
-                    feedback = "That item doesn't work here."
-            else:
-                feedback = "Invalid 'Use' command format. Try 'Use [item] on [target]'."
-                is_correct = False
-        else: # Direct text input solution
-            if normalized_player_action == str(puzzle_solution).upper(): # Compare normalized action to solution string
-                is_correct = True
-                feedback = f"You correctly solved the '{puzzle_definition['name']}' puzzle!"
-                puzzle_status = "solved"
-                # Apply outcomes
-                for outcome in puzzle_definition.get("outcomes", []):
-                    game_state_changes[outcome] = True
-                for item_to_reveal in puzzle_definition.get("reveal_on_solve", []):
-                    items_found.append(item_to_reveal)
-            else:
-                is_correct = False
-                feedback = "That's not quite right. Try again."
-                puzzle_status = "unsolved"
+            feedback = "That item doesn't work here."
+            puzzle_status = "unsolved"
+    
+    # Handle direct text input solution
+    else:
+        if normalized_player_action == puzzle_solution:
+            is_correct = True
+            feedback = f"You correctly solved the '{puzzle_definition['name']}' puzzle!"
+            puzzle_status = "solved"
+            # Apply outcomes
+            for outcome in puzzle_definition.get("outcomes", []):
+                game_state_changes[outcome] = True
+            for item_to_reveal in puzzle_definition.get("reveal_on_solve", []):
+                items_found.append(item_to_reveal)
+        else:
+            is_correct = False
+            feedback = "That's not quite right. Try again."
+            puzzle_status = "unsolved"
 
     return {
         "is_correct": is_correct,
@@ -326,12 +269,11 @@ def evaluate_and_adapt_puzzle(
         "puzzle_status": puzzle_status,
         "next_step_description": "",
         "difficulty_adjustment_suggestion": "none",
-        "new_puzzle_state": {"current_step_index": puzzle_progress.get("current_step_index", 0)},
+        "new_puzzle_state": {}, # No partial progress states
         "items_found": items_found,
-        "items_consumed": items_consumed,
-        "game_state_changes": game_state_changes,
-        "puzzle_progress": puzzle_progress
+        "game_state_changes": game_state_changes
     }
+
 
 
 def adjust_difficulty_based_on_performance(

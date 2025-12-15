@@ -748,6 +748,8 @@ def interact(session_id):
             result["ai_evaluation"] = ai_evaluation # Pass AI evaluation to frontend for detailed feedback
             if updated_session:
                 result["current_room"] = updated_session.current_room
+                result["current_room_name"] = theme_data["rooms"].get(updated_session.current_room).get("name") # Added current_room_name
+                result["current_room_description"] = updated_session.current_room_description # Added current_room_description
                 result["contextual_options"] = get_contextual_options(updated_session)
                 result["inventory"] = updated_session.inventory
                 result["narrative_state"] = updated_session.narrative_state

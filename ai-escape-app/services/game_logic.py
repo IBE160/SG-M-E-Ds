@@ -91,24 +91,23 @@ def update_game_session(
     if game_session:
         for key, value in kwargs.items():
             if hasattr(game_session, key):
-                # Handle JSON fields that need explicit modification flagging
                 if key == "inventory":
-                    game_session.inventory = list(value) # Ensure a new list object is assigned
+                    game_session.inventory = list(value)
                     flag_modified(game_session, "inventory")
                 elif key == "game_history":
-                    game_session.game_history = list(value) # Ensure a new list object is assigned
+                    game_session.game_history = list(value)
                     flag_modified(game_session, "game_history")
                 elif key == "puzzle_state":
-                    game_session.puzzle_state = value # Assume value is already a modified dict
+                    game_session.puzzle_state = value
                     flag_modified(game_session, "puzzle_state")
                 elif key == "narrative_state":
                     game_session.narrative_state = value
                     flag_modified(game_session, "narrative_state")
                 else:
                     setattr(game_session, key, value)
+
         game_session.last_updated = datetime.now(timezone.utc)
-        db_session.commit()
-        db_session.refresh(game_session)
+
     return game_session
 
 
@@ -243,13 +242,19 @@ def solve_puzzle(
     feedback_message = ai_evaluation_response.get("feedback", "No feedback provided by AI.")
     hint_message = ai_evaluation_response.get("hint")
     puzzle_status = ai_evaluation_response.get("puzzle_status", "unsolved")
+
+    # --- END NEW LOGIC ---
     
     new_puzzle_state_from_ai = ai_evaluation_response.get("new_puzzle_state")
     items_found = ai_evaluation_response.get("items_found", [])
     items_consumed = ai_evaluation_response.get("items_consumed", [])
-    game_state_changes = ai_evaluation_response.get("game_state_changes", {})
-    puzzle_progress = ai_evaluation_response.get("puzzle_progress", {})
     
+    # Preserve original game_session for reference if it changes during transition
+    original_game_session = game_session 
+
+    # Initialize game_state_changes (Fix for NameError)
+    game_state_changes = {} 
+
     # --- Update puzzle_state with AI evaluation details ---
     new_puzzle_session_state = current_puzzle_session_state.copy() 
     
@@ -270,11 +275,14 @@ def solve_puzzle(
     
     if new_puzzle_state_from_ai:
         new_puzzle_session_state.update(new_puzzle_state_from_ai)
-    if puzzle_progress:
-        new_puzzle_session_state.update(puzzle_progress)
 
     game_session.puzzle_state[puzzle_id] = new_puzzle_session_state
     flag_modified(game_session, "puzzle_state") # Explicitly flag the JSON field as modified
+
+    # Final commit after all changes in solve_puzzle are applied
+    db_session.add(game_session) # Add the potentially new game_session object to session
+    db_session.commit()
+    # No explicit refresh here, as game_session should already be the latest state from update_game_session
 
     # --- Apply Game State Changes based on puzzle outcomes ---
     if is_correct:
@@ -294,8 +302,49 @@ def solve_puzzle(
             # This requires more advanced dynamic room data manipulation or flag checking in get_contextual_options
             pass # Will handle this more explicitly in get_contextual_options or a separate event handler
 
+       # --- Automatic room transition for "ancient_symbol_door_puzzle" ---
+# --- Automatic room transition for "ancient_symbol_door_puzzle" ---
+    if puzzle_id == "ancient_symbol_door_puzzle":
+        next_room_id = room_info.get("next_room_id")
+    if next_room_id:
+        next_room_info = theme_data["rooms"].get(next_room_id)
+        if next_room_info:
+            new_room_description = next_room_info.get(
+                "description", "A mysterious room."
+            )
 
-    # Apply any dynamic items/state changes suggested by AI regardless of solve status
+            updated_session_after_move = update_game_session(
+                db_session,
+                session_id,
+                current_room=next_room_id,
+                current_room_description=new_room_description,
+                game_history=list(original_game_session.game_history)
+                + [original_game_session.current_room],
+            )
+
+            if updated_session_after_move:
+                # Apply room change to the tracked game_session object
+                game_session.current_room = updated_session_after_move.current_room
+                flag_modified(game_session, "current_room")
+
+                game_session.current_room_description = (
+                    updated_session_after_move.current_room_description
+                )
+
+                game_session.game_history = updated_session_after_move.game_history
+                flag_modified(game_session, "game_history")
+
+                # ✅ Persist room transition
+                db_session.add(game_session)
+                db_session.commit()
+
+            else:
+                feedback_message += (
+                    "\nFailed to transition to the next room automatically."
+                )
+
+
+    # The remaining state changes (items_found, items_consumed, game_state_changes) happen after the conditional is_correct block
     if items_found:
         for item in items_found:
             update_player_inventory(db_session, session_id, item, "add")
@@ -311,11 +360,6 @@ def solve_puzzle(
         current_narrative_state.update(game_state_changes)
         game_session.narrative_state = current_narrative_state
         flag_modified(game_session, "narrative_state")
-
-    # Ensure SQLAlchemy detects JSON column modification
-    db_session.add(game_session)
-    db_session.commit()
-    db_session.refresh(game_session)
 
     # --- After successful puzzle solve, check for room completion ---
     if is_correct:
@@ -451,7 +495,9 @@ def get_contextual_options(game_session: GameSession) -> list[str]:
     if game_session.game_history and not (main_puzzle_id and game_session.puzzle_state.get(main_puzzle_id, {}).get("solved", False)): # Only allow go back if not ready to advance
         options.append("Go back")
 
-    return options
+    # Ensure uniqueness of options before returning
+    unique_options = sorted(list(set(options)))
+    return unique_options
 
 def verify_puzzle_solvability(puzzles: list[dict]) -> tuple[bool, str]:
     """
@@ -627,7 +673,7 @@ def use_item(
     items_found = ai_evaluation_response.get("items_found", [])
     items_consumed = ai_evaluation_response.get("items_consumed", []) # New: items removed from inventory
     game_state_changes = ai_evaluation_response.get("game_state_changes", {})
-    puzzle_progress = ai_evaluation_response.get("puzzle_progress", {})
+    
     
     # Check for specific invalid usage feedback from AI
     if not is_successful and "You do not have that item" in feedback_message:
@@ -662,8 +708,7 @@ def use_item(
         
         if ai_evaluation_response.get("new_puzzle_state"):
             current_puzzle_details.update(ai_evaluation_response["new_puzzle_state"])
-        if puzzle_progress:
-            current_puzzle_details.update(puzzle_progress)
+      
 
         new_puzzle_state_for_session[target_puzzle_id] = current_puzzle_details
         game_session.puzzle_state = new_puzzle_state_for_session
@@ -832,11 +877,12 @@ def player_action(
                     effect_value = effect.get("value")
                     effect_message = effect.get("message", "You interact with the environment.")
 
-                    if effect_type == "narrative_update" and effect_target == "current_room_description":
+                    if effect_type == "narrative_update":
+                        new_description = effect.get("value", effect_message) # Prioritize value, fallback to message
                         updated_session = update_game_session(
-                            db_session, session_id, current_room_description=effect_value
+                            db_session, session_id, current_room_description=new_description
                         )
-                        return True, effect_message, updated_session, {"action_type": "narrative_update", "target": effect_target, "value": effect_value}
+                        return True, effect_message, updated_session, {"action_type": "narrative_update", "target": "current_room_description", "value": new_description}
                     
                     elif effect_type == "new_room": # This effect should now be deprecated for linear path
                         return False, "Room transitions are now handled by 'Go to' actions after puzzle completion.", game_session, {"error": "Deprecated room transition method."}
@@ -851,6 +897,8 @@ def player_action(
                         is_successful, message, updated_session, ai_evaluation = solve_puzzle(
                             db_session, session_id, puzzle_id, player_attempt # player_attempt might contain input if it's a direct solve action
                         )
+
+                        
                         return is_successful, message, updated_session, ai_evaluation
                     
                     else:
