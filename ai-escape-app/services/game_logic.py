@@ -303,46 +303,45 @@ def solve_puzzle(
             pass # Will handle this more explicitly in get_contextual_options or a separate event handler
 
        # --- Automatic room transition for "ancient_symbol_door_puzzle" ---
-# --- Automatic room transition for "ancient_symbol_door_puzzle" ---
+       # --- Automatic room transition for "ancient_symbol_door_puzzle" ---
     if puzzle_id == "ancient_symbol_door_puzzle":
         next_room_id = room_info.get("next_room_id")
-    if next_room_id:
-        next_room_info = theme_data["rooms"].get(next_room_id)
-        if next_room_info:
-            new_room_description = next_room_info.get(
-                "description", "A mysterious room."
-            )
-
-            updated_session_after_move = update_game_session(
-                db_session,
-                session_id,
-                current_room=next_room_id,
-                current_room_description=new_room_description,
-                game_history=list(original_game_session.game_history)
-                + [original_game_session.current_room],
-            )
-
-            if updated_session_after_move:
-                # Apply room change to the tracked game_session object
-                game_session.current_room = updated_session_after_move.current_room
-                flag_modified(game_session, "current_room")
-
-                game_session.current_room_description = (
-                    updated_session_after_move.current_room_description
+        if next_room_id:
+            next_room_info = theme_data["rooms"].get(next_room_id)
+            if next_room_info:
+                new_room_description = next_room_info.get(
+                    "description", "A mysterious room."
                 )
 
-                game_session.game_history = updated_session_after_move.game_history
-                flag_modified(game_session, "game_history")
-
-                # ✅ Persist room transition
-                db_session.add(game_session)
-                db_session.commit()
-
-            else:
-                feedback_message += (
-                    "\nFailed to transition to the next room automatically."
+                updated_session_after_move = update_game_session(
+                    db_session,
+                    session_id,
+                    current_room=next_room_id,
+                    current_room_description=new_room_description,
+                    game_history=list(original_game_session.game_history)
+                    + [original_game_session.current_room],
                 )
 
+                if updated_session_after_move:
+                    # Apply room change to the tracked game_session object
+                    game_session.current_room = updated_session_after_move.current_room
+                    flag_modified(game_session, "current_room")
+
+                    game_session.current_room_description = (
+                        updated_session_after_move.current_room_description
+                    )
+
+                    game_session.game_history = updated_session_after_move.game_history
+                    flag_modified(game_session, "game_history")
+
+                    # ✅ Persist room transition
+                    db_session.add(game_session)
+                    db_session.commit()
+
+                else:
+                    feedback_message += (
+                        "\nFailed to transition to the next room automatically."
+                    )
 
     # The remaining state changes (items_found, items_consumed, game_state_changes) happen after the conditional is_correct block
     if items_found:

@@ -228,7 +228,7 @@ def get_session(session_id):
         time_since_last_hint = datetime.now(timezone.utc) - last_hint_timestamp
         if time_since_last_hint < timedelta(seconds=HINT_COOLDOWN_SECONDS):
             remaining_hint_cooldown = int(HINT_COOLDOWN_SECONDS - time_since_last_hint.total_seconds())
-            hint_status_display_text = f"Hint on cooldown ({remaining_hint_cooldown}s)" # Dynamic message
+            hint_status_display_text = f"Hint on cooldown ({remaining_cooldown}s)" # Dynamic message
     
     # Objective text (hardcoded English fallback if not explicitly set in narrative_state)
     objective_display_text = game_session.narrative_state.get("objective") or "Explore and find clues."
@@ -306,10 +306,10 @@ def move_player(session_id):
     
     new_description = generate_room_description(
         theme=game_session.theme,
-        location=game_session.location, # Keep this as game_session.location, which stores the current theme's starting room ID
+        scenario_name_for_ai_prompt=new_room_info["name"], # Pass the human-readable name of the new room
         narrative_state=game_session.narrative_state,
         room_context=room_context,
-        current_room_id=new_room_id, # Pass the ID of the new room
+        current_room_id=new_room_id,
     )
 
     if new_description.startswith("Error:"):
@@ -386,7 +386,7 @@ def solve_puzzle_route(session_id):
         logging.warning(f"solve_puzzle_route: Missing puzzle_id or solution_attempt for session {session_id}")
         return jsonify({"error": "Puzzle ID and solution attempt are required"}), 400
 
-    is_solved, message, updated_session, ai_evaluation = solve_puzzle(
+    is_solved, message, updated_session = solve_puzzle(
         current_app.session, session_id, puzzle_id, solution_attempt # Pass solution_attempt directly
     )
 
@@ -394,12 +394,12 @@ def solve_puzzle_route(session_id):
         logging.error(f"solve_puzzle_route: Game session {session_id} not found.")
         return jsonify({"error": message}), 404
     
-    if "error" in ai_evaluation:
-        logging.error(f"AI service failed to evaluate puzzle for session {session_id}. Error: {ai_evaluation['error']}")
+    # if "error" in ai_evaluation: # This line assumes ai_evaluation is returned from solve_puzzle
+    #     logging.error(f"AI service failed to evaluate puzzle for session {session_id}. Error: {ai_evaluation['error']}")
     
     logging.info(f"Puzzle solution attempt for session {session_id} processed. Solved: {is_solved}")
     # The AI evaluation will now contain the actual "is_correct" and "feedback"
-    return jsonify({"is_solved": is_solved, "message": message, "session_id": updated_session.id, "ai_evaluation": ai_evaluation}), 200
+    return jsonify({"is_solved": is_solved, "message": message, "session_id": updated_session.id}), 200
 
 @bp.route("/generate_narrative", methods=["POST"])
 def generate_narrative_route():
@@ -662,7 +662,7 @@ def interact(session_id):
         if not room_info:
             return jsonify({"error": "Current room not found in theme data"}), 500
 
-        new_room_id = room_info["exits"].get(direction)
+        new_room_id = room_info["exits"].get(direction.lower())
 
         if not new_room_id:
             result["error"] = f"Cannot move {direction} from {room_info['name']}."
@@ -704,8 +704,9 @@ def interact(session_id):
                 session_id,
                 current_room=new_room_id,
                 current_room_description=new_description,
-                game_history=game_history,
+                game_history=game_history, # Pass updated game history
             )
+
             if not updated_session:
                 result["error"] = "Game session not found after update"
                 status_code = 500

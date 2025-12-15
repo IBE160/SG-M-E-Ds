@@ -113,55 +113,121 @@ ROOM_DATA = {
                 "next_room_id": "forgotten_library_study"
             },
             "forgotten_library_study": {
-                "name": "Forgotten Library Study",
-                "description": "A small, secluded study within the library, filled with towering shelves of rare manuscripts. In the center sits a single, ornate desk, its main drawer secured by an intricate lock. The quiet hum from the entrance room is barely audible here, replaced by the faint scent of old parchment and dust.",
-                "image": "forgotten_library.jpg", # Reusing image
+                "name": "The Silent Study",
+                "description": (
+                    "You step into a small, dust-choked study. Unlike the previous chamber, "
+                    "this room is unnervingly still. No hum. No echo. Even your own breath "
+                    "feels intrusive. Towering shelves of ancient books absorb all sound, "
+                    "and at the center stands an ornate desk, untouched by time."
+                ),
+                "main_puzzle": "silent_word_puzzle",
+
                 "puzzles": {
-                    "desk_puzzle": {
-                        "name": "Locked Desk Drawer",
-                        "description": "The desk has an intricate lock. A note nearby reads: 'The number of forgotten tales.' You need a numeric code to open it.",
-                        "solution": ["INSPECT_DESK", "7"], # Original solution
-                        "type": "code_entry",
+                    "silent_word_puzzle": {
+                        "name": "The Silent Word",
+                        "description": (
+                            "The desk’s lock is not mechanical, but conceptual. "
+                            "It requires a single word — not spoken aloud, but understood. "
+                            "The room itself seems to listen."
+                        ),
+                        "solution": "SILENCE",
+                        "expected_answer": "silence",
+                        "type": "word_entry",
                         "difficulty": "easy",
-                        "prerequisites": [],
-                        "outcomes": ["desk_drawer_open", "old_journal_found"],
-                        "reveal_on_solve": ["old_journal"],
-                        "triggers_event": "reveal_desk_content"
+                        "hint_levels": [
+                            "Pay attention to how this room feels different from the last.",
+                            "Several texts mention the absence of sound as important.",
+                            "The answer is not something you hear — it is what remains when all sound is gone."
+                        ],
+                        "outcomes": ["desk_unlocked"],
+                        "reveal_on_solve": [],
+                        "triggers_event": "unlock_exit"
                     }
                 },
-                "items": [],
+
                 "interactables": {
-                    "desk_puzzle": { # Changed name to desk_lock for clarity
-                        "name": "Intricate Desk Lock",
-                        "description": "A grand wooden desk with an intricate lock.",
-                        "actions": [
-                            {
-                                "label": "Inspect Desk",
-                                "effect": {
-                                    "type": "trigger_puzzle",
-                                    "puzzle_id": "desk_puzzle",
-                                    "message": "You inspect the intricate lock on the desk."
-                                }
-                            }
-                        ]
-                    },
-                    "manuscript": {
+                    "ancient_manuscript": {
                         "name": "Ancient Manuscript",
-                        "description": "A fragile, leather-bound manuscript resting on a pedestal. It seems very old.",
+                        "description": "A fragile manuscript lies open on a lectern.",
                         "actions": [
                             {
                                 "label": "Inspect Manuscript",
                                 "effect": {
                                     "type": "narrative_update",
-                                    "target": "current_room_description",
-                                    "value": "The manuscript is written in an archaic script, filled with astrological charts and cryptic prophecies. One page highlights a constellation resembling the 'Eye' symbol from the entrance door, surrounded by three distinct stars. This might be a clue for the door puzzle.",
-                                    "message": "You carefully read the ancient manuscript."
+                                    "message": (
+                                        "The manuscript speaks of scholars who believed "
+                                        "truth could only be found when the world grew quiet.\n\n"
+                                        "One passage is underlined:\n"
+                                        "'Noise clouds meaning. Only in stillness does understanding remain.'"
+                                    )
+                                }
+                            }
+                        ]
+                    },
+
+                    "wall_inscription": {
+                        "name": "Faded Wall Inscription",
+                        "description": "A barely visible inscription etched into the stone.",
+                        "actions": [
+                            {
+                                "label": "Examine Wall Inscription",
+                                "effect": {
+                                    "type": "narrative_update",
+                                    "message": (
+                                        "You only notice the inscription when you stop moving.\n\n"
+                                        "It reads:\n"
+                                        "'Speak the key, yet make no sound.'"
+                                    )
+                                }
+                            }
+                        ]
+                    },
+
+                    "desk_lock": {
+                        "name": "Desk Lock",
+                        "description": "An ornate lock embedded into the desk’s surface.",
+                        "actions": [
+                            {
+                                "label": "Inspect Desk Lock",
+                                "effect": {
+                                    "type": "narrative_update",
+                                    "message": (
+                                        "The lock reacts to your presence, but not your touch.\n"
+                                        "It seems to respond only when the room is completely still.\n\n"
+                                        "Forcing an answer feels pointless."
+                                    )
+                                }
+                            },
+                            {
+                                "label": "Attempt to Solve the Lock",
+                                "effect": {
+                                    "type": "trigger_puzzle",
+                                    "puzzle_id": "silent_word_puzzle",
+                                    "message": "You focus on the lock and consider the meaning of this silent place."
+                                }
+                            }
+                        ]
+                    },
+
+                    "general_room_observation": {
+                        "name": "Room Observation",
+                        "description": "Take in the room.",
+                        "actions": [
+                            {
+                                "label": "Look around the room",
+                                "effect": {
+                                    "type": "narrative_update",
+                                    "message": (
+                                        "The longer you stand still, the clearer everything becomes.\n"
+                                        "This room does not reward action — it rewards restraint."
+                                    )
                                 }
                             }
                         ]
                     }
                 },
-                "exits": {"south": "forgotten_library_entrance"},
+
+                "exits": {},
                 "next_room_id": "forgotten_library_escape_chamber"
             },
             "forgotten_library_escape_chamber": {
