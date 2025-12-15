@@ -620,118 +620,7 @@ def interact(session_id):
     if not theme_data:
         return jsonify({"error": "Game theme data not found for session"}), 500
 
-    # Process the chosen option
-    if chosen_option == "Look around the room":
-        current_room_info = theme_data["rooms"].get(game_session.current_room)
-        if not current_room_info:
-            return jsonify({"error": "Current room not found in theme data"}), 500
-        result["message"] = current_room_info["description"]
-    elif chosen_option == "Go back":
-        game_history = list(game_session.game_history)
-        if len(game_history) > 0:
-            previous_room_id = game_history.pop()
-
-            # Ensure previous_room_id is still within the current theme's rooms
-            if previous_room_id not in theme_data["rooms"]:
-                result["error"] = "Cannot go back to a room outside the current game's theme."
-                status_code = 400
-            else:
-                updated_session = update_game_session(
-                    current_app.session, session_id, current_room=previous_room_id, game_history=game_history
-                )
-                if not updated_session:
-                    result["error"] = "Game session not found after update"
-                    status_code = 500
-                else:
-                    # Explicitly re-fetch the session to get the latest puzzle_state
-                    updated_session = get_game_session(current_app.session, session_id)
-                    if not updated_session: # Should not happen, but for safety
-                        return jsonify({"error": "Game session not found after re-fetch"}), 500
-                    result["current_room"] = updated_session.current_room
-                    result["contextual_options"] = get_contextual_options(updated_session)
-        else:
-            result["message"] = "You are in the first room and cannot go back."
-            status_code = 400
-    elif chosen_option.startswith("Go "):
-        parts = chosen_option.split(" ")
-        direction = parts[1].lower()
-        
-        current_room_id = game_session.current_room
-        room_info = theme_data["rooms"].get(current_room_id)
-
-        if not room_info:
-            return jsonify({"error": "Current room not found in theme data"}), 500
-
-        new_room_id = room_info["exits"].get(direction.lower())
-
-        if not new_room_id:
-            result["error"] = f"Cannot move {direction} from {room_info['name']}."
-            status_code = 400
-        else:
-            # Ensure the new_room_id is within the same theme
-            if new_room_id not in theme_data["rooms"]:
-                return jsonify({"error": "Cannot move to a room outside the current game's theme."}), 400
-
-            game_history = list(game_session.game_history)
-            game_history.append(current_room_id)
-
-            # Generate new room description
-            new_room_info = theme_data["rooms"].get(new_room_id)
-            if not new_room_info:
-                return jsonify({"error": "New room not found in theme data"}), 500
-                
-            room_context = {
-                "name": new_room_info.get("name"),
-                "exits": list(new_room_info.get("exits", {}).keys()),
-                "puzzles": list(new_room_info.get("puzzles", {}).keys()),
-                "items": new_room_info.get("items", []),
-                "interactables": new_room_info.get("interactables", {}),
-            }
-            
-            new_description = generate_room_description(
-                theme=game_session.theme,
-                scenario_name_for_ai_prompt=new_room_info["name"], # Pass the human-readable name of the new room
-                narrative_state=game_session.narrative_state,
-                room_context=room_context,
-                current_room_id=new_room_id,
-            )
-
-            if new_description.startswith("Error:"):
-                new_description = new_room_info.get("description", "A mysterious room.")
-
-            updated_session = update_game_session(
-                current_app.session,
-                session_id,
-                current_room=new_room_id,
-                current_room_description=new_description,
-                game_history=game_history, # Pass updated game history
-            )
-
-            if not updated_session:
-                result["error"] = "Game session not found after update"
-                status_code = 500
-            else:
-                updated_session = get_game_session(current_app.session, session_id)
-                if not updated_session:
-                    return jsonify({"error": "Game session not found after re-fetch"}), 500
-
-                result["current_room"] = updated_session.current_room
-                result["contextual_options"] = get_contextual_options(updated_session)
-                
-                theme_escape_chamber_id = f"{theme_id}_escape_chamber"
-                if updated_session.current_room == theme_escape_chamber_id:
-                    all_puzzle_ids_for_escape = []
-                    for r_id, r_info in theme_data["rooms"].items():
-                        if r_id != theme_escape_chamber_id:
-                            all_puzzle_ids_for_escape.extend(r_info["puzzles"].keys())
-                    
-                    all_previous_puzzles_solved = all(
-                        updated_session.puzzle_state.get(p_id, {}).get("solved", False) for p_id in all_puzzle_ids_for_escape
-                    )
-
-                    if all_previous_puzzles_solved:
-                        return jsonify({"id": updated_session.id, "current_room": updated_session.current_room, "message": "You escaped!", "game_over": True})
-    else: # This block handles all other interaction types (pick up, inspect, use, solve puzzle implicitly)
+        # This block handles all interaction types
         is_successful, message, updated_session, ai_evaluation = player_action(
             current_app.session, session_id, chosen_option, player_attempt
         )
@@ -751,11 +640,10 @@ def interact(session_id):
                 result["game_over"] = True
             if updated_session:
                 result["current_room"] = updated_session.current_room
-                result["current_room_name"] = theme_data["rooms"].get(updated_session.current_room).get("name") # Added current_room_name
-                result["current_room_description"] = updated_session.current_room_description # Added current_room_description
+                result["current_room_name"] = theme_data["rooms"].get(updated_session.current_room).get("name")
+                result["current_room_description"] = updated_session.current_room_description
                 result["contextual_options"] = get_contextual_options(updated_session)
                 result["inventory"] = updated_session.inventory
                 result["narrative_state"] = updated_session.narrative_state
                 result["puzzle_state"] = updated_session.puzzle_state # Ensure puzzle state is updated
-
     return jsonify(result), status_code
