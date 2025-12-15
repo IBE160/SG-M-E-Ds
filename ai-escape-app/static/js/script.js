@@ -802,6 +802,13 @@ function applyTranslations() {
         document.addEventListener('DOMContentLoaded', async () => {
                         console.log('DOMContentLoaded fired.');
             
+                        const playAgainBtn = document.getElementById('play-again-btn');
+                        if (playAgainBtn) {
+                            playAgainBtn.addEventListener('click', () => {
+                                window.location.href = '/';
+                            });
+                        }
+
                         // Language Select Initialization
                         const languageSelect = document.getElementById('language-select');
                         if (languageSelect) { // Null-safe check
@@ -883,8 +890,7 @@ function applyTranslations() {
                                             }
                                             const data = await response.json();
                                             if (data.game_over) {
-                                                alert(data.message); // Show game over message
-                                                window.location.href = '/'; // Go back to start page
+                                                showPage('win'); // Show game over message
                                             } else {
                                                 fetchAndRenderGameImmersive(); // Re-render immersive screen with new state
                                             }
@@ -961,6 +967,7 @@ function applyTranslations() {
                         if (gameModeAiBtn) { // Null-safe check
                             gameModeAiBtn.addEventListener('click', () => {
                                 console.log('AI-DRIVEN button clicked');
+
                                 showPage('ai-prompt');
                             });
                         }

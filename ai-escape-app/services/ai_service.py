@@ -96,21 +96,21 @@ def _normalize_player_attempt(player_attempt: str) -> str:
 
     # Mappings for ancient_symbol_door_puzzle
     if any(phrase in normalized_attempt for phrase in ["examine symbol", "inspect symbol", "touch eye", "look at eye"]):
-        return "EXAMINE_GLOWING_SYMBOL"
+        return "examine_glowing_symbol"
     if any(phrase == normalized_attempt for phrase in ["eyetears"]) or \
        any(phrase in normalized_attempt for phrase in ["input eyetears", "type eyetears", "enter eyetears", "solve door", "solve symbol"]):
-        return "EYETEARS"
+        return "eyetears"
     
     # Mappings for desk_puzzle
     if any(phrase in normalized_attempt for phrase in ["inspect desk", "examine desk", "look at desk"]):
-        return "INSPECT_DESK"
+        return "inspect_desk"
     if any(phrase == normalized_attempt for phrase in ["7"]) or \
        any(phrase in normalized_attempt for phrase in ["input 7", "type 7", "enter 7", "open desk"]):
         return "7"
 
     # Mappings for final_escape_puzzle
     if any(phrase in normalized_attempt for phrase in ["escape library", "exit library", "escape"]):
-        return "ESCAPE_THE_LIBRARY"
+        return "escape_the_library"
     
     # Handle item usage normalization for the 'Use [item] on [target]' actions
     if normalized_attempt.startswith("use "):
@@ -118,10 +118,10 @@ def _normalize_player_attempt(player_attempt: str) -> str:
         if len(parts) == 2:
             item_id = parts[0].replace("use ", "").strip().replace(' ', '_')
             target_name = parts[1].strip().replace(' ', '_')
-            return f"USE_{item_id.upper()}_ON_{target_name.upper()}"
+            return f"use_{item_id}_on_{target_name}"
         else: # Generic use item without target
             item_id = normalized_attempt.replace("use ", "").strip().replace(' ', '_')
-            return f"USE_{item_id.upper()}"
+            return f"use_{item_id}"
 
     return normalized_attempt # Fallback to raw attempt if no specific mapping
 
@@ -187,32 +187,6 @@ def evaluate_and_adapt_puzzle(
     # Normalize player attempt to a canonical semantic action
     normalized_player_action = _normalize_player_attempt(player_attempt)
     logging.info(f"Normalized player action: '{normalized_player_action}' for puzzle {puzzle_id}")
-
-    # --- Check for direct expected_answer (Issue B) ---
-    expected_answer = puzzle_definition.get("expected_answer")
-    if expected_answer:
-        if normalized_player_action == expected_answer.lower():
-            is_correct = True
-            feedback = f"You correctly solved the '{puzzle_definition['name']}' puzzle with a direct answer!"
-            puzzle_status = "solved"
-            # Apply outcomes
-            for outcome in puzzle_definition.get("outcomes", []):
-                game_state_changes[outcome] = True
-            for item_to_reveal in puzzle_definition.get("reveal_on_solve", []):
-                items_found.append(item_to_reveal)
-            
-            return {
-                "is_correct": is_correct,
-                "feedback": feedback,
-                "hint": "",
-                "puzzle_status": puzzle_status,
-                "next_step_description": "",
-                "difficulty_adjustment_suggestion": "none",
-                "new_puzzle_state": {"current_step_index": 0}, # Reset or ensure 0 for single step
-                "items_found": items_found,
-                "items_consumed": items_consumed,
-                "game_state_changes": game_state_changes
-            }
 
     # --- Unified single-step puzzle logic ---
     if isinstance(puzzle_solution, list):

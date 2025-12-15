@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified # New import
@@ -302,46 +303,45 @@ def solve_puzzle(
             # This requires more advanced dynamic room data manipulation or flag checking in get_contextual_options
             pass # Will handle this more explicitly in get_contextual_options or a separate event handler
 
-       # --- Automatic room transition for "ancient_symbol_door_puzzle" ---
-       # --- Automatic room transition for "ancient_symbol_door_puzzle" ---
-    if puzzle_id == "ancient_symbol_door_puzzle":
-        next_room_id = room_info.get("next_room_id")
-        if next_room_id:
-            next_room_info = theme_data["rooms"].get(next_room_id)
-            if next_room_info:
-                new_room_description = next_room_info.get(
-                    "description", "A mysterious room."
-                )
-
-                updated_session_after_move = update_game_session(
-                    db_session,
-                    session_id,
-                    current_room=next_room_id,
-                    current_room_description=new_room_description,
-                    game_history=list(original_game_session.game_history)
-                    + [original_game_session.current_room],
-                )
-
-                if updated_session_after_move:
-                    # Apply room change to the tracked game_session object
-                    game_session.current_room = updated_session_after_move.current_room
-                    flag_modified(game_session, "current_room")
-
-                    game_session.current_room_description = (
-                        updated_session_after_move.current_room_description
+        # --- Automatic room transition for puzzles that lead to the next room ---
+        if puzzle_id == "ancient_symbol_door_puzzle" or puzzle_id == "silent_word_puzzle":
+            next_room_id = room_info.get("next_room_id")
+            if next_room_id:
+                next_room_info = theme_data["rooms"].get(next_room_id)
+                if next_room_info:
+                    new_room_description = next_room_info.get(
+                        "description", "A mysterious room."
                     )
 
-                    game_session.game_history = updated_session_after_move.game_history
-                    flag_modified(game_session, "game_history")
-
-                    # ✅ Persist room transition
-                    db_session.add(game_session)
-                    db_session.commit()
-
-                else:
-                    feedback_message += (
-                        "\nFailed to transition to the next room automatically."
+                    updated_session_after_move = update_game_session(
+                        db_session,
+                        session_id,
+                        current_room=next_room_id,
+                        current_room_description=new_room_description,
+                        game_history=list(original_game_session.game_history)
+                        + [original_game_session.current_room],
                     )
+
+                    if updated_session_after_move:
+                        # Apply room change to the tracked game_session object
+                        game_session.current_room = updated_session_after_move.current_room
+                        flag_modified(game_session, "current_room")
+
+                        game_session.current_room_description = (
+                            updated_session_after_move.current_room_description
+                        )
+
+                        game_session.game_history = updated_session_after_move.game_history
+                        flag_modified(game_session, "game_history")
+
+                        # ✅ Persist room transition
+                        db_session.add(game_session)
+                        db_session.commit()
+
+                    else:
+                        feedback_message += (
+                            "\nFailed to transition to the next room automatically."
+                        )
 
     # The remaining state changes (items_found, items_consumed, game_state_changes) happen after the conditional is_correct block
     if items_found:
@@ -1022,7 +1022,7 @@ def player_action(
             # Use action_phrase as the player_attempt for solve_puzzle
             # The evaluate_and_adapt_puzzle will then interpret this.
             is_successful, message, updated_session, ai_evaluation = solve_puzzle(
-                db_session, session_id, puzzle_id_to_solve, action_phrase 
+                db_session, session_id, puzzle_id_to_solve, player_attempt
             )
             return is_successful, message, updated_session, ai_evaluation
         else:
