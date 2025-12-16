@@ -394,107 +394,38 @@ def solve_puzzle(
 def get_contextual_options(game_session: GameSession) -> list[str]:
     """
     Dynamically generates a list of possible interactions based on the current room and game state.
-    Refactored for linear escape room progression.
     """
     options = []
     current_room_id = game_session.current_room
-    theme_id = game_session.theme # Get the theme ID from the game session
+    theme_id = game_session.theme
     
     theme_data = ROOM_DATA.get(theme_id)
     if not theme_data:
         return ["Error: Game theme data not found."]
 
     room_info = theme_data["rooms"].get(current_room_id)
-
     if not room_info:
         return ["Error: Room data not found in current theme."]
 
-    # Always allow inspecting the current room for flavor
-    options.append("Look around the room")
-
-    # --- Add options for interacting with interactables and triggering puzzles ---
-    # These are general actions in the room, some of which might trigger puzzles
+    # Add actions from interactables
     for interactable_id, interactable_data in room_info.get("interactables", {}).items():
         for action in interactable_data.get("actions", []):
-            effect = action.get("effect", {})
-            effect_type = effect.get("type")
-            puzzle_id = effect.get("puzzle_id")
+            options.append(action["label"])
 
-            if effect_type == "trigger_puzzle":
-                # Only show trigger_puzzle action if the puzzle is not yet solved
-                if puzzle_id and not game_session.puzzle_state.get(puzzle_id, {}).get("solved", False):
-                    options.append(action["label"])
-            else:
-                # Always show narrative_update, new_room effects (if they don't lead to movement)
-                # For linear progression, "new_room" effects should be handled by the explicit "Go to Next Room"
-                if effect_type != "new_room":
-                    options.append(action["label"])
-
-    # --- Add options for solving puzzles if they are "active" (triggered) and not solved ---
-    # This also handles direct puzzle solution attempts
+    # Add puzzle solving option
     for puzzle_id, puzzle_definition in room_info.get("puzzles", {}).items():
-        current_puzzle_session_state = game_session.puzzle_state.get(puzzle_id, {})
-        
-        if not current_puzzle_session_state.get("solved", False): # If puzzle is not solved
-            # Check prerequisites and item requirements for attempting to solve a puzzle
-            prerequisites_met = True
-            for prereq in puzzle_definition.get("prerequisites", []):
-                if prereq.startswith("item_"):
-                    if prereq.replace("item_", "") not in game_session.inventory:
-                        prerequisites_met = False
-                        break
-                elif prereq not in game_session.narrative_state:
-                    prerequisites_met = False
-                    break
-            
-            items_required_met = True
-            for required_item in puzzle_definition.get("items_required", []):
-                if required_item not in game_session.inventory:
-                    items_required_met = False
-                    break
+        if not game_session.puzzle_state.get(puzzle_id, {}).get("solved", False):
+            options.append(f"Solve {puzzle_definition.get('name', 'Unknown Puzzle')}")
 
-            if prerequisites_met and items_required_met:
-                if current_puzzle_session_state.get("next_step_description"):
-                    options.append(current_puzzle_session_state["next_step_description"])
-                else:
-                    options.append(f"Solve {puzzle_definition.get('name', 'Unknown Puzzle')}")
-    
-    # --- Add options for picking up items ---
-    # Use dynamic items list (from narrative_state)
-    current_room_dynamic_items = game_session.narrative_state.get(f"room_{current_room_id}_items", room_info.get("items", []))
-    for item_id in current_room_dynamic_items:
-        if item_id not in game_session.inventory: # Only show if not already in inventory
-            options.append(f"Pick up {item_id.replace('_', ' ').title()}")
-
-    # --- Add options for using inventory items ---
-    for item_in_inventory in game_session.inventory:
-        # Offer to use item on any interactable in the room
-        for target_id, target_data in room_info.get("interactables", {}).items():
-            options.append(f"Use {item_in_inventory.replace('_', ' ').title()} on {target_data['name']}")
-        
-        # Offer to use item on any unsolved puzzle that explicitly requires it
-        for puzzle_id, puzzle_definition in room_info.get("puzzles", {}).items():
-            current_puzzle_session_state = game_session.puzzle_state.get(puzzle_id, {})
-            if not current_puzzle_session_state.get("solved", False):
-                if item_in_inventory in puzzle_definition.get("items_required", []):
-                    options.append(f"Use {item_in_inventory.replace('_', ' ').title()} on {puzzle_definition.get('name', puzzle_id.replace('_', ' ').title())}")
-
-    # --- Conditional "Go to Next Room" option for linear progression ---
-    # Assuming each room has one primary puzzle that unlocks progression
-    main_puzzle_id = next(iter(room_info["puzzles"]), None) # Get the first puzzle ID if any
+    # Add room transition option if main puzzle is solved
+    main_puzzle_id = next(iter(room_info.get("puzzles", {})), None)
     if main_puzzle_id and game_session.puzzle_state.get(main_puzzle_id, {}).get("solved", False):
-        next_room_in_sequence = room_info.get("next_room_id") # We will add this to ROOM_DATA
+        next_room_in_sequence = room_info.get("next_room_id")
         if next_room_in_sequence:
             next_room_info = theme_data["rooms"].get(next_room_in_sequence)
             if next_room_info:
                 options.append(f"Go to {next_room_info['name']}")
     
-    # Add a generic "Go back" option, assuming this maps to moving to a previous room.
-    # This should probably only be allowed if next_room is not unlocked, or specific to game design
-    if game_session.game_history and not (main_puzzle_id and game_session.puzzle_state.get(main_puzzle_id, {}).get("solved", False)): # Only allow go back if not ready to advance
-        options.append("Go back")
-
-    # Ensure uniqueness of options before returning
     unique_options = sorted(list(set(options)))
     return unique_options
 
@@ -804,8 +735,7 @@ def player_action(
     db_session: Session, session_id: int, action_phrase: str, player_attempt: str = ""
 ) -> tuple[bool, str, GameSession | None, dict]:
     """
-    Processes a player's action phrase, interpreting it and triggering the appropriate game logic.
-    Returns (is_successful, message, updated_game_session, ai_evaluation).
+    Processes a player's action phrase by finding the corresponding action in the current room's interactables.
     """
     game_session = get_game_session(db_session, session_id)
     if not game_session:
@@ -822,11 +752,37 @@ def player_action(
     if not room_info:
         return False, "Room data not found.", game_session, {"error": "Room data not found."}
 
-    # --- Handle "Go to [Room Name]" action for linear progression ---
+    # Find the action in the interactables
+    for interactable_id, interactable_data in room_info.get("interactables", {}).items():
+        for action in interactable_data.get("actions", []):
+            if action["label"].lower() == action_phrase.lower():
+                effect = action.get("effect")
+                if effect:
+                    effect_type = effect.get("type")
+                    effect_message = effect.get("message", "You interact with the environment.")
+
+                    if effect_type == "narrative_update":
+                        return True, effect_message, game_session, {"action_type": "narrative_update"}
+                    
+                    elif effect_type == "trigger_puzzle":
+                        puzzle_id = effect.get("puzzle_id")
+                        if not puzzle_id:
+                            return False, "Missing puzzle_id for trigger_puzzle effect.", game_session, {"error": "Missing puzzle_id."}
+
+                        is_successful, message, updated_session, ai_evaluation = solve_puzzle(
+                            db_session, session_id, puzzle_id, player_attempt
+                        )
+                        return is_successful, message, updated_session, ai_evaluation
+                    
+                    else:
+                        return False, f"Unhandled structured effect type: {effect_type}", game_session, {"error": "Unhandled effect type."}
+                else:
+                    return False, "Structured action found without defined effect.", game_session, {"error": "Missing effect."}
+
+    # Handle "Go to [Room Name]" action for linear progression
     if action_phrase.startswith("Go to "):
         target_room_name = action_phrase.replace("Go to ", "").strip()
         
-        # Find the target room_id from the name
         target_room_id = None
         for r_id, r_info in theme_data["rooms"].items():
             if r_info.get("name", "").lower() == target_room_name.lower():
@@ -836,12 +792,10 @@ def player_action(
         if not target_room_id:
             return False, f"Could not find a room named '{target_room_name}'.", game_session, {"error": "Invalid room target."}
 
-        # Verify current room completion before allowing movement
         current_room_main_puzzle_id = next(iter(room_info["puzzles"]), None)
         if current_room_main_puzzle_id and not game_session.puzzle_state.get(current_room_main_puzzle_id, {}).get("solved", False):
             return False, "You must solve the current room's main puzzle before moving on.", game_session, {"error": "Current room not completed."}
 
-        # Perform room transition
         game_history = list(game_session.game_history)
         game_history.append(current_room_id)
 
@@ -849,7 +803,6 @@ def player_action(
         if not new_room_info:
             return False, "New room not found in theme data.", game_session, {"error": "New room not found."}
         
-        # Generate new room description using static data
         new_description = new_room_info.get("description", "A mysterious room you find yourself in.")
 
         updated_session = update_game_session(
@@ -860,173 +813,20 @@ def player_action(
             game_history=game_history,
         )
         if updated_session:
+            db_session.commit()
             logging.info(f"Moved to room: {target_room_id} for session {session_id}")
             return True, f"You move to the {new_room_info['name']}.", updated_session, {"action_type": "move_room", "target_room": target_room_id}
         else:
             return False, "Failed to update game session for new room.", game_session, {"error": "Failed to update session."}
 
-    # --- Handle Structured Interactable Actions (narrative choices) ---
-    for interactable_id, interactable_data in room_info.get("interactables", {}).items():
-        for action in interactable_data.get("actions", []):
-            if action["label"].lower() == action_phrase.lower():
-                effect = action.get("effect")
-                if effect:
-                    effect_type = effect.get("type")
-                    effect_target = effect.get("target")
-                    effect_value = effect.get("value")
-                    effect_message = effect.get("message", "You interact with the environment.")
-
-                    if effect_type == "narrative_update":
-                        new_description = effect.get("value", effect_message) # Prioritize value, fallback to message
-                        updated_session = update_game_session(
-                            db_session, session_id, current_room_description=new_description
-                        )
-                        return True, effect_message, updated_session, {"action_type": "narrative_update", "target": "current_room_description", "value": new_description}
-                    
-                    elif effect_type == "new_room": # This effect should now be deprecated for linear path
-                        return False, "Room transitions are now handled by 'Go to' actions after puzzle completion.", game_session, {"error": "Deprecated room transition method."}
-                    
-                    elif effect_type == "trigger_puzzle":
-                        puzzle_id = effect.get("puzzle_id")
-                        if not puzzle_id:
-                            return False, "Missing puzzle_id for trigger_puzzle effect.", game_session, {"error": "Missing puzzle_id."}
-
-                        # Call solve_puzzle. An empty attempt means it's just being triggered/inspected.
-                        # The solve_puzzle function will return the puzzle's description as message.
-                        is_successful, message, updated_session, ai_evaluation = solve_puzzle(
-                            db_session, session_id, puzzle_id, player_attempt # player_attempt might contain input if it's a direct solve action
-                        )
-
-                        
-                        return is_successful, message, updated_session, ai_evaluation
-                    
-                    else:
-                        # For unhandled structured effects, log and return
-                        return False, f"Unhandled structured effect type: {effect_type}", game_session, {"error": "Unhandled effect type."}
-                else:
-                    return False, "Structured action found without defined effect.", game_session, {"error": "Missing effect."}
-    # --- End Structured Interactable Actions ---
-
-    # --- Handle "Pick up" action ---
-    if action_phrase.startswith("Pick up "):
-        item_to_pick_up = action_phrase.replace("Pick up ", "").strip().lower().replace(' ', '_')
-        
-        # Check current room's static item list from ROOM_DATA
-        room_static_info = ROOM_DATA.get(game_session.theme, {}).get("rooms", {}).get(game_session.current_room, {})
-        
-        # Check if item exists in the room's initial definition OR if it was dynamically placed there
-        # For simplicity, we'll check static list and ensure it hasn't been removed from narrative state yet
-        
-        # Retrieve the room's dynamic items from narrative_state, or use static if not present
-        current_room_dynamic_items = game_session.narrative_state.get(f"room_{current_room_id}_items", room_static_info.get("items", []))
-        
-        if item_to_pick_up in current_room_dynamic_items:
-            # Add item to player's inventory
-            updated_session_with_inventory = update_player_inventory(db_session, session_id, item_to_pick_up, "add")
-            
-            if updated_session_with_inventory:
-                # Remove item from the room's dynamic items list in narrative_state
-                updated_dynamic_items = [item for item in current_room_dynamic_items if item != item_to_pick_up]
-                
-                # Update narrative_state
-                current_narrative_state = updated_session_with_inventory.narrative_state.copy()
-                current_narrative_state[f"room_{current_room_id}_items"] = updated_dynamic_items
-                
-                final_updated_session = update_game_session(
-                    db_session, session_id, narrative_state=current_narrative_state
+    # Handle puzzle solving directly
+    if action_phrase.startswith("solve "):
+        puzzle_name = action_phrase.replace("solve ", "").strip()
+        for puzzle_id, puzzle_data in room_info.get("puzzles", {}).items():
+            if puzzle_data.get("name", "").lower() == puzzle_name.lower():
+                is_successful, message, updated_session, ai_evaluation = solve_puzzle(
+                    db_session, session_id, puzzle_id, player_attempt
                 )
+                return is_successful, message, updated_session, ai_evaluation
 
-                if final_updated_session:
-                    return True, f"You picked up the {item_to_pick_up.replace('_', ' ')}.", final_updated_session, {"action_type": "pick_up", "item_picked_up": item_to_pick_up}
-                else:
-                    return False, "Failed to update room state after picking up item.", game_session, {"error": "Failed to update narrative_state."}
-            else:
-                return False, "Failed to add item to inventory.", game_session, {"error": "Failed to update inventory."}
-        else:
-            return False, f"There is no {item_to_pick_up.replace('_', ' ')} to pick up here.", game_session, {"error": "Item not found in room."}
-
-    # --- Handle "Use [item] on [target]" action ---
-    if action_phrase.startswith("Use "):
-        parts = action_phrase.split(" on ", 1)
-        if len(parts) == 2:
-            item_part = parts[0].replace("Use ", "").strip()
-            target_part = parts[1].strip()
-            item_to_use = item_part.lower().replace(' ', '_')
-            target_name = target_part.lower().replace(' ', '_') # Convert target to ID format
-            
-            current_room_info = ROOM_DATA.get(game_session.theme, {}).get("rooms", {}).get(game_session.current_room, {})
-            
-            target_puzzle_id = None
-            target_interactable_id = None
-
-            # Check if target is a puzzle
-            for p_id, p_data in current_room_info.get("puzzles", {}).items():
-                if p_data.get("name", "").lower().replace(' ', '_') == target_name:
-                    target_puzzle_id = p_id
-                    break
-            
-            # Check if target is an interactable
-            if not target_puzzle_id:
-                for i_id, i_data in current_room_info.get("interactables", {}).items():
-                    if i_data.get("name", "").lower().replace(' ', '_') == target_name:
-                        target_interactable_id = i_id
-                        break
-            
-            if target_puzzle_id:
-                # If the target is a puzzle, use the existing solve_puzzle logic or a specific use_item_on_puzzle
-                # For now, we'll route it through use_item which then calls evaluate_and_adapt_puzzle
-                return use_item(db_session, session_id, item_to_use, target_puzzle_id)
-            elif target_interactable_id:
-                # If the target is an interactable, we can also route this through use_item,
-                # letting the AI evaluate "Use [item] on [interactable]" as a general attempt.
-                return use_item(db_session, session_id, item_to_use, target_interactable_id) # Treat interactable as a puzzle_id for AI evaluation
-            else:
-                return False, f"Cannot use {item_to_use.replace('_', ' ')} on {target_part}. Target not found.", game_session, {"error": "Target for item use not found."}
-        else:
-            return False, "Invalid 'Use' command format.", game_session, {"error": "Invalid action format."}
-
-    # --- Handle Interactable actions (e.g., "Inspect Bookshelf", "Open Chest") ---
-    # This covers actions like Inspect, Activate, Open, etc., on interactables or even puzzles
-    parts = action_phrase.split(" ", 1) # Split only on the first space
-    if len(parts) == 2:
-        action_verb = parts[0].strip().lower()
-        target_name = parts[1].strip().lower().replace(' ', '_')
-
-        current_room_info = ROOM_DATA.get(game_session.theme, {}).get("rooms", {}).get(game_session.current_room, {})
-        
-        target_interactable_id = None
-        target_puzzle_id = None
-
-        # Check if target is an interactable
-        for i_id, i_data in current_room_info.get("interactables", {}).items():
-            if i_data.get("name", "").lower().replace(' ', '_') == target_name:
-                if action_verb in i_data.get("actions", []):
-                    target_interactable_id = i_id
-                    break
-        
-        # Check if target is a puzzle
-        if not target_interactable_id:
-            for p_id, p_data in current_room_info.get("puzzles", {}).items():
-                # We need to map generic actions like 'inspect' to a puzzle,
-                # or have the AI determine if the action is relevant.
-                # For now, if the action verb is 'inspect' and it's a puzzle,
-                # we'll treat it as an attempt on the puzzle.
-                if p_data.get("name", "").lower().replace(' ', '_') == target_name:
-                    target_puzzle_id = p_id
-                    break
-
-        if target_interactable_id or target_puzzle_id:
-            # Route all such interactions through solve_puzzle for consistent state updates
-            puzzle_id_to_solve = target_puzzle_id if target_puzzle_id else target_interactable_id
-            
-            # Use action_phrase as the player_attempt for solve_puzzle
-            # The evaluate_and_adapt_puzzle will then interpret this.
-            is_successful, message, updated_session, ai_evaluation = solve_puzzle(
-                db_session, session_id, puzzle_id_to_solve, player_attempt
-            )
-            return is_successful, message, updated_session, ai_evaluation
-        else:
-            return False, f"You can't {action_verb} the {target_name.replace('_', ' ')}.", game_session, {"error": "Invalid action on target."}
-
-    # If no specific action matched, return failure
     return False, f"Unknown action: {action_phrase}", game_session, {"error": "Unknown action."}
